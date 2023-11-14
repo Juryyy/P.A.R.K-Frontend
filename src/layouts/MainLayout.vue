@@ -12,32 +12,53 @@
         />
 
         <q-toolbar-title>
-          Quasar App
+          P.A.R.K App
         </q-toolbar-title>
 
-        <div>Quasar v{{ $q.version }}</div>
+
       </q-toolbar>
     </q-header>
 
     <q-drawer
-      v-model="leftDrawerOpen"
-      show-if-above
-      bordered
-    >
+    v-model="leftDrawerOpen"
+    bordered
+  >
+    <div class="drawer-content">
       <q-list>
         <q-item-label
           header
         >
-          Essential Links
+          Menu
         </q-item-label>
 
-        <EssentialLink
-          v-for="link in essentialLinks"
-          :key="link.title"
-          v-bind="link"
-        />
+        <q-item to="/test">
+          <q-item-section>
+            <q-item-label>
+              <q-icon name="settings" />
+              Test
+
+            </q-item-label>
+          </q-item-section>
+        </q-item>
+
+        <q-item to="availabilty-check">
+          <q-item-section>
+            <q-item-label>
+              <q-icon name="calendar_today" />
+              Availability
+            </q-item-label>
+          </q-item-section>
+        </q-item>
+
+
       </q-list>
-    </q-drawer>
+
+
+
+
+      <img src="https://www.zkouskypark.cz/www/upload/logo/20210118070023666.png" class="logo" />
+    </div>
+  </q-drawer>
 
     <q-page-container>
       <router-view />
@@ -50,48 +71,9 @@ import { ref } from 'vue';
 import EssentialLink, { EssentialLinkProps } from 'components/EssentialLink.vue';
 
 const essentialLinks: EssentialLinkProps[] = [
-  {
-    title: 'Docs',
-    caption: 'quasar.dev',
-    icon: 'school',
-    link: 'https://quasar.dev'
-  },
-  {
-    title: 'Github',
-    caption: 'github.com/quasarframework',
-    icon: 'code',
-    link: 'https://github.com/quasarframework'
-  },
-  {
-    title: 'Discord Chat Channel',
-    caption: 'chat.quasar.dev',
-    icon: 'chat',
-    link: 'https://chat.quasar.dev'
-  },
-  {
-    title: 'Forum',
-    caption: 'forum.quasar.dev',
-    icon: 'record_voice_over',
-    link: 'https://forum.quasar.dev'
-  },
-  {
-    title: 'Twitter',
-    caption: '@quasarframework',
-    icon: 'rss_feed',
-    link: 'https://twitter.quasar.dev'
-  },
-  {
-    title: 'Facebook',
-    caption: '@QuasarFramework',
-    icon: 'public',
-    link: 'https://facebook.quasar.dev'
-  },
-  {
-    title: 'Quasar Awesome',
-    caption: 'Community Quasar projects',
-    icon: 'favorite',
-    link: 'https://awesome.quasar.dev'
-  }
+  {title: 'Home', caption: 'Home page', icon: 'home'},
+  {title: 'Create term', caption: 'Create new term', icon: 'add'},
+  {title: 'Availability', caption: 'Check availability', icon: 'calendar_today', link: '/availability-check'},
 ];
 
 const leftDrawerOpen = ref(false)
@@ -100,3 +82,17 @@ function toggleLeftDrawer() {
   leftDrawerOpen.value = !leftDrawerOpen.value
 }
 </script>
+<style scoped>
+.drawer-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.logo {
+  align-self: center;
+}
+
+</style>
+
