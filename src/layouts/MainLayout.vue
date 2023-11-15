@@ -31,6 +31,16 @@
           Menu
         </q-item-label>
 
+        <q-item to="/">
+          <q-item-section>
+            <q-item-label>
+              <q-icon name="home" />
+              Home
+
+            </q-item-label>
+          </q-item-section>
+        </q-item>
+
         <q-item to="/test">
           <q-item-section>
             <q-item-label>
@@ -55,8 +65,9 @@
 
 
 
-
-      <img src="https://www.zkouskypark.cz/www/upload/logo/20210118070023666.png" class="logo" />
+      <a href="https://www.zkouskypark.cz/" target="_blank" rel="noopener noreferrer">
+      <img src="https://www.zkouskypark.cz/www/upload/logo/20210118070023666.png" class="logo"/>
+      </a>
     </div>
   </q-drawer>
 
@@ -90,9 +101,6 @@ function toggleLeftDrawer() {
   height: 100%;
 }
 
-.logo {
-  align-self: center;
-}
 
 </style>
 
