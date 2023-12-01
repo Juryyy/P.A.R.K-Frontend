@@ -51,7 +51,7 @@
           </q-item-section>
         </q-item>
 
-        <q-item to="availabilty-check">
+        <q-item to="/availabilty-check">
           <q-item-section>
             <q-item-label>
               <q-icon name="calendar_today" />
@@ -60,6 +60,14 @@
           </q-item-section>
         </q-item>
 
+        <q-item to="/importCandidates">
+          <q-item-section>
+            <q-item-label>
+              <q-icon name="" />
+              Import Candidates
+            </q-item-label>
+          </q-item-section>
+        </q-item>
 
       </q-list>
 

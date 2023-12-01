@@ -1,8 +1,11 @@
 <template>
-    <CheckList />
+<div>
+  <CheckList/>
+</div>
 </template>
 
 <script setup lang="ts">
 import CheckList from 'src/components/CheckList.vue';
+
 
 </script>
