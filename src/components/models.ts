@@ -26,7 +26,7 @@ export type Candidate = {
   Mock: boolean; //13
   Paid: boolean; //14
   OrderId: number; //14
-  Requirements: string; //15
+  Requirements?: string; //15
   CrfToSchool: boolean; //16
-  Note: string; //17
+  Note: string | null; //17
 }

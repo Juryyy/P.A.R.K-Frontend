@@ -3,11 +3,9 @@
       <q-card-section>
         <div class="text-subtitle2">Upload a CSV file to import candidates</div>
       </q-card-section>
-
-      <q-separator />
-
       <q-card-actions>
-        <FileReadCsv/>
+        <FileReadCsv v-if="!candidateStore.isImported"/>
+        <q-btn v-else color="primary" label="Reset" @click="Reset"/>
       </q-card-actions>
     </q-card>
 
@@ -22,10 +20,12 @@ import {useCandidateStore} from 'src/stores/candidateStore';
 
 const candidateStore = useCandidateStore();
 
+const Reset = () => {
+  candidateStore.candidates.splice(0, candidateStore.candidates.length);
+  candidateStore.isImported = false;
+}
 
 </script>
-
-
 
 <style lang="scss" scoped>
 .my-card{

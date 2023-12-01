@@ -18,7 +18,7 @@ export function setDateOfExam(cell : string){
 }
 
 export function setTypeOfExam(cell : string){
-  return cell === '""' ? '' : cell.trim();
+  return cell.trim();
 }
 
 export function setBirthDate(cell : string){
@@ -93,7 +93,7 @@ export function setOrderId(cell : string){
 }
 
 export function setRequirements(cell : string){
-  return cell === '""' ? '' : cell.trim();
+  return cell.trim();
 }
 
 export function setCrfToSchool(cell : string){
@@ -106,7 +106,8 @@ export function setCrfToSchool(cell : string){
 }
 
 export function setNote(cell : string){
-  return cell === '""' ? '' : cell.trim();
+  return cell.trim();
 }
+
 
 

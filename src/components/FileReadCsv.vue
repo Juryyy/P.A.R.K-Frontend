@@ -97,6 +97,8 @@ const uploadCSV = async (event : Event) => {
     });
     candidateStore.setCandidates(csvData.value);
     candidateStore.isImported = true;
+    console.log(csvData.value)
+
   }
 };
 
