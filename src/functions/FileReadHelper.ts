@@ -60,11 +60,13 @@ export function setPhone(cell : string){
 }
 
 export function setCode(cell : string){
-  return cell.split(' ')[0];
+  const trimmedCell = cell.trim();
+  const regex = /^["]*$/;
+  return regex.test(trimmedCell) ? '' : trimmedCell.split(' ')[0];
 }
 
 export function setPartner(cell : string){
-  return cell === '""' ? '' : cell.trim();
+  return clearEmptyStrings(cell);
 }
 
 export function setMock(cell : string){
@@ -93,7 +95,7 @@ export function setOrderId(cell : string){
 }
 
 export function setRequirements(cell : string){
-  return cell.trim();
+  return clearEmptyStrings(cell);
 }
 
 export function setCrfToSchool(cell : string){
@@ -106,8 +108,14 @@ export function setCrfToSchool(cell : string){
 }
 
 export function setNote(cell : string){
-  return cell.trim();
+  return clearEmptyStrings(cell);
 }
 
+
+function clearEmptyStrings(cell : string){
+  const trimmedCell = cell.trim();
+  const regex = /^["]*$/;
+  return regex.test(trimmedCell) ? '' : trimmedCell;
+}
 
 
