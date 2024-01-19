@@ -71,10 +71,10 @@ export function setPartner(cell : string){
 
 export function setMock(cell : string){
   if(cell === 'Ano'){
-    return false;
+    return true;
   }
   else {
-    return true;
+    return false;
   }
 }
 

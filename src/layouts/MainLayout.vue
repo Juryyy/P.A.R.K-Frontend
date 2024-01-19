@@ -1,6 +1,6 @@
 <template>
   <q-layout view="lHh Lpr lFf">
-    <q-header elevated>
+    <q-header elevated class="qt-b-xl">
       <q-toolbar>
         <q-btn
           flat
@@ -32,22 +32,20 @@
         </q-item-label>
 
         <q-item to="/">
+          <q-item-section avatar>
+            <q-icon name="home"/>
+          </q-item-section>
           <q-item-section>
-            <q-item-label>
-              <q-icon name="home" />
-              Home
-
-            </q-item-label>
+            Home
           </q-item-section>
         </q-item>
 
         <q-item to="/test">
-          <q-item-section>
-            <q-item-label>
+          <q-item-section avatar>
               <q-icon name="settings" />
+          </q-item-section>
+          <q-item-section>
               Test
-
-            </q-item-label>
           </q-item-section>
         </q-item>
 

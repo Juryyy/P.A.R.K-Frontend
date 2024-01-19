@@ -2,7 +2,7 @@ import { RouteRecordRaw } from 'vue-router';
 
 const routes: RouteRecordRaw[] = [
   {
-    path: '/',
+    path: '',
     component: () => import('layouts/MainLayout.vue'),
     children: [
       {
@@ -11,12 +11,12 @@ const routes: RouteRecordRaw[] = [
       },
 
       {
-        path: '/availabilty-check',
+        path: 'availabilty-check',
         component: () => import('pages/AvailabilityCheck.vue'),
         name: 'AvailabiltyCheck',
       },
       {
-        path: '/importCandidates',
+        path: 'importCandidates',
         component: () => import('pages/CandidatesImport.vue'),
         name: 'ImportCandidates',
       },

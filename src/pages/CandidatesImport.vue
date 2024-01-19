@@ -1,4 +1,5 @@
 <template>
+  <q-page class="flex flex-center">
     <q-card class="my-card">
       <q-card-section>
         <div class="text-subtitle2">Upload a CSV file to import candidates</div>
@@ -10,6 +11,7 @@
     </q-card>
 
     <CandidatesTable v-if="candidateStore.isImported"/>
+  </q-page>
 
 </template>
 
