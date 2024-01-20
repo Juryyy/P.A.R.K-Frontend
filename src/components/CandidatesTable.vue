@@ -18,7 +18,7 @@
             flat
             outline
             dense
-            color="primary"
+            color="black"
             label="Add row"
             @click="show_dialog = true"
           ></q-btn>
@@ -76,6 +76,17 @@
               <q-popup-edit v-model="props.row.Email">
                 <q-input
                   v-model="props.row.Email"
+                  dense
+                  autofocus
+                  counter
+                ></q-input>
+              </q-popup-edit>
+            </q-td>
+            <q-td key="Code" :props="props">
+              {{ props.row.Code }}
+              <q-popup-edit v-model="props.row.Code">
+                <q-input
+                  v-model="props.row.Code"
                   dense
                   autofocus
                   counter
@@ -142,17 +153,6 @@
               <q-popup-edit v-model="props.row.DateOfExam">
                 <q-input
                   v-model="props.row.DateOfExam"
-                  dense
-                  autofocus
-                  counter
-                ></q-input>
-              </q-popup-edit>
-            </q-td>
-            <q-td key="Code" :props="props">
-              {{ props.row.Code }}
-              <q-popup-edit v-model="props.row.Code">
-                <q-input
-                  v-model="props.row.Code"
                   dense
                   autofocus
                   counter
@@ -298,6 +298,12 @@ const columns = [
     align: 'left',
     field: 'Email',
   },
+  { name: 'Code',
+    required: true,
+    label: 'Code',
+    align: 'left',
+    field: 'Code'
+  },
   {
     name: 'Phone',
     required: true,
@@ -333,7 +339,6 @@ const columns = [
     align: 'left',
     field: (row: Candidate) => row.DateOfExam.toLocaleDateString(),
   },
-  { name: 'Code', required: true, label: 'Code', align: 'left', field: 'Code' },
   {
     name: 'CrfToSchool',
     required: true,

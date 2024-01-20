@@ -9,18 +9,26 @@
     >
       <template v-slot:body-cell-action="props">
         <q-td :props="props">
-          <q-checkbox v-model="props.row.checked" />
+          <q-option-group
+            v-model="responses[props.row.date]"
+            :options="options"
+            type="radio"
+            inline
+          />
         </q-td>
       </template>
+      <template v-slot:bottom>
+        <div class="submit-btn">
+          <div></div>
+          <q-btn push color="primary" label="Submit" />
+        </div>
+      </template>
     </q-table>
-    <q-btn push color="primary" label="Submit">
-    </q-btn>
   </div>
 </template>
 
-
 <script setup lang="ts">
-import { ref, reactive} from 'vue';
+import { ref, reactive } from 'vue';
 
 const days = ref<string[]>([]);
 const today = new Date();
@@ -32,8 +40,9 @@ for (let i = 0; i < 100; i++) {
     days.value.push(date.toLocaleDateString());
   }
 }
-const columns : any = [
-    {
+
+const columns: any = [
+  {
     name: 'date',
     required: true,
     label: 'Available dates',
@@ -41,20 +50,40 @@ const columns : any = [
     field: 'date',
     sortable: true
   },
-  { name: 'action', align: 'left', label: 'Action', field: 'action' }
+  { name: 'action', align: 'left', label: 'Response', field: 'action' },
 ];
 
 const rows = days.value.map((day) => {
   return reactive({
-    date: day,
-    checked: false
+    date: day
   });
 });
+
+const responses = reactive<Record<string, string>>({});
+const options = [
+  { label: 'Yes', value: 'Yes' },
+  { label: 'Maybe', value: 'Maybe' },
+  { label: 'No', value: 'No' },
+];
 </script>
 
 <style scoped>
 .table-container {
-  width: 50%;
+  width: 100%;
   margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+  .table-container {
+    width: 20%;
+    margin: 0 auto;
+  }
+}
+
+.submit-btn {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  width: 100%;
 }
 </style>

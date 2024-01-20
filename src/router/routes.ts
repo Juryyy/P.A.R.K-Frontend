@@ -3,24 +3,18 @@ import { RouteRecordRaw } from 'vue-router';
 const routes: RouteRecordRaw[] = [
   {
     path: '',
-    component: () => import('layouts/MainLayout.vue'),
-    children: [
-      {
-        path: '',
-        component: () => import('pages/IndexPage.vue')
-      },
+    component: () => import('pages/IndexPage.vue'),
+  },
 
-      {
-        path: 'availabilty-check',
-        component: () => import('pages/AvailabilityCheck.vue'),
-        name: 'AvailabiltyCheck',
-      },
-      {
-        path: 'importCandidates',
-        component: () => import('pages/CandidatesImport.vue'),
-        name: 'ImportCandidates',
-      },
-    ],
+  {
+    path: '/availabilty-check',
+    component: () => import('pages/AvailabilityCheck.vue'),
+    name: 'AvailabiltyCheck',
+  },
+  {
+    path: '/import-candidates',
+    component: () => import('pages/CandidatesImport.vue'),
+    name: 'ImportCandidates',
   },
   {
     path: '/test',
