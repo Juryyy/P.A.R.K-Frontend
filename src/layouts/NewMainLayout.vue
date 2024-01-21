@@ -2,17 +2,22 @@
   <q-layout view="hHh LpR fff">
     <q-header elevated class="bg-primary text-dark ">
       <q-toolbar>
-        <q-btn dense flat round icon="menu" @click="toggleLeftDrawer" />
-
+        <q-btn class="q-mini-drawer-only" dense flat round icon="menu" @click="toggleLeftDrawer" />
         <q-toolbar-title >
           P.A.R.K Admin
         </q-toolbar-title>
-
+        <q-space />
+          <b>Logged in as: {{user?.firstName}} {{user?.lastName}}</b>
         <q-btn dense flat round icon="menu" @click="toggleRightDrawer" />
+        <q-btn icon="logout" flat round @click="logout" />
       </q-toolbar>
     </q-header>
-
-    <q-drawer show-if-above v-model="leftDrawerOpen" side="left" bordered>
+    <div v-if="user">
+    <q-drawer show-if-above v-model="drawerLeft" side="left" elevated
+    :mini="miniState"
+    @mouseover="miniState = false"
+    @mouseout="miniState = true"
+    mini-to-overlay>
       <div class="drawer-content">
         <q-list>
           <essential-link
@@ -23,36 +28,58 @@
             :icon="link.icon"
           />
         </q-list>
-
-        <a href="https://www.zkouskypark.cz/" target="_blank" rel="noopener noreferrer">
-          <img src="https://www.zkouskypark.cz/www/upload/logo/20210118070023666.png" class="logo"/>
-          </a>
       </div>
     </q-drawer>
-
-    <q-drawer show-if-above v-model="rightDrawerOpen" side="right" bordered>
+    </div>
+    <q-drawer show-if-above v-model="rightDrawerOpen" side="right" elevated>
+      <q-scroll-area class="fit">
       <q-img class="absolute-top" src="https://cdn.quasar.dev/img/material.png" style="height: 150px">
         <div class="bg-transparent absolute-center">
           <q-avatar size="56px" class="q-mb-sm">
             <img src="https://cdn.quasar.dev/img/boy-avatar.png">
           </q-avatar>
-          <div class="text-weight-bold">Martin Šulc</div>
-          <div>Examiner</div>
+          <div class="text-weight-bold">{{user?.firstName}} {{user?.lastName}}</div>
+          <div>{{user?.role}}</div>
         </div>
+
       </q-img>
+
+        <div class="absolute-bottom">
+          <a href="https://www.zkouskypark.cz/" target="_blank" rel="noopener noreferrer">
+        <img src="https://www.zkouskypark.cz/www/upload/logo/20210118070023666.png" class="logo"/>
+          </a>
+      </div>
+      </q-scroll-area>
     </q-drawer>
 
     <q-page-container>
       <router-view />
     </q-page-container>
 
-
   </q-layout>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import EssentialLink, { EssentialLinkProps } from 'components/EssentialLink.vue';
+import { useUserStore } from 'src/stores/userStore';
+import { useAuthStore } from 'src/stores/authStore';
+import { router } from 'src/router/index';
+
+const userStore = useUserStore();
+const authStore = useAuthStore();
+
+onMounted(() => {
+  userStore.getUserInfo();
+});
+
+const logout = async () => {
+  await authStore.logout();
+  router.push('/login');
+};
+
+const user = computed(() => userStore.user);
+console.log(user.value)
 
 const essentialLinks : EssentialLinkProps[] = [
   {
@@ -69,25 +96,22 @@ const essentialLinks : EssentialLinkProps[] = [
     title: 'Import Candidates',
     link: '/import-candidates',
     icon: 'cloud_upload',
-  },
-  {
-    title: 'Test - 404',
-    link: '/test',
-    icon: 'settings',
-  },
+  }
 ];
 
-const leftDrawerOpen = ref(false)
+const toggleLeftDrawer = () => {
+  drawerLeft.value = !drawerLeft.value;
+};
 
-function toggleLeftDrawer() {
-  leftDrawerOpen.value = !leftDrawerOpen.value
-}
+const drawerLeft = ref(false)
 
 const rightDrawerOpen = ref(false)
 
 function toggleRightDrawer() {
   rightDrawerOpen.value = !rightDrawerOpen.value
 }
+
+const miniState = ref(true)
 
 </script>
 <style lang="scss" scoped>

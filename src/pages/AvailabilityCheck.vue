@@ -1,7 +1,7 @@
 <template>
-<div>
+<q-page-container>
   <CheckList/>
-</div>
+</q-page-container>
 </template>
 
 <script setup lang="ts">
