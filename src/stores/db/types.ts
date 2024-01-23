@@ -26,6 +26,13 @@ export interface UserInfo {
     deactivated: boolean | undefined;
 }
 
+export interface DayOfExams {
+    id: number;
+    date: Date;
+    isForInvigilators: boolean;
+    isForExaminers: boolean;
+}
+
 export enum RoleEnum {
   Office,
   Supervisor,
@@ -35,4 +42,15 @@ export enum RoleEnum {
   Tech,
   Examiner,
   test
+}
+
+export interface UserResponses {
+  id: number;
+  response: string;
+  date: string;
+}
+
+export interface UserAnswers {
+  id: number;
+  response: string;
 }

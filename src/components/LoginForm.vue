@@ -7,14 +7,25 @@
         label="Email"
         lazy-rules
         :rules="[val => !!val || 'Email is required']"
+        autocomplete="email"
       />
       <q-input
         filled
         v-model="state.password"
         label="Password"
         lazy-rules
+        :type="state.passwordHidden ? 'password' : 'text'"
         :rules="[val => !!val || 'Password is required']"
-      />
+        autocomplete="current-password"
+      >
+      <template v-slot:append>
+        <q-icon
+          :name="state.passwordHidden ? 'visibility_off' : 'visibility'"
+          class="cursor-pointer"
+          @click="state.passwordHidden = !state.passwordHidden"
+        />
+      </template>
+      </q-input>
       <q-card-actions
       align="right"
       >
@@ -55,6 +66,7 @@ const authStore = useAuthStore();
 const state = reactive({
   email: '',
   password: '',
+  passwordHidden: true,
 });
 
 const login = async (event: Event) => {

@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { api } from '../boot/axios';
-import { User }  from './db/Backend';
+import { User }  from './db/types';
 import { Cookies } from 'quasar';
 import { Notify } from 'quasar';
 import { useUserStore } from './userStore';
@@ -13,7 +13,7 @@ export const useAuthStore = defineStore('auth', {
     setUserInfo(userInfo : User) {
       this.user = userInfo;
       for (const [key, value] of Object.entries(userInfo)) {
-        Cookies.set(key, value);
+        Cookies.set(key, value, { sameSite: 'Lax', expires: 14});
       }
     },
 

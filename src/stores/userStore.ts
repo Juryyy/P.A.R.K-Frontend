@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { api } from '../boot/axios';
-import { User }  from './db/Backend';
+import { User }  from './db/types';
 import { Cookies } from 'quasar';
 
 export const useUserStore = defineStore('user', {

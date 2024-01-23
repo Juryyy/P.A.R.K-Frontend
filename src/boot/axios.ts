@@ -17,15 +17,21 @@ declare module '@vue/runtime-core' {
 // good idea to move this instance creation inside of the
 // "export default () => {}" function below (which runs individually
 // for each client)
-const api = axios.create({ baseURL: 'http://localhost:4000' });
+const api = axios.create({ baseURL: 'http://localhost:4000', withCredentials: true });
 
 api.interceptors.response.use(undefined, async error => {
   if (error.config && error.response && error.response.status === 401) {
+    // If the request was for refresh token, logout and redirect to login page
+    if (error.config.url === '/auth/refresh-token') {
+      useAuthStore().logout();
+      router.push('/login');
+      return Promise.reject(error);
+    }
+
     // The access token has expired, refresh it
     const refreshResponse = await api.post('/auth/refresh-token');
 
     if (refreshResponse.status === 200) {
-      console.log(refreshResponse.data)
       useAuthStore().setUserInfo(refreshResponse.data);
 
       // Retry the original request. The browser will include the new access token in the request headers.
@@ -33,6 +39,7 @@ api.interceptors.response.use(undefined, async error => {
     }
 
     // The refresh token is also invalid, redirect to login page
+    useAuthStore().logout();
     router.push('/login');
   }
 

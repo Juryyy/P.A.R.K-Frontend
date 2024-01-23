@@ -1,7 +1,7 @@
 <template>
   <div class="table-container">
     <q-table
-      :rows="rows"
+      :rows="userResponses"
       :columns="columns"
       row-key="date"
       :hide-pagination="true"
@@ -10,7 +10,7 @@
       <template v-slot:body-cell-action="props">
         <q-td :props="props">
           <q-option-group
-            v-model="responses[props.row.date]"
+            v-model="props.row.response"
             :options="options"
             type="radio"
             inline
@@ -20,7 +20,7 @@
       <template v-slot:bottom>
         <div class="submit-btn">
           <div></div>
-          <q-btn push color="primary" label="Submit" />
+          <q-btn push color="primary" label="Submit" @click="handleSubmit" />
         </div>
       </template>
     </q-table>
@@ -28,18 +28,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue';
+import { useAvailabilityStore } from 'src/stores/availabilityStore';
+import {UserAnswers, UserResponses} from 'src/stores/db/types';
 
-const days = ref<string[]>([]);
-const today = new Date();
-for (let i = 0; i < 100; i++) {
-  const date = new Date(today);
-  date.setDate(today.getDate() + i);
-  const dayOfWeek = date.getDay();
-  if (dayOfWeek === 5 || dayOfWeek === 6) {
-    days.value.push(date.toLocaleDateString());
-  }
-}
+const { userResponses }: { userResponses: UserResponses[] } = useAvailabilityStore();
 
 const columns: any = [
   {
@@ -48,36 +40,33 @@ const columns: any = [
     label: 'Available dates',
     align: 'left',
     field: 'date',
-    sortable: true
+    sortable: true,
+    format: (val: string) => new Date(val).toLocaleDateString()
   },
-  { name: 'action', align: 'left', label: 'Response', field: 'action' },
+  { name: 'action', align: 'left', label: 'Response', field: 'response' },
 ];
 
-const rows = days.value.map((day) => {
-  return reactive({
-    date: day
-  });
-});
-
-const responses = reactive<Record<string, string>>({});
 const options = [
   { label: 'Yes', value: 'Yes' },
   { label: 'Maybe', value: 'Maybe' },
   { label: 'No', value: 'No' },
 ];
+
+const handleSubmit = async () => {
+  const answers: UserAnswers[] = userResponses.map(day => ({ id: day.id, response: day.response }));
+  await useAvailabilityStore().submitResponses(answers);
+};
+
 </script>
 
 <style scoped>
 .table-container {
-  width: 100%;
-  margin: 0 auto;
+  display: flex;
+  justify-content: center;
 }
 
-@media (min-width: 768px) {
-  .table-container {
-    width: 20%;
-    margin: 0 auto;
-  }
+.table-container table{
+  width: 100%;
 }
 
 .submit-btn {

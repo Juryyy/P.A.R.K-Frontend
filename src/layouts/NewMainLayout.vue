@@ -6,8 +6,7 @@
         <q-toolbar-title >
           P.A.R.K Admin
         </q-toolbar-title>
-        <q-space />
-          <b>Logged in as: {{user?.firstName}} {{user?.lastName}}</b>
+          <b>{{user?.firstName}} {{user?.lastName}}</b>
         <q-btn dense flat round icon="menu" @click="toggleRightDrawer" />
         <q-btn icon="logout" flat round @click="logout" />
       </q-toolbar>
@@ -60,7 +59,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
+import { computed, ref } from 'vue';
 import EssentialLink, { EssentialLinkProps } from 'components/EssentialLink.vue';
 import { useUserStore } from 'src/stores/userStore';
 import { useAuthStore } from 'src/stores/authStore';
@@ -69,17 +68,12 @@ import { router } from 'src/router/index';
 const userStore = useUserStore();
 const authStore = useAuthStore();
 
-onMounted(() => {
-  userStore.getUserInfo();
-});
-
 const logout = async () => {
   await authStore.logout();
   router.push('/login');
 };
 
 const user = computed(() => userStore.user);
-console.log(user.value)
 
 const essentialLinks : EssentialLinkProps[] = [
   {
