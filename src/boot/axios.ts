@@ -2,7 +2,6 @@ import { boot } from 'quasar/wrappers';
 import axios, { AxiosInstance } from 'axios';
 import { useAuthStore } from 'src/stores/authStore';
 import { router } from 'src/router/index';
-import { Cookies } from 'quasar';
 
 declare module '@vue/runtime-core' {
   interface ComponentCustomProperties {

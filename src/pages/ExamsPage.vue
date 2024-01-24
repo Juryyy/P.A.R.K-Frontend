@@ -1,16 +1,18 @@
 <template>
-  <q-page class="row items-center justify-evenly " >
-    <div class="text-h4">Upcoming exams</div>
+  <div class="text-h4 flex-center">Upcoming exams</div>
+    <q-page class="flex-center">
     <template v-if="!state.isLoaded">
       <div>Loading</div>
     </template>
     <template v-if="state.isLoaded">
-      <ExamList/>
+      <!--<ExamList/>-->
+      <ExamListCal/>
     </template>
   </q-page>
 </template>
 <script setup lang="ts">
 import ExamList from 'src/components/Exams/ExamList.vue';
+import ExamListCal from 'src/components/Exams/ExamListCal.vue';
 import { onMounted, reactive } from 'vue';
 import { useExamDayStore } from 'src/stores/examDayStore';
 import { Loading } from 'quasar';
@@ -32,5 +34,6 @@ onMounted(async () => {
   Loading.hide();
 });
 </script>
-
+<style lang="scss" scoped>
+</style>
 
