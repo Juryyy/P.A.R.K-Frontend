@@ -42,7 +42,7 @@ api.interceptors.response.use(undefined, async error => {
     useAuthStore().logout();
     router.push('/login');
   }
-
+  console.log('Axios: ', Promise.reject(error));
   return Promise.reject(error);
 });
 

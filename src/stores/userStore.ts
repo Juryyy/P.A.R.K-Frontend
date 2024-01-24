@@ -1,43 +1,42 @@
 import { defineStore } from 'pinia';
 import { api } from '../boot/axios';
-import { User }  from './db/types';
-import { Cookies } from 'quasar';
+import { UserInfo  }  from './db/types';
 
 export const useUserStore = defineStore('user', {
   state: () => ({
-    user: null as User | null,
+    user: null as UserInfo | null,
   }),
   actions: {
     getUserInfo() {
-        const user = {} as User;
-        user.id = Number(Cookies.get('id'));
-        user.email = Cookies.get('email');
-        user.firstName = Cookies.get('firstName');
-        user.lastName = Cookies.get('lastName');
-        user.drivingLicense = Boolean(Cookies.get('drivingLicense'));
-        user.note = Cookies.get('note');
-        user.adminNote = Cookies.get('adminNote');
-        user.role = Cookies.get('role');
-        user.avatarUrl = Cookies.get('avatarUrl');
-        user.activatedAccount = Boolean(Cookies.get('activatedAccount'));
-        user.deactivated = Boolean(Cookies.get('deactivated'));
+        const user = {} as UserInfo;
+        user.id = Number(localStorage.getItem('id'));
+        user.email = localStorage.getItem('email');
+        user.firstName = localStorage.getItem('firstName');
+        user.lastName = localStorage.getItem('lastName');
+        user.drivingLicense = Boolean(localStorage.getItem('drivingLicense'));
+        user.note = localStorage.getItem('note');
+        user.adminNote = localStorage.getItem('adminNote');
+        user.role = localStorage.getItem('role');
+        user.avatarUrl = localStorage.getItem('avatarUrl');
+        user.activatedAccount = Boolean(localStorage.getItem('activatedAccount'));
+        user.deactivated = Boolean(localStorage.getItem('deactivated'));
         this.user = user;
       return this.user;
     },
 
     getUserRole(){
-      return Cookies.get('role');
+      return localStorage.getItem('role');
     },
 
     getUserId(){
-      return Cookies.get('id');
+      return localStorage.getItem('id');
     },
 
-    async updateUserInfo(userInfo : User) {
+    async updateUserInfo(userInfo : UserInfo) {
       //add update user info on backend
       this.user = userInfo;
       for (const [key, value] of Object.entries(userInfo)) {
-        Cookies.set(key, value);
+        localStorage.set(key, value);
       }
     }
   }

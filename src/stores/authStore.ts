@@ -13,7 +13,8 @@ export const useAuthStore = defineStore('auth', {
     setUserInfo(userInfo : User) {
       this.user = userInfo;
       for (const [key, value] of Object.entries(userInfo)) {
-        Cookies.set(key, value, { sameSite: 'Lax', expires: 14});
+        //encode the value to a string
+        localStorage.setItem(key, value);
       }
     },
 
@@ -48,7 +49,7 @@ export const useAuthStore = defineStore('auth', {
         const response = await api.delete('/auth/logout');
         if (response.status === 200) {
           for (const [key] of Object.entries(user)) {
-            Cookies.remove(key);
+            localStorage.removeItem(key);
           }
           this.user = undefined;
         }

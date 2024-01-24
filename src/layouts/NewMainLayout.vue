@@ -60,7 +60,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import EssentialLink, { EssentialLinkProps } from 'components/EssentialLink.vue';
+import EssentialLink, { EssentialLinkProps } from 'components/Auth_nav/EssentialLink.vue';
 import { useUserStore } from 'src/stores/userStore';
 import { useAuthStore } from 'src/stores/authStore';
 import { router } from 'src/router/index';
@@ -90,6 +90,11 @@ const essentialLinks : EssentialLinkProps[] = [
     title: 'Import Candidates',
     link: '/import-candidates',
     icon: 'cloud_upload',
+  },
+  {
+    title: 'Exams',
+    link: '/exams',
+    icon: 'assignment',
   }
 ];
 

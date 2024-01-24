@@ -13,17 +13,17 @@ export interface User {
 }
 
 export interface UserInfo {
-    id: number | undefined;
-    email: string | undefined;
-    firstName: string | undefined;
-    lastName: string | undefined;
-    drivingLicense: boolean | undefined;
-    note: string | undefined;
-    adminNote: string | undefined;
-    role: RoleEnum | undefined;
-    avatarUrl: string | undefined;
-    activatedAccount: boolean | undefined;
-    deactivated: boolean | undefined;
+    id: number | null;
+    email: string | null;
+    firstName: string | null;
+    lastName: string | null;
+    drivingLicense: boolean | null;
+    note: string | null;
+    adminNote: string | null;
+    role: string | null;
+    avatarUrl: string | null;
+    activatedAccount: boolean | null;
+    deactivated: boolean | null;
 }
 
 export interface DayOfExams {
@@ -31,6 +31,21 @@ export interface DayOfExams {
     date: Date;
     isForInvigilators: boolean;
     isForExaminers: boolean;
+}
+
+export interface Exam {
+  id: number;
+  venue: string;
+  type: string;
+  levels: string[];
+  startTime: Date;
+  endTime: Date;
+  note: string;
+  dayOfExamsId: number;
+  pdfUrl?: string;
+  comments?: string;
+  issues?: string;
+  ScheduleForDayId?: number;
 }
 
 export enum RoleEnum {

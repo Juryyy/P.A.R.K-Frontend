@@ -57,10 +57,7 @@
 import { reactive } from 'vue';
 import { router } from 'src/router/index';
 import { useAuthStore } from 'src/stores/authStore';
-import { useUserStore } from 'src/stores/userStore';
-import { Cookies } from 'quasar';
 
-const userStore = useUserStore();
 const authStore = useAuthStore();
 
 const state = reactive({
@@ -72,7 +69,7 @@ const state = reactive({
 const login = async (event: Event) => {
   event?.preventDefault();
   await authStore.login(state.email, state.password);
-  if (Cookies.has('id')) {
+  if (localStorage.getItem('id')) {
     router.push('/');
   }
 };
