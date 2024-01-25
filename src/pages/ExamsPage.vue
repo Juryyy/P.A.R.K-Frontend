@@ -11,7 +11,6 @@
   </q-page>
 </template>
 <script setup lang="ts">
-import ExamList from 'src/components/Exams/ExamList.vue';
 import ExamListCal from 'src/components/Exams/ExamListCal.vue';
 import { onMounted, reactive } from 'vue';
 import { useExamDayStore } from 'src/stores/examDayStore';

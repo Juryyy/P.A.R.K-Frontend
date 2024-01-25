@@ -6,6 +6,7 @@ import { ref } from 'vue';
 export const useExamDayStore = defineStore('examDay', {
   state: () => ({
     upcomingExamDays: ref([]),
+    responsesForExamDay: ref([])
   }),
   actions:{
     async loadExamDays(){
@@ -21,6 +22,21 @@ export const useExamDayStore = defineStore('examDay', {
         });
       }
     },
+
+    async loadResponsesForExamDay(id : number){
+      try{
+        const response = await api.get(`/responses/responsesExamDay/${id}`)
+        console.log(response.data)
+        this.responsesForExamDay = response.data;
+      }catch (error) {
+        Notify.create({
+          color: 'negative',
+          message: 'Error during getting responses',
+          position: 'bottom',
+          icon: 'report_problem'
+        });
+      }
+    }
   }
 
 });

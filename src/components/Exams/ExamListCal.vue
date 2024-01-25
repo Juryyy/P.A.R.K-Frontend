@@ -56,7 +56,7 @@
       </div>
     </q-card-section>
     <q-card-actions>
-      <q-btn color="primary" label="Edit Exam" />
+      <q-btn color="primary" label="Edit Exam" @click="editExam(exam.id)"/>
       <q-dialog v-model="showNoteDialog">
         <q-card>
           <q-card-section>
@@ -150,6 +150,20 @@ const addExam = async () => {
       icon: 'report_problem',
     });
   }
+};
+
+const getExamDayId = (examId: number) => {
+  const exam = examsRef.value.find(exam => exam.id === examId);
+  if (exam && exam.dayOfExamsId) {
+    return exam.dayOfExamsId;
+  }
+  return undefined;
+};
+
+const editExam = async (examId: number) => {
+  const getExamDay = getExamDayId(examId);
+  if (getExamDay) await examDayStore.loadResponsesForExamDay(getExamDay);
+  console.log('Edit exam with id:', examId, 'and exam day id:', getExamDay);
 };
 
 

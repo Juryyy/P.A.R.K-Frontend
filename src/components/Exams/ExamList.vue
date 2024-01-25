@@ -1,3 +1,4 @@
+<!--Currently not used, reusable for another purpose-->
 <template>
   <div class="container">
     <div v-for="examDay in examDays" :key="examDay.id" class="container">
