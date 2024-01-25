@@ -15,6 +15,7 @@ export const useExamStore = defineStore('exam', {
       try {
         const response = await api.get('/exams/upcomingExams');
         this.upcomingExams = response.data;
+        console.log(this.upcomingExams)
       } catch (error) {
         Notify.create({
           color: 'negative',

@@ -10,6 +10,11 @@ export interface User {
     avatarUrl: string | null;
     activatedAccount: boolean;
     deactivated: boolean;
+
+    supervisedExams: Exam[];
+    invigilatedExams: Exam[];
+    examinedExams: Exam[];
+    responses: Response[];
 }
 
 export interface UserInfo {
@@ -42,21 +47,25 @@ export interface Exam {
   endTime: Date;
   note: string;
   dayOfExamsId: number;
-  pdfUrl?: string;
-  comments?: string;
-  issues?: string;
-  ScheduleForDayId?: number;
+  pdfUrl?: string | null;
+  comments?: string | null;
+  issues?: string | null;
+  scheduleForDayId?: number | null;
+  supervisors: User[];
+  invigilators: User[];
+  examiners: User[];
+  candidates: string[];
 }
 
 export enum RoleEnum {
-  Office,
-  Supervisor,
-  SeniorSupervisor,
-  Invigilator,
-  SeniorInvigilator,
-  Tech,
-  Examiner,
-  test
+  Office = 'Office',
+  Supervisor = 'Supervisor',
+  SeniorSupervisor = 'SeniorSupervisor',
+  Invigilator = 'Invigilator',
+  SeniorInvigilator = 'SeniorInvigilator',
+  Tech = 'Tech',
+  Examiner = 'Examiner',
+  test = 'test'
 }
 
 export interface UserResponses {

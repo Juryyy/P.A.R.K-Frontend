@@ -20,10 +20,54 @@
       <div>Levels: {{ exam.levels.join(', ') }}</div>
       <div>Start time: {{ formatTime(exam.startTime) }}</div>
       <div>End time: {{ formatTime(exam.endTime) }}</div>
-      <div>Note: {{ exam.note }}</div>
+      <div>Note:
+        <span v-if="shouldShowMoreLink(exam.note)" @click="showFullNoteDialog()">
+          {{ truncatedNote(exam.note) }} <span class="more-link">...more</span>
+        </span>
+        <span v-else>
+          {{ exam.note }}
+        </span>
+      </div>
+      <q-separator/>
+      <div>Supervisors:
+        <div v-if="exam.supervisors.length === 0">
+          No supervisors assigned
+        </div>
+
+        <div v-else v-for="supervisor in exam.supervisors" :key="supervisor.id">
+        {{ supervisor.firstName }} {{ supervisor.lastName }}
+        </div>
+      </div>
+
+      <div>Invigilators:
+        <div v-if="exam.invigilators.length === 0">
+          No invigilators assigned
+        </div>
+
+        <div v-else v-for="invigilator in exam.invigilators" :key="invigilator.id">
+        {{ invigilator.firstName }} {{ invigilator.lastName }}
+        </div>
+      </div>
+
+      <div>Examiners:
+        <div v-for="examiner in exam.examiners" :key="examiner.id">
+        {{ examiner.firstName }} {{ examiner.lastName }}
+        </div>
+      </div>
     </q-card-section>
     <q-card-actions>
       <q-btn color="primary" label="Edit Exam" />
+      <q-dialog v-model="showNoteDialog">
+        <q-card>
+          <q-card-section>
+            <div class="text-h6">Full Note</div>
+            <div>{{ exam?.note }}</div>
+          </q-card-section>
+          <q-card-actions align="right">
+            <q-btn color="primary" label="Close" @click="showNoteDialog = false" />
+          </q-card-actions>
+        </q-card>
+      </q-dialog>
     </q-card-actions>
   </q-card>
 
@@ -56,8 +100,8 @@ const currentDate = new Date();
 const state = reactive({
   show: false,
   selectedExamDay: undefined as DayOfExams | undefined,
-  qDate: null as Date | null,
-  selectedDate : `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}-${currentDate.getDate().toString().padStart(2, '0')}`
+  selectedDate : `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}-${currentDate.getDate().toString().padStart(2, '0')}`,
+  years: false,
 });
 
 const addExam = async () => {
@@ -84,7 +128,7 @@ const addExam = async () => {
         levels: ['B2', 'C1'],
         startTime: '07:00:00',
         endTime: '18:00:00',
-        note: 'Test note',
+        note: 'This will be very long note, so I can test if it will be displayed correctly. This will be very long note, so I can test if it will be displayed correctly.',
         dayOfExamsId: matchingExamDay.id,
       });
 
@@ -157,6 +201,27 @@ const formatTime = (datetime: Date) => {
   return `${hours}:${minutes}`;
 };
 
+const showNoteDialog = ref(false);
+const selectedExam = ref<Exam | null>(null);
+
+
+const truncatedNote = (note: string | undefined) => {
+  const maxLength = 25;
+  if (note && note.length > maxLength) {
+    return `${note.substring(0, maxLength)}`;
+  }
+  return note;
+};
+
+const shouldShowMoreLink = (note: string | undefined) => {
+  const maxLength = 50; // You can adjust this value as per your preference
+  return note && note.length > maxLength;
+};
+
+// Function to open the dialog with the full note
+const showFullNoteDialog = () => {
+  showNoteDialog.value = true;
+};
 </script>
 <style lang="scss" scoped>
 

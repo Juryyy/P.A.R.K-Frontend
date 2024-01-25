@@ -2,6 +2,7 @@ import { boot } from 'quasar/wrappers';
 import axios, { AxiosInstance } from 'axios';
 import { useAuthStore } from 'src/stores/authStore';
 import { router } from 'src/router/index';
+import { Loading } from 'quasar';
 
 declare module '@vue/runtime-core' {
   interface ComponentCustomProperties {
@@ -26,13 +27,13 @@ api.interceptors.response.use(undefined, async error => {
       router.push('/login');
       return Promise.reject(error);
     }
-
+    Loading.show({message :'Wait a moment please'})
     // The access token has expired, refresh it
     const refreshResponse = await api.post('/auth/refresh-token');
 
     if (refreshResponse.status === 200) {
       useAuthStore().setUserInfo(refreshResponse.data);
-
+    Loading.hide()
       // Retry the original request. The browser will include the new access token in the request headers.
       return api.request(error.config);
     }
@@ -40,6 +41,7 @@ api.interceptors.response.use(undefined, async error => {
     // The refresh token is also invalid, redirect to login page
     useAuthStore().logout();
     router.push('/login');
+    Loading.hide()
   }
   console.log('Axios: ', Promise.reject(error));
   return Promise.reject(error);
