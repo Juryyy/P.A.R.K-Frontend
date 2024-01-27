@@ -32,7 +32,7 @@ export interface UserInfo {
 }
 
 export interface DayOfExams {
-    id: number;
+    id?: number;
     date: Date;
     isForInvigilators: boolean;
     isForExaminers: boolean;
@@ -78,3 +78,18 @@ export interface UserAnswers {
   id: number;
   response: string;
 }
+
+export interface UserResponses {
+  id: number;
+  response: string;
+  date: string;
+}
+
+export interface UserResponsesWithType {
+  id: number;
+  response: string;
+  date: string;
+  invigilators: boolean;
+  examiners: boolean;
+}
+

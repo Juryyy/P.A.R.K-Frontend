@@ -63,9 +63,10 @@ const handleSubmit = async () => {
 .table-container {
   display: flex;
   justify-content: center;
+  width: 100%;
 }
 
-.table-container table{
+.table-container table {
   width: 100%;
 }
 

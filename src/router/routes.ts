@@ -1,6 +1,7 @@
 import { RouteRecordRaw } from 'vue-router';
 import { NavigationGuardNext, RouteLocationNormalized } from 'vue-router';
 import { useUserStore } from 'src/stores/userStore';
+import { Notify } from 'quasar'
 
 
 const routes: RouteRecordRaw[] = [
@@ -29,6 +30,10 @@ const routes: RouteRecordRaw[] = [
         path: 'exams',
         component: () => import('pages/ExamsPage.vue'),
         name: 'Exams',
+      },
+      { path: 'create-availability',
+        component: () => import('pages/admin/CreateAvailabilityPage.vue'),
+        name: 'CreateAvailability',
       }
     ]
   },
@@ -46,6 +51,16 @@ function checkAuth(to: RouteLocationNormalized, from: RouteLocationNormalized, n
   const user = useUserStore().getUserInfo();
   if (!user.email) {
     next('/login')
+  } else {
+    next();
+  }
+}
+
+function checkOffice(to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) {
+  const user = useUserStore().getUserInfo();
+  if (user.role !== 'office') {
+    Notify.create('You are not authorized to access this page');
+    next('/')
   } else {
     next();
   }

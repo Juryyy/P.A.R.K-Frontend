@@ -36,7 +36,49 @@ export const useExamDayStore = defineStore('examDay', {
           icon: 'report_problem'
         });
       }
-    }
+    },
+
+    async addExamDay(date: Date, isForInvigilators: boolean, isForExaminers: boolean){
+      try{
+        await api.post('/examDays/create', {
+          date: date,
+          isForInvigilators: isForInvigilators,
+          isForExaminers: isForExaminers
+        })
+        Notify.create({
+          color: 'positive',
+          message: 'Exam day added',
+          position: 'bottom',
+          icon: 'check'
+        });
+      }catch (error) {
+        Notify.create({
+          color: 'negative',
+          message: 'Error during adding exam day',
+          position: 'bottom',
+          icon: 'report_problem'
+        });
+      }
+    },
+
+    async deleteExamDay(id: number){
+      try{
+        await api.delete(`/examDays/delete/${id}`)
+        Notify.create({
+          color: 'positive',
+          message: 'Exam day deleted',
+          position: 'bottom',
+          icon: 'check'
+        });
+      }catch (error) {
+        Notify.create({
+          color: 'negative',
+          message: 'Error during deleting exam day',
+          position: 'bottom',
+          icon: 'report_problem'
+        });
+      }
+    },
   }
 
 });

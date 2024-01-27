@@ -27,6 +27,16 @@
             :icon="link.icon"
           />
         </q-list>
+        <q-separator color="primary" spaced="8px" v-if="user.role === 'Office' " />
+        <q-list v-if="user.role === 'Office' ">
+          <essential-link
+            v-for="link in adminEssentialLinks"
+            :key="link.title"
+            :title="link.title"
+            :link="link.link"
+            :icon="link.icon"
+          />
+        </q-list>
       </div>
     </q-drawer>
     </div>
@@ -87,16 +97,24 @@ const essentialLinks : EssentialLinkProps[] = [
     icon: 'calendar_today',
   },
   {
-    title: 'Import Candidates',
-    link: '/import-candidates',
-    icon: 'cloud_upload',
-  },
-  {
     title: 'Exams',
     link: '/exams',
     icon: 'assignment',
   }
 ];
+
+const adminEssentialLinks : EssentialLinkProps[] =[
+  {
+    title: 'Import Candidates',
+    link: '/import-candidates',
+    icon: 'cloud_upload',
+  },
+  {
+    title: 'Create Availability',
+    link: '/create-availability',
+    icon: 'event_note',
+  },
+]
 
 const toggleLeftDrawer = () => {
   drawerLeft.value = !drawerLeft.value;
@@ -114,11 +132,5 @@ const miniState = ref(true)
 
 </script>
 <style lang="scss" scoped>
-.drawer-content {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  height: 100%;
-}
 
 </style>
