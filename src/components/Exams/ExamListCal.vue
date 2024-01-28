@@ -8,12 +8,12 @@
   no-unset
   mask="YYYY-MM-DD"
   :events="highlightDays"
-  :event-color="'orange'"
+  :event-color="colorPick"
   today-btn>
   </q-date>
   </div>
 
-  <q-intersection class="q-ma-md border" v-if="state.selectedDate">
+  <q-intersection class="q-ma-md primaried" v-if="state.selectedDate">
     <div class="cards-container q-mt-md q-flex q-flex-wrap q-justify-around">
   <q-card bordered class="q-ma-md" v-for="exam in filteredExams" :key="exam.id">
     <q-card-section>
@@ -74,8 +74,59 @@
   </q-card>
 
   <div class="q-ma-md allign-bottom">
-      <q-btn color="primary" label="Create new Exam" @click="addExam" />
+      <q-btn color="primary" label="Create new Exam" @click="state.showAddExam = true" />
   </div>
+
+  <q-dialog persistent v-model="state.showAddExam">
+    <q-card>
+      <q-card-section>
+        <div class="text-h6">Add new Exam</div>
+        <q-form>
+          <q-input v-model="inputExam.venue" label="Venue" />
+          <q-select v-model="inputExam.type"
+            label="Type"
+            :options="examTypes"
+            transition-show="scale"
+            transition-hide="scale"/>
+          <q-select v-model="inputExam.levels"
+           label="Levels"
+           :options="levelOptions"
+           transition-show="scale"
+           transition-hide="scale"
+           multiple
+           counter
+           use-chips/>
+
+          <q-input v-model="inputExam.startTime" label="Start time">
+            <template v-slot:append>
+              <q-icon name="access_time" class="cursor-pointer">
+                <q-popup-proxy transition-show="scale" transition-hide="scale">
+                  <q-time v-model="inputExam.startTime" />
+                </q-popup-proxy>
+              </q-icon>
+            </template>
+          </q-input>
+
+          <q-input v-model="inputExam.endTime" label="End time">
+            <template v-slot:append>
+              <q-icon name="access_time" class="cursor-pointer">
+                <q-popup-proxy transition-show="scale" transition-hide="scale">
+                  <q-time v-model="inputExam.endTime" />
+                </q-popup-proxy>
+              </q-icon>
+            </template>
+          </q-input>
+
+          <q-input v-model="inputExam.note" label="Note" />
+        </q-form>
+      </q-card-section>
+      <q-card-actions align="right">
+        <q-btn color="red" label="Close" @click="state.showAddExam = false" />
+        <q-btn color="primary" label="Add" @click="addExam" />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
+
   </div>
 </q-intersection>
 
@@ -87,13 +138,25 @@ import { ref, reactive, computed} from 'vue';
 import { useExamDayStore } from 'src/stores/examDayStore';
 import { useExamStore } from 'src/stores/examStore';
 import { Loading, Notify } from 'quasar';
-import { DayOfExams, Exam } from 'src/stores/db/types';
+import { DayOfExams, Exam, LevelEnum, examTypeEnum } from 'src/stores/db/types';
 
 const examDayStore = useExamDayStore();
 const examStore = useExamStore();
 
 const examDays: DayOfExams[] = examDayStore.upcomingExamDays;
 const exams: Exam[] = examStore.upcomingExams;
+
+const levelOptions = Object.values(LevelEnum)
+const examTypes = Object.values(examTypeEnum)
+
+const inputExam = reactive({
+  venue: '',
+  type: '',
+  levels: [],
+  startTime: '',
+  endTime: '',
+  note: '',
+});
 
 const examsRef = ref(exams);
 
@@ -104,6 +167,7 @@ const state = reactive({
   selectedExamDay: undefined as DayOfExams | undefined,
   selectedDate : `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}-${currentDate.getDate().toString().padStart(2, '0')}`,
   years: false,
+  showAddExam: false,
 });
 
 const addExam = async () => {
@@ -124,19 +188,8 @@ const addExam = async () => {
 
     if (matchingExamDay) {
       Loading.show({ message: 'Adding exam...', spinnerColor: 'amber', messageColor: 'amber', backgroundColor: 'black' });
-      await examStore.createExam({
-        venue: 'ICT Pro Brno',
-        type: 'Computer',
-        levels: ['B2', 'C1'],
-        startTime: '07:00:00',
-        endTime: '18:00:00',
-        note: 'This will be very long note, so I can test if it will be displayed correctly. This will be very long note, so I can test if it will be displayed correctly.',
-        dayOfExamsId: matchingExamDay.id,
-      });
-
-      await examStore.loadUpcomingExams();
-      examsRef.value = examStore.upcomingExams;
-
+      console.log('Adding exam with input:', inputExam);
+      console.log('Matching exam day:', matchingExamDay);
       Loading.hide();
     } else {
       Notify.create({
@@ -218,8 +271,6 @@ const formatTime = (datetime: Date) => {
 };
 
 const showNoteDialog = ref(false);
-const selectedExam = ref<Exam | null>(null);
-
 
 const truncatedNote = (note: string | undefined) => {
   const maxLength = 25;
@@ -230,7 +281,7 @@ const truncatedNote = (note: string | undefined) => {
 };
 
 const shouldShowMoreLink = (note: string | undefined) => {
-  const maxLength = 50; // You can adjust this value as per your preference
+  const maxLength = 50;
   return note && note.length > maxLength;
 };
 
@@ -238,6 +289,29 @@ const shouldShowMoreLink = (note: string | undefined) => {
 const showFullNoteDialog = () => {
   showNoteDialog.value = true;
 };
+
+const colorPick = (date: string) => {
+  const qDate = new Date(date);
+
+  // Check if an exam exists on the highlighted date
+  const examExists = examsRef.value.some((exam) => {
+    const examStartDate = new Date(exam.startTime);
+
+    return (
+      qDate.getDate() === examStartDate.getDate() &&
+      qDate.getMonth() === examStartDate.getMonth() &&
+      qDate.getFullYear() === examStartDate.getFullYear()
+    );
+  });
+
+  if (highlightDays(date)) {
+    return examExists ? 'blue' : 'red';
+  }
+
+  return 'white';
+};
+
+
 </script>
 <style lang="scss" scoped>
 
@@ -261,5 +335,10 @@ const showFullNoteDialog = () => {
 
 .allign-bottom {
   align-self: flex-end;
+}
+
+.primaried {
+  background-color: #f0f0f0;
+  border-radius: 10px;
 }
 </style>

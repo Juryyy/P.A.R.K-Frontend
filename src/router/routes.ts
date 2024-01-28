@@ -23,17 +23,18 @@ const routes: RouteRecordRaw[] = [
       },
       {
         path: 'import-candidates',
-        component: () => import('pages/CandidatesImport.vue'),
+        component: () => import('pages/admin/CandidatesImport.vue'),
         name: 'ImportCandidates',
       },
       {
         path: 'exams',
-        component: () => import('pages/ExamsPage.vue'),
+        component: () => import('pages/admin/ExamsPage.vue'),
         name: 'Exams',
       },
       { path: 'create-availability',
         component: () => import('pages/admin/CreateAvailabilityPage.vue'),
         name: 'CreateAvailability',
+        beforeEnter: checkOffice,
       }
     ]
   },
@@ -58,7 +59,7 @@ function checkAuth(to: RouteLocationNormalized, from: RouteLocationNormalized, n
 
 function checkOffice(to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) {
   const user = useUserStore().getUserInfo();
-  if (user.role !== 'office') {
+  if (user.role !== 'Office') {
     Notify.create('You are not authorized to access this page');
     next('/')
   } else {

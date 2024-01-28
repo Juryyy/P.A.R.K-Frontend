@@ -1,5 +1,4 @@
 <template>
-  <div class="text-h4 flex-center">Upcoming exams</div>
     <q-page class="flex-center">
     <template v-if="state.isLoaded">
       <!--<ExamList/>-->

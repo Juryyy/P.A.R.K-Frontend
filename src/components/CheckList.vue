@@ -1,6 +1,7 @@
 <template>
-  <div class="table-container">
-    <q-table
+  <q-page>
+  <div class="table-container q-my-md">
+    <q-table class="primary-header"
       :rows="userResponses"
       :columns="columns"
       row-key="date"
@@ -25,6 +26,7 @@
       </template>
     </q-table>
   </div>
+</q-page>
 </template>
 
 <script setup lang="ts">

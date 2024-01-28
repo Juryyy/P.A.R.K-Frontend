@@ -1,7 +1,7 @@
 <template>
-  <q-page-container v-if="state.loaded">
+  <q-page v-if="state.loaded">
     <CreateAvailability />
-  </q-page-container>
+  </q-page>
 </template>
 
 <script setup lang="ts">

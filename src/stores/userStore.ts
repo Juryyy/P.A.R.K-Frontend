@@ -1,10 +1,13 @@
 import { defineStore } from 'pinia';
 import { api } from '../boot/axios';
 import { UserInfo  }  from './db/types';
+import { ref } from 'vue';
+import { Notify } from 'quasar';
 
 export const useUserStore = defineStore('user', {
   state: () => ({
-    user: null as UserInfo | null,
+    user: ref({} as UserInfo),
+    usersExams: ref([]),
   }),
   actions: {
     getUserInfo() {
@@ -30,6 +33,16 @@ export const useUserStore = defineStore('user', {
 
     getUserId(){
       return localStorage.getItem('id');
+    },
+
+    async getUsersExams (){
+      try {
+        await api.get('/exams/usersExams').then((response) => {
+          this.usersExams = response.data;
+        });
+      } catch (error) {
+        Notify.create('Error getting exams');
+      }
     },
 
     async updateUserInfo(userInfo : UserInfo) {
