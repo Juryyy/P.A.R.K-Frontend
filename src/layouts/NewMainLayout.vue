@@ -95,11 +95,6 @@ const essentialLinks : EssentialLinkProps[] = [
     title: 'Availability',
     link: '/availabilty-check',
     icon: 'calendar_today',
-  },
-  {
-    title: 'Exams',
-    link: '/exams',
-    icon: 'assignment',
   }
 ];
 
@@ -114,6 +109,11 @@ const adminEssentialLinks : EssentialLinkProps[] =[
     link: '/create-availability',
     icon: 'event_note',
   },
+  {
+    title: 'Exams',
+    link: '/exams',
+    icon: 'assignment',
+  }
 ]
 
 const toggleLeftDrawer = () => {

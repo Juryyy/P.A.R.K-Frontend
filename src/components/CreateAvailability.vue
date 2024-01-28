@@ -1,8 +1,11 @@
 <template>
   <div class="table-container q-mb-md">
     <q-date v-model="state.date"
+      first-day-of-week="1"
      mask="YYYY-MM-DD"
      :events="highlightDays"
+     today-btn
+     no-unset
       />
   </div>
   <div class="table-container">

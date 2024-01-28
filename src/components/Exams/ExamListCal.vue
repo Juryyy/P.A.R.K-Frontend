@@ -3,7 +3,9 @@
 
     <div class="calendar-container q-mt-md">
   <q-date class="vertical-top"
+  first-day-of-week="1"
   v-model="state.selectedDate"
+  no-unset
   mask="YYYY-MM-DD"
   :events="highlightDays"
   :event-color="'orange'"
