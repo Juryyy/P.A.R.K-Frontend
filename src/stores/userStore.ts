@@ -8,6 +8,7 @@ export const useUserStore = defineStore('user', {
   state: () => ({
     user: ref({} as UserInfo),
     usersExams: ref([]),
+    userAvatar: ref('')
   }),
   actions: {
     getUserInfo() {
@@ -37,11 +38,39 @@ export const useUserStore = defineStore('user', {
 
     async getUsersExams (){
       try {
-        await api.get('/exams/usersExams').then((response) => {
+          const response = await api.get('/exams/usersExams')
           this.usersExams = response.data;
-        });
       } catch (error) {
-        Notify.create('Error getting exams');
+        Notify.create({
+          message: 'Error getting users exams',
+          color: 'red',
+          icon: 'report_problem',
+          position: 'top'
+        })
+      }
+    },
+
+    async getUsersAvatar(){
+      try {
+        const response = await api.get('static/images/avatar', {
+          responseType: 'arraybuffer',
+          headers: {
+            Accept: 'image/jpeg',
+          },
+        });
+        const uint8Array = new Uint8Array(response.data);
+        const arrayBuffer = uint8Array.buffer;
+        const array = Array.from(new Uint8Array(arrayBuffer));
+        const base64String = btoa(String.fromCharCode.apply(null, array));
+
+        this.userAvatar = `data:image/jpeg;base64,${base64String}`;
+      } catch (error) {
+        Notify.create({
+          message: 'Error loading avatar',
+          color: 'red',
+          icon: 'report_problem',
+          position: 'top'
+        })
       }
     },
 

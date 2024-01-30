@@ -7,7 +7,7 @@
           P.A.R.K Admin
         </q-toolbar-title>
         <div v-if="!rightDrawerOpen">
-         <q-avatar size="46px" class="q-pr-xl"><img src="https://cdn.quasar.dev/img/boy-avatar.png"></q-avatar>
+         <q-avatar size="46px" class="q-pr-xl"><img :src="userAvatar" alt="User Avatar" ></q-avatar>
           <b class="q-px-xs" >{{user?.firstName}} {{user?.lastName}}</b>
         </div>
         <q-btn dense flat round icon="menu" @click="toggleRightDrawer" />
@@ -48,8 +48,8 @@
 
       <q-img src="https://cdn.quasar.dev/img/material.png" style="height: 150px">
         <div class="bg-transparent absolute-center">
-          <q-avatar size="56px" class="q-mb-sm">
-            <img src="https://cdn.quasar.dev/img/boy-avatar.png">
+          <q-avatar size="80px" class="q-mb-sm">
+            <img :src="userAvatar" alt="User Avatar" >
           </q-avatar>
           <div class="text-weight-bold">{{user?.firstName}} {{user?.lastName}}</div>
           <div>{{user?.role}}</div>
@@ -96,9 +96,11 @@ const userStore = useUserStore();
 const authStore = useAuthStore();
 
 onBeforeMount(async () => {
-  Loading.show({message:'Loading users exams'});
+  Loading.show({message:'Loading users exams', spinnerColor: 'amber', messageColor: 'amber', backgroundColor: 'black'});
   await userStore.getUsersExams();
+  await userStore.getUsersAvatar();
   usersExamsRef.value = userStore.usersExams;
+  userAvatar.value = userStore.userAvatar;
   Loading.hide();
 });
 
@@ -110,6 +112,7 @@ const logout = async () => {
 const exams : Exam[] = userStore.usersExams
 const usersExamsRef = ref(exams)
 const user = computed(() => userStore.user);
+const userAvatar = ref('');
 
 const essentialLinks : EssentialLinkProps[] = [
   {
@@ -139,6 +142,11 @@ const adminEssentialLinks : EssentialLinkProps[] =[
     title: 'Exams',
     link: '/exams',
     icon: 'assignment',
+  },
+  {
+    title: 'Users',
+    link: '/users',
+    icon: 'people',
   }
 ]
 

@@ -25,15 +25,23 @@ const routes: RouteRecordRaw[] = [
         path: 'import-candidates',
         component: () => import('pages/admin/CandidatesImport.vue'),
         name: 'ImportCandidates',
+        beforeEnter: checkOffice,
       },
       {
         path: 'exams',
         component: () => import('pages/admin/ExamsPage.vue'),
         name: 'Exams',
+        beforeEnter: checkOffice,
       },
       { path: 'create-availability',
         component: () => import('pages/admin/CreateAvailabilityPage.vue'),
         name: 'CreateAvailability',
+        beforeEnter: checkOffice,
+      },
+      {
+        path: 'users',
+        component: () => import('pages/admin/UsersPage.vue'),
+        name: 'Users',
         beforeEnter: checkOffice,
       }
     ]
