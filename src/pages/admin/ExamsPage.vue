@@ -1,8 +1,8 @@
 <template>
-    <q-page class="flex-center">
+  <q-page class="flex-center">
     <template v-if="state.isLoaded">
       <!--<ExamList/>-->
-      <ExamListCal/>
+      <ExamListCal />
     </template>
   </q-page>
 </template>
@@ -21,14 +21,22 @@ const state = reactive({
 });
 
 onMounted(async () => {
-  Loading.show({message:'Loading exam days...', spinnerColor: 'amber', messageColor: 'amber', backgroundColor: 'black'});
+  Loading.show({
+    message: 'Loading exam days...',
+    spinnerColor: 'amber',
+    messageColor: 'amber',
+    backgroundColor: 'black',
+  });
   await examDayStore.loadExamDays();
-  Loading.show({message:'Loading upcoming exams...', spinnerColor: 'amber', messageColor: 'amber', backgroundColor: 'black'});
+  Loading.show({
+    message: 'Loading upcoming exams...',
+    spinnerColor: 'amber',
+    messageColor: 'amber',
+    backgroundColor: 'black',
+  });
   await examStore.loadUpcomingExams();
   state.isLoaded = true;
   Loading.hide();
 });
 </script>
-<style lang="scss" scoped>
-</style>
-
+<style lang="scss" scoped></style>

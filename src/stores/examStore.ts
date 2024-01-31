@@ -10,7 +10,7 @@ export const useExamStore = defineStore('exam', {
     pastExams: ref([]),
     selectedExam: ref(null),
   }),
-  actions:{
+  actions: {
     async loadUpcomingExams() {
       try {
         const response = await api.get('/exams/upcomingExams');
@@ -25,24 +25,24 @@ export const useExamStore = defineStore('exam', {
       }
     },
 
-    async createExam(exam : any){
-      try{
-        console.log(exam)
-        await api.post('/exams/createExam', exam)
+    async createExam(exam: any) {
+      try {
+        console.log(exam);
+        await api.post('/exams/createExam', exam);
         Notify.create({
           color: 'positive',
           message: 'Exam created',
           position: 'bottom',
-          icon: 'check'
+          icon: 'check',
         });
-      }catch (error) {
+      } catch (error) {
         Notify.create({
           color: 'negative',
           message: 'Error during creating exam',
           position: 'bottom',
-          icon: 'report_problem'
+          icon: 'report_problem',
         });
       }
-    }
-  }
+    },
+  },
 });

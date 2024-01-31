@@ -10,7 +10,9 @@ import routes from './routes';
 
 const createHistory = process.env.SERVER
   ? createMemoryHistory
-  : (process.env.VUE_ROUTER_MODE === 'history' ? createWebHistory : createWebHashHistory);
+  : process.env.VUE_ROUTER_MODE === 'history'
+  ? createWebHistory
+  : createWebHashHistory;
 
 export const router = createRouter({
   scrollBehavior: () => ({ left: 0, top: 0 }),

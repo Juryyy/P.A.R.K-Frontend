@@ -1,16 +1,14 @@
 import { RouteRecordRaw } from 'vue-router';
 import { NavigationGuardNext, RouteLocationNormalized } from 'vue-router';
 import { useUserStore } from 'src/stores/userStore';
-import { Notify } from 'quasar'
-
+import { Notify } from 'quasar';
 
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
     component: () => import('layouts/NewMainLayout.vue'),
     beforeEnter: checkAuth,
-    children:
-    [
+    children: [
       {
         path: '',
         component: () => import('pages/IndexPage.vue'),
@@ -33,7 +31,8 @@ const routes: RouteRecordRaw[] = [
         name: 'Exams',
         beforeEnter: checkOffice,
       },
-      { path: 'create-availability',
+      {
+        path: 'create-availability',
         component: () => import('pages/admin/CreateAvailabilityPage.vue'),
         name: 'CreateAvailability',
         beforeEnter: checkOffice,
@@ -43,8 +42,8 @@ const routes: RouteRecordRaw[] = [
         component: () => import('pages/admin/UsersPage.vue'),
         name: 'Users',
         beforeEnter: checkOffice,
-      }
-    ]
+      },
+    ],
   },
   {
     path: '/login',
@@ -56,20 +55,28 @@ const routes: RouteRecordRaw[] = [
   },
 ];
 
-function checkAuth(to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) {
+function checkAuth(
+  to: RouteLocationNormalized,
+  from: RouteLocationNormalized,
+  next: NavigationGuardNext
+) {
   const user = useUserStore().getUserInfo();
   if (!user.email) {
-    next('/login')
+    next('/login');
   } else {
     next();
   }
 }
 
-function checkOffice(to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) {
+function checkOffice(
+  to: RouteLocationNormalized,
+  from: RouteLocationNormalized,
+  next: NavigationGuardNext
+) {
   const user = useUserStore().getUserInfo();
   if (user.role !== 'Office') {
     Notify.create('You are not authorized to access this page');
-    next('/')
+    next('/');
   } else {
     next();
   }

@@ -2,25 +2,41 @@
 <template>
   <div class="container">
     <div v-for="examDay in examDays" :key="examDay.id" class="container">
-      <q-btn class="menu-btn"
+      <q-btn
+        class="menu-btn"
         :label="`Date: ${new Date(examDay.date).toLocaleDateString()}`"
         @click="showDetails(examDay)"
       />
-      <q-form class="" v-model="state.show" v-if="state.selectedExamDay && state.selectedExamDay.id === examDay.id" persistent @hide="hideDetails">
+      <q-form
+        class=""
+        v-model="state.show"
+        v-if="state.selectedExamDay && state.selectedExamDay.id === examDay.id"
+        persistent
+        @hide="hideDetails"
+      >
         <q-card>
           <q-card-section>
-            <div class="text-h6">Exams for {{ new Date(state.selectedExamDay.date).toLocaleDateString() }} :</div>
+            <div class="text-h6">
+              Exams for
+              {{ new Date(state.selectedExamDay.date).toLocaleDateString() }} :
+            </div>
             <q-form>
-            <q-card v-for="exam in filteredExams" :key="exam.id">
-              <q-card-section>
-                <div class="text-h6">Exam type: {{ exam.type }}</div>
-                <div class="text-h6">Exam venue: {{ exam.venue }}</div>
-                <div class="text-h6">Exam levels: {{ exam.levels.join(', ') }}</div>
-                <div class="text-h6">Exam start time: {{ formatTime(exam.startTime) }}</div>
-                <div class="text-h6">Exam end time: {{ formatTime(exam.endTime) }}</div>
-                <div class="text-h6">Exam note: {{ exam.note }}</div>
-              </q-card-section>
-            </q-card>
+              <q-card v-for="exam in filteredExams" :key="exam.id">
+                <q-card-section>
+                  <div class="text-h6">Exam type: {{ exam.type }}</div>
+                  <div class="text-h6">Exam venue: {{ exam.venue }}</div>
+                  <div class="text-h6">
+                    Exam levels: {{ exam.levels.join(', ') }}
+                  </div>
+                  <div class="text-h6">
+                    Exam start time: {{ formatTime(exam.startTime) }}
+                  </div>
+                  <div class="text-h6">
+                    Exam end time: {{ formatTime(exam.endTime) }}
+                  </div>
+                  <div class="text-h6">Exam note: {{ exam.note }}</div>
+                </q-card-section>
+              </q-card>
             </q-form>
           </q-card-section>
           <q-card-actions>
@@ -35,18 +51,18 @@
 
 <script setup lang="ts">
 import { useExamDayStore } from 'src/stores/examDayStore';
-import { reactive, computed} from 'vue';
-import { DayOfExams, Exam }from 'src/stores/db/types';
+import { reactive, computed } from 'vue';
+import { DayOfExams, Exam } from 'src/stores/db/types';
 import { useExamStore } from 'src/stores/examStore';
 import { Loading } from 'quasar';
 
 const examDayStore = useExamDayStore();
 const examStore = useExamStore();
 
-const examDays : DayOfExams[] = examDayStore.upcomingExamDays;
-const exams : Exam[] = examStore.upcomingExams;
+const examDays: DayOfExams[] = examDayStore.upcomingExamDays;
+const exams: Exam[] = examStore.upcomingExams;
 
-console.log(exams)
+console.log(exams);
 
 const state = reactive({
   show: false,
@@ -64,7 +80,12 @@ const hideDetails = () => {
 };
 
 const addExam = async () => {
-  Loading.show({message:'Adding exam...', spinnerColor: 'amber', messageColor: 'amber', backgroundColor: 'black'});
+  Loading.show({
+    message: 'Adding exam...',
+    spinnerColor: 'amber',
+    messageColor: 'amber',
+    backgroundColor: 'black',
+  });
   await examStore.createExam({
     venue: 'ICT Pro Brno',
     type: 'Computer',
@@ -79,7 +100,9 @@ const addExam = async () => {
 
 const filteredExams = computed(() => {
   if (state.selectedExamDay) {
-    const response = exams.filter((exam) => exam.dayOfExamsId === state.selectedExamDay?.id);
+    const response = exams.filter(
+      (exam) => exam.dayOfExamsId === state.selectedExamDay?.id
+    );
     console.log('Filtered exams:', response);
     return response;
   } else {
@@ -93,10 +116,9 @@ const formatTime = (datetime: Date) => {
   const minutes = date.getMinutes().toString().padStart(2, '0');
   return `${hours}:${minutes}`;
 };
-
 </script>
 <style setup lang="scss">
-.container{
+.container {
   width: 100%;
   padding: 10px;
 }

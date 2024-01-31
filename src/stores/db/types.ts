@@ -1,41 +1,41 @@
 export interface User {
-    id: number;
-    email: string;
-    firstName: string;
-    lastName: string;
-    drivingLicense: boolean;
-    note: string | null;
-    adminNote: string | null;
-    role: RoleEnum;
-    avatarUrl: string | null;
-    activatedAccount: boolean;
-    deactivated: boolean;
+  id: number;
+  email: string;
+  firstName: string;
+  lastName: string;
+  drivingLicense: boolean;
+  note: string | null;
+  adminNote: string | null;
+  role: RoleEnum;
+  avatarUrl: string | null;
+  activatedAccount: boolean;
+  deactivated: boolean;
 
-    supervisedExams: Exam[];
-    invigilatedExams: Exam[];
-    examinedExams: Exam[];
-    responses: Response[];
+  supervisedExams: Exam[];
+  invigilatedExams: Exam[];
+  examinedExams: Exam[];
+  responses: Response[];
 }
 
 export interface UserInfo {
-    id: number | null;
-    email: string | null;
-    firstName: string | null;
-    lastName: string | null;
-    drivingLicense: boolean | null;
-    note: string | null;
-    adminNote: string | null;
-    role: string | null;
-    avatarUrl: string | null;
-    activatedAccount: boolean | null;
-    deactivated: boolean | null;
+  id: number | null;
+  email: string | null;
+  firstName: string | null;
+  lastName: string | null;
+  drivingLicense: boolean | null;
+  note: string | null;
+  adminNote: string | null;
+  role: string | null;
+  avatarUrl: string | null;
+  activatedAccount: boolean | null;
+  deactivated: boolean | null;
 }
 
 export interface DayOfExams {
-    id?: number;
-    date: Date;
-    isForInvigilators: boolean;
-    isForExaminers: boolean;
+  id?: number;
+  date: Date;
+  isForInvigilators: boolean;
+  isForExaminers: boolean;
 }
 
 export interface Exam {
@@ -60,12 +60,11 @@ export interface Exam {
 export enum RoleEnum {
   Office = 'Office',
   Supervisor = 'Supervisor',
-  SeniorSupervisor = 'SeniorSupervisor',
+  SeniorSupervisor = 'Senior Supervisor',
   Invigilator = 'Invigilator',
-  SeniorInvigilator = 'SeniorInvigilator',
+  SeniorInvigilator = 'Senior Invigilator',
   Tech = 'Tech',
   Examiner = 'Examiner',
-  test = 'test'
 }
 
 export interface UserResponses {
@@ -99,14 +98,14 @@ export enum LevelEnum {
   B1 = 'B1',
   B2 = 'B2',
   C1 = 'C1',
-  C2 = 'C2'
+  C2 = 'C2',
 }
 
 export enum examTypeEnum {
-  Computer  = 'Computer',
+  Computer = 'Computer',
   ComputerSpeaking = 'Computer Speaking',
   Paper = 'Paper',
   PaperSpeaking = 'Paper Speaking',
   Mock = 'Mock',
-  Speaking = 'Speaking'
+  Speaking = 'Speaking',
 }

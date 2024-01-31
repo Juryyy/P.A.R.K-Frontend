@@ -13,15 +13,18 @@ import CreateAvailability from 'src/components/CreateAvailability.vue';
 const examDayStore = useExamDayStore();
 
 const state = reactive({
-  loaded: false
+  loaded: false,
 });
 
 onMounted(async () => {
-  Loading.show({message:'Loading exam days...', spinnerColor: 'amber', messageColor: 'amber', backgroundColor: 'black'});
+  Loading.show({
+    message: 'Loading exam days...',
+    spinnerColor: 'amber',
+    messageColor: 'amber',
+    backgroundColor: 'black',
+  });
   await examDayStore.loadExamDays();
   state.loaded = true;
   Loading.hide();
 });
-
-
 </script>

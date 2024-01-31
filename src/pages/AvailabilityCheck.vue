@@ -1,7 +1,7 @@
 <template>
-<q-page v-if="state.loaded">
-  <CheckList />
-</q-page>
+  <q-page v-if="state.loaded">
+    <CheckList />
+  </q-page>
 </template>
 
 <script setup lang="ts">
@@ -13,11 +13,16 @@ import { Loading } from 'quasar';
 const availabilityStore = useAvailabilityStore();
 
 const state = reactive({
-  loaded: false
+  loaded: false,
 });
 
 onMounted(async () => {
-  Loading.show({message:'Loading responses...', spinnerColor: 'amber', messageColor: 'amber', backgroundColor: 'black'});
+  Loading.show({
+    message: 'Loading responses...',
+    spinnerColor: 'amber',
+    messageColor: 'amber',
+    backgroundColor: 'black',
+  });
   await availabilityStore.loadResponsesForUser();
   state.loaded = true;
   Loading.hide();

@@ -3,7 +3,8 @@
     <div class="q-pa-sm q-gutter-sm">
       <q-table
         class="my-sticky-header-table"
-        flat bordered
+        flat
+        bordered
         title="Candidates"
         :rows="data"
         :columns="columns"
@@ -298,12 +299,7 @@ const columns = [
     align: 'left',
     field: 'Email',
   },
-  { name: 'Code',
-    required: true,
-    label: 'Code',
-    align: 'left',
-    field: 'Code'
-  },
+  { name: 'Code', required: true, label: 'Code', align: 'left', field: 'Code' },
   {
     name: 'Phone',
     required: true,
@@ -428,8 +424,8 @@ const deleteItem = (item: Candidate) => {
     background-color: #98c23b;
   }
 
-  .q-table__bottom{
-    background-color: #CBE09D
+  .q-table__bottom {
+    background-color: #cbe09d;
   }
 
   thead tr th {

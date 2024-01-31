@@ -124,11 +124,11 @@
                   transition-hide="scale"
                 />
                 <q-select
-                v-model="inputExam.type"
-                label="Type"
-                :options="examTypes"
-                transition-show="scale"
-                transition-hide="scale"
+                  v-model="inputExam.type"
+                  label="Type"
+                  :options="examTypes"
+                  transition-show="scale"
+                  transition-hide="scale"
                 />
                 <q-select
                   v-model="inputExam.venue"
@@ -223,8 +223,8 @@ const examsRef = ref(exams);
 const currentDate = new Date();
 
 //! TODO: Get venues and locations from DB
-const examVenues = ref([''])
-const examLocations = ref([''])
+const examVenues = ref(['']);
+const examLocations = ref(['']);
 
 const state = reactive({
   show: false,
@@ -380,7 +380,6 @@ const colorPick = (date: string) => {
 
   return 'white';
 };
-
 </script>
 <style lang="scss" scoped>
 .full-width {
