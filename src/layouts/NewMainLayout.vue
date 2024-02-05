@@ -78,12 +78,16 @@
 
         <q-card-section class="q-pa-md">
           <q-card
-            class="card"
+            class="card q-mb-sm"
             bordered
             v-for="exam in usersExamsRef"
             :key="exam.id"
           >
             <q-card-section>
+              <q-item-label
+                >Location: <b>{{ exam.location }}</b></q-item-label
+              >
+
               <q-item-label
                 >Venue: <b>{{ exam.venue }}</b></q-item-label
               >
@@ -180,6 +184,11 @@ const essentialLinks: EssentialLinkProps[] = [
     link: '/availabilty-check',
     icon: 'calendar_today',
   },
+  {
+    title: 'Users',
+    link: '/users',
+    icon: 'people',
+  },
 ];
 
 const adminEssentialLinks: EssentialLinkProps[] = [
@@ -199,9 +208,9 @@ const adminEssentialLinks: EssentialLinkProps[] = [
     icon: 'assignment',
   },
   {
-    title: 'Users',
-    link: '/users',
-    icon: 'people',
+    title: 'Admin Panel',
+    link: '/admin-panel',
+    icon: 'admin_panel_settings',
   },
 ];
 

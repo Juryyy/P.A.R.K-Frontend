@@ -23,7 +23,8 @@
               </q-td>
               <q-td key="role">
                 {{ props.row.role }}
-                <q-popup-edit v-model="props.row.role">
+                <q-popup-edit v-model="props.row.role"
+                :disable="currentUserRole !== 'Office'">
                   <q-select
                     v-model="props.row.role"
                     :options="Roles"
@@ -33,6 +34,7 @@
                     fill-input
                     use-input
                     hide-selected
+                    @update:modelValue="handleRoleChange(props.row, true)"
                   />
                 </q-popup-edit>
               </q-td>
@@ -47,14 +49,14 @@
               </q-td>
               <q-td key="actions">
                 <q-btn-group>
-                  <q-btn
+                  <q-btn v-if="currentUserRole === 'Office'"
                     @click="editUser(props.row)"
-                    color="blue"
+                    :color="props.row.isRoleChanged ? 'blue' : 'grey'"
                     icon="manage_accounts"
+                    :disable="!props.row.isRoleChanged"
                   >
-                    <q-tooltip class="bg-blue" :delay="250"
-                      >Update users role</q-tooltip
-                    >
+                    <q-tooltip v-if="props.row.isRoleChanged" class="bg-blue" :delay="250" >Update users role</q-tooltip>
+                    <q-tooltip v-else class="bg-grey" :delay="250">No changes to users role</q-tooltip>
                   </q-btn>
                   <q-btn
                     @click="viewUser(props.row)"
@@ -65,7 +67,7 @@
                       >View users profile</q-tooltip
                     >
                   </q-btn>
-                  <q-btn
+                  <q-btn v-if="currentUserRole === 'Office'"
                     @click="deactivateUser(props.row)"
                     color="red"
                     icon="person_off"
@@ -123,13 +125,19 @@
 </template>
 <script setup lang="ts">
 import { useAdminStore } from 'src/stores/adminStore';
-import { computed, reactive, ref, Ref } from 'vue';
+import { computed, reactive, ref, Ref, watch} from 'vue';
 import { User, RoleEnum } from 'src/stores/db/types';
+import { router } from 'src/router/index';
+import { useUserStore } from 'src/stores/userStore';
 
 const adminStore = useAdminStore();
+const userStore = useUserStore();
 
-const users: User[] = adminStore.users;
+const users: User[] = userStore.users;
 const usersRef: Ref<User[]> = ref(users);
+const currentUserRole = userStore.getUserRole();
+
+console.log(currentUserRole)
 
 const columns = [
   {
@@ -180,8 +188,8 @@ async function addUser() {
     newUser.value.role
   );
   state.newUser = false;
-  await adminStore.getAllUsers();
-  usersRef.value = adminStore.users;
+  await userStore.getAllUsers();
+  usersRef.value = userStore.users;
 }
 
 async function deactivateUser(user: User) {
@@ -194,11 +202,14 @@ const editedIndex = ref(-1);
 const editUser = async (item: User) => {
   editedIndex.value = usersRef.value.indexOf(item);
   editedItem.value = Object.assign({}, item);
+  editedItem.value.isRoleChanged = false;
   await adminStore.updateUserRole(editedItem.value.id, editedItem.value.role);
+  handleRoleChange(editedItem.value, false);
+  usersRef.value[editedIndex.value] = editedItem.value;
 };
 
 const viewUser = (item: User) => {
-  console.log('view', item.id);
+  router.push(`/users/${item.id}`);
 };
 
 const Roles = computed(() => {
@@ -219,4 +230,17 @@ const newUser = ref({
   password: '',
   role: RoleEnum.Invigilator,
 });
+
+
+watch(usersRef, (newUsers, oldUsers) => {
+  newUsers.forEach((newUser, index) => {
+    if (newUser.role !== oldUsers[index].role) {
+      usersRef.value[index].isRoleChanged = true;
+    }
+  });
+}, { deep: true });
+
+const handleRoleChange = (user: User, change : boolean) => {
+  user.isRoleChanged = change;
+};
 </script>

@@ -23,7 +23,8 @@
           :key="exam.id"
         >
           <q-card-section>
-            <div class="text-h6">Venue: {{ exam.venue }}</div>
+            <div class="text-h5">{{ exam.location }}</div>
+            <div class="text-h6">Venue: {{ exam.venue }} </div>
             <div>Type: {{ exam.type }}</div>
             <div>Levels: {{ exam.levels.join(', ') }}</div>
             <div>Start time: {{ formatTime(exam.startTime) }}</div>
@@ -122,6 +123,7 @@
                   :options="examLocations"
                   transition-show="scale"
                   transition-hide="scale"
+                  @update:model-value="updateExamVenues"
                 />
                 <q-select
                   v-model="inputExam.type"
@@ -197,11 +199,13 @@
 import { ref, reactive, computed } from 'vue';
 import { useExamDayStore } from 'src/stores/examDayStore';
 import { useExamStore } from 'src/stores/examStore';
+import { useAdminStore } from 'src/stores/adminStore';
 import { Loading, Notify } from 'quasar';
-import { DayOfExams, Exam, LevelEnum, examTypeEnum } from 'src/stores/db/types';
+import { DayOfExams, Exam, LevelEnum, examTypeEnum, Location, Venue} from 'src/stores/db/types';
 
 const examDayStore = useExamDayStore();
 const examStore = useExamStore();
+const adminStore = useAdminStore();
 
 const examDays: DayOfExams[] = examDayStore.upcomingExamDays;
 const exams: Exam[] = examStore.upcomingExams;
@@ -222,9 +226,20 @@ const inputExam = reactive({
 const examsRef = ref(exams);
 const currentDate = new Date();
 
-//! TODO: Get venues and locations from DB
 const examVenues = ref(['']);
 const examLocations = ref(['']);
+
+examLocations.value = adminStore.locationsWithVenues.map((location : Location) => location.name);
+const updateExamVenues = () => {
+  inputExam.venue = '';
+  const selectedLoc: Location | undefined = adminStore.locationsWithVenues.find(
+    (location: Location) => location.name === inputExam.location
+  );
+
+  if (selectedLoc){
+    examVenues.value = selectedLoc.venues.map((venue: Venue) => venue.name);
+  }
+};
 
 const state = reactive({
   show: false,
@@ -252,15 +267,20 @@ const addExam = async () => {
       );
     });
 
-    if (matchingExamDay) {
+    if (matchingExamDay && matchingExamDay.id !== undefined) {
       Loading.show({
         message: 'Adding exam...',
         spinnerColor: 'amber',
         messageColor: 'amber',
         backgroundColor: 'black',
       });
-      console.log('Adding exam with input:', inputExam);
-      console.log('Matching exam day:', matchingExamDay);
+      await examStore.createExam({
+        ...inputExam,
+        dayOfExamsId: matchingExamDay.id,
+      });
+      await examStore.loadUpcomingExams();
+      examsRef.value = examStore.upcomingExams;
+      state.showAddExam = false
       Loading.hide();
     } else {
       Notify.create({

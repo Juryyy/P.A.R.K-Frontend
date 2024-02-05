@@ -3,6 +3,7 @@ export interface User {
   email: string;
   firstName: string;
   lastName: string;
+  phone: string | null;
   drivingLicense: boolean;
   note: string | null;
   adminNote: string | null;
@@ -10,11 +11,17 @@ export interface User {
   avatarUrl: string | null;
   activatedAccount: boolean;
   deactivated: boolean;
-
+  _count: {
+    supervisedExams: number;
+    invigilatedExams: number;
+    examinedExams: number;
+  };
   supervisedExams: Exam[];
   invigilatedExams: Exam[];
   examinedExams: Exam[];
   responses: Response[];
+
+  isRoleChanged?: boolean;
 }
 
 export interface UserInfo {
@@ -41,6 +48,7 @@ export interface DayOfExams {
 export interface Exam {
   id: number;
   venue: string;
+  location: string;
   type: string;
   levels: string[];
   startTime: Date;
@@ -108,4 +116,16 @@ export enum examTypeEnum {
   PaperSpeaking = 'Paper Speaking',
   Mock = 'Mock',
   Speaking = 'Speaking',
+}
+
+export interface Venue {
+  id: number;
+  name: string;
+  locationId: number;
+}
+
+export interface Location {
+  id: number;
+  name: string;
+  venues: Venue[];
 }

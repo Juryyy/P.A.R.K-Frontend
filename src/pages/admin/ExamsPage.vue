@@ -12,8 +12,10 @@ import { onMounted, reactive } from 'vue';
 import { useExamDayStore } from 'src/stores/examDayStore';
 import { Loading } from 'quasar';
 import { useExamStore } from 'src/stores/examStore';
+import { useAdminStore } from 'src/stores/adminStore';
 
 const examDayStore = useExamDayStore();
+const adminStore = useAdminStore();
 const examStore = useExamStore();
 
 const state = reactive({
@@ -35,6 +37,7 @@ onMounted(async () => {
     backgroundColor: 'black',
   });
   await examStore.loadUpcomingExams();
+  await adminStore.getLocationsWithVenues();
   state.isLoaded = true;
   Loading.hide();
 });

@@ -20,6 +20,16 @@ const routes: RouteRecordRaw[] = [
         name: 'AvailabiltyCheck',
       },
       {
+        path: 'users/:id',
+        component: () => import('pages/UserProfilePage.vue'),
+        name: 'UserProfile',
+      },
+      {
+        path: 'users',
+        component: () => import('pages/admin/UsersPage.vue'),
+        name: 'Users',
+      },
+      {
         path: 'import-candidates',
         component: () => import('pages/admin/CandidatesImport.vue'),
         name: 'ImportCandidates',
@@ -38,11 +48,10 @@ const routes: RouteRecordRaw[] = [
         beforeEnter: checkOffice,
       },
       {
-        path: 'users',
-        component: () => import('pages/admin/UsersPage.vue'),
-        name: 'Users',
-        beforeEnter: checkOffice,
-      },
+        path: 'admin-panel',
+        component: () => import('pages/admin/AdminPanel.vue'),
+        name: 'AdminPanel',
+      }
     ],
   },
   {

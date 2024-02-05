@@ -5,10 +5,12 @@
 </template>
 <script setup lang="ts">
 import { onBeforeMount, ref } from 'vue';
-import { useAdminStore } from 'src/stores/adminStore';
+import { useUserStore } from 'src/stores/userStore';
 import { Loading } from 'quasar';
 import UserList from 'src/components/Users/UserList.vue';
+import { useAdminStore } from 'src/stores/adminStore';
 
+const userStore = useUserStore();
 const adminStore = useAdminStore();
 
 const loaded = ref(false);
@@ -21,7 +23,8 @@ onBeforeMount(async () => {
     backgroundColor: 'black',
   });
   loaded.value = false;
-  await adminStore.getAllUsers();
+  await userStore.getAllUsers();
+  await adminStore.getLocationsWithVenues();
   loaded.value = true;
   Loading.hide();
 });

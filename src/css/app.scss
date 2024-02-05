@@ -2,6 +2,7 @@
 body {
   scrollbar-width: thin;
   scrollbar-color: $primary #ddd;
+  background-color: $bg-light;
 }
 
 body::-webkit-scrollbar {

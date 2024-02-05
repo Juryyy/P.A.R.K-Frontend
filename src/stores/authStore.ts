@@ -1,14 +1,12 @@
 import { defineStore } from 'pinia';
 import { api } from '../boot/axios';
 import { User } from './db/types';
-import { Cookies } from 'quasar';
 import { Notify } from 'quasar';
 import { useUserStore } from './userStore';
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     user: undefined as User | undefined,
-    usersArray: undefined as User[] | undefined,
   }),
   actions: {
     setUserInfo(userInfo: User) {
@@ -101,21 +99,6 @@ export const useAuthStore = defineStore('auth', {
         Notify.create({
           color: 'negative',
           message: 'Error during registration',
-          position: 'top',
-          icon: 'report_problem',
-        });
-      }
-    },
-
-    async getAllUsers() {
-      try {
-        const response = await api.get('/office/allUsers');
-        return response.data;
-      } catch (error) {
-        console.error('Error getting all users:', error);
-        Notify.create({
-          color: 'negative',
-          message: 'Error getting all users',
           position: 'top',
           icon: 'report_problem',
         });
