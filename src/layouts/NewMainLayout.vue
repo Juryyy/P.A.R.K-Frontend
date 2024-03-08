@@ -113,19 +113,6 @@
             </q-card-section>
           </q-card>
         </q-card-section>
-
-        <div class="absolute-bottom">
-          <a
-            href="https://www.zkouskypark.cz/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <img
-              src="https://www.zkouskypark.cz/www/upload/logo/20210118070023666.png"
-              class="logo"
-            />
-          </a>
-        </div>
       </q-scroll-area>
     </q-drawer>
 
