@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { api } from '../boot/axios';
-import { UserInfo } from './db/types';
+import { UserInfo, User } from './db/types';
 import { ref } from 'vue';
 import { Notify } from 'quasar';
 
@@ -11,7 +11,7 @@ export const useUserStore = defineStore('user', {
     userAvatar: ref(''),
     selectedUser: ref(),
     selectedUserAvatar: ref(''),
-    users : ref([]),
+    users : ref([] as User[]),
   }),
   actions: {
     getUserInfo() {

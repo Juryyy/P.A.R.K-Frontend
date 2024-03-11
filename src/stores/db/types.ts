@@ -129,3 +129,12 @@ export interface Location {
   name: string;
   venues: Venue[];
 }
+
+export interface Post {
+  id?: number;
+  title: string;
+  body: string;
+  roles?: RoleEnum[],
+  users?: User[],
+  link: string[];
+}

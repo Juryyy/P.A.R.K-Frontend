@@ -51,6 +51,11 @@ const routes: RouteRecordRaw[] = [
         path: 'admin-panel',
         component: () => import('pages/admin/AdminPanel.vue'),
         name: 'AdminPanel',
+      },
+      {
+        path : 'test',
+        component: () => import('components/PostsComponent.vue'),
+        name: 'TestSchedule'
       }
     ],
   },

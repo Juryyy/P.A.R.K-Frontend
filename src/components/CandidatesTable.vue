@@ -39,198 +39,198 @@
             </q-popup-edit>
           </q-td>
           -->
-            <q-td key="FirstName" :props="props">
-              {{ props.row.FirstName }}
-              <q-popup-edit v-model="props.row.FirstName">
+            <q-td key="firstName" :props="props">
+              {{ props.row.firstName }}
+              <q-popup-edit v-model="props.row.firstName">
                 <q-input
-                  v-model="props.row.FirstName"
+                  v-model="props.row.firstName"
                   dense
                   autofocus
                   counter
                 ></q-input>
               </q-popup-edit>
             </q-td>
-            <q-td key="LastName" :props="props">
-              {{ props.row.LastName }}
-              <q-popup-edit v-model="props.row.LastName">
+            <q-td key="lastName" :props="props">
+              {{ props.row.lastName }}
+              <q-popup-edit v-model="props.row.lastName">
                 <q-input
-                  v-model="props.row.LastName"
+                  v-model="props.row.lastName"
                   dense
                   autofocus
                   counter
                 ></q-input>
               </q-popup-edit>
             </q-td>
-            <q-td key="BirthDate" :props="props">
-              {{ props.row.BirthDate.toLocaleDateString() }}
-              <q-popup-edit v-model="props.row.BirthDate">
+            <q-td key="birthDate" :props="props">
+              {{ props.row.birthDate.toLocaleDateString() }}
+              <q-popup-edit v-model="props.row.birthDate">
                 <q-input
-                  v-model="props.row.BirthDate"
+                  v-model="props.row.birthDate"
                   dense
                   autofocus
                   counter
                 ></q-input>
               </q-popup-edit>
             </q-td>
-            <q-td key="Email" :props="props">
-              {{ props.row.Email }}
-              <q-popup-edit v-model="props.row.Email">
+            <q-td key="email" :props="props">
+              {{ props.row.email }}
+              <q-popup-edit v-model="props.row.email">
                 <q-input
-                  v-model="props.row.Email"
+                  v-model="props.row.email"
                   dense
                   autofocus
                   counter
                 ></q-input>
               </q-popup-edit>
             </q-td>
-            <q-td key="Code" :props="props">
-              {{ props.row.Code }}
-              <q-popup-edit v-model="props.row.Code">
+            <q-td key="code" :props="props">
+              {{ props.row.code }}
+              <q-popup-edit v-model="props.row.code">
                 <q-input
-                  v-model="props.row.Code"
+                  v-model="props.row.code"
                   dense
                   autofocus
                   counter
                 ></q-input>
               </q-popup-edit>
             </q-td>
-            <q-td key="Phone" :props="props">
-              {{ props.row.Phone }}
-              <q-popup-edit v-model="props.row.Phone">
+            <q-td key="phone" :props="props">
+              {{ props.row.phone }}
+              <q-popup-edit v-model="props.row.phone">
                 <q-input
-                  v-model="props.row.Phone"
+                  v-model="props.row.phone"
                   dense
                   autofocus
                   counter
                 ></q-input>
               </q-popup-edit>
             </q-td>
-            <q-td key="Location" :props="props">
-              {{ props.row.Location }}
-              <q-popup-edit v-model="props.row.Location">
+            <q-td key="location" :props="props">
+              {{ props.row.location }}
+              <q-popup-edit v-model="props.row.location">
                 <q-input
-                  v-model="props.row.Location"
+                  v-model="props.row.location"
                   dense
                   autofocus
                   counter
                 ></q-input>
               </q-popup-edit>
             </q-td>
-            <q-td key="Level" :props="props">
-              {{ props.row.Level }}
-              <q-popup-edit v-model="props.row.Level">
+            <q-td key="level" :props="props">
+              {{ props.row.level }}
+              <q-popup-edit v-model="props.row.level">
                 <q-input
-                  v-model="props.row.Level"
+                  v-model="props.row.level"
                   dense
                   autofocus
                   counter
                 ></q-input>
               </q-popup-edit>
             </q-td>
-            <q-td key="TypeOfExam" :props="props">
-              {{ props.row.TypeOfExam }}
-              <q-popup-edit v-model="props.row.TypeOfExam">
+            <q-td key="typeOfExam" :props="props">
+              {{ props.row.typeOfExam }}
+              <q-popup-edit v-model="props.row.typeOfExam">
                 <q-input
-                  v-model="props.row.TypeOfExam"
+                  v-model="props.row.typeOfExam"
                   dense
                   autofocus
                   counter
                 ></q-input>
               </q-popup-edit>
             </q-td>
-            <q-td key="Venue" :props="props">
-              {{ props.row.Venue }}
-              <q-popup-edit v-model="props.row.Venue">
+            <q-td key="venue" :props="props">
+              {{ props.row.venue }}
+              <q-popup-edit v-model="props.row.venue">
                 <q-input
-                  v-model="props.row.Venue"
+                  v-model="props.row.venue"
                   dense
                   autofocus
                   counter
                 ></q-input>
               </q-popup-edit>
             </q-td>
-            <q-td key="DateOfExam" :props="props">
-              {{ props.row.DateOfExam.toLocaleDateString() }}
-              <q-popup-edit v-model="props.row.DateOfExam">
+            <q-td key="dateOfExam" :props="props">
+              {{ props.row.dateOfExam.toLocaleDateString() }}
+              <q-popup-edit v-model="props.row.dateOfExam">
                 <q-input
-                  v-model="props.row.DateOfExam"
+                  v-model="props.row.dateOfExam"
                   dense
                   autofocus
                   counter
                 ></q-input>
               </q-popup-edit>
             </q-td>
-            <q-td key="CrfToSchool" :props="props">
-              {{ props.row.CrfToSchool }}
-              <q-popup-edit v-model="props.row.CrfToSchool">
+            <q-td key="crfToSchool" :props="props">
+              {{ props.row.crfToSchool }}
+              <q-popup-edit v-model="props.row.crfToSchool">
                 <q-input
-                  v-model="props.row.CrfToSchool"
+                  v-model="props.row.crfToSchool"
                   dense
                   autofocus
                   counter
                 ></q-input>
               </q-popup-edit>
             </q-td>
-            <q-td key="Requirements" :props="props">
-              {{ props.row.Requirements }}
-              <q-popup-edit v-model="props.row.Requirements">
+            <q-td key="requirements" :props="props">
+              {{ props.row.requirements }}
+              <q-popup-edit v-model="props.row.requirements">
                 <q-input
-                  v-model="props.row.Requirements"
+                  v-model="props.row.requirements"
                   dense
                   autofocus
                   counter
                 ></q-input>
               </q-popup-edit>
             </q-td>
-            <q-td key="Mock" :props="props">
-              {{ props.row.Mock }}
-              <q-popup-edit v-model="props.row.Mock">
+            <q-td key="mock" :props="props">
+              {{ props.row.mock }}
+              <q-popup-edit v-model="props.row.mock">
                 <q-input
-                  v-model="props.row.Mock"
+                  v-model="props.row.mock"
                   dense
                   autofocus
                   counter
                 ></q-input>
               </q-popup-edit>
             </q-td>
-            <q-td key="Paid" :props="props">
-              {{ props.row.Paid }}
-              <q-popup-edit v-model="props.row.Paid">
+            <q-td key="paid" :props="props">
+              {{ props.row.paid }}
+              <q-popup-edit v-model="props.row.paid">
                 <q-input
-                  v-model="props.row.Paid"
+                  v-model="props.row.paid"
                   dense
                   autofocus
                   counter
                 ></q-input>
               </q-popup-edit>
             </q-td>
-            <q-td key="Note" :props="props">
-              {{ props.row.Note }}
-              <q-popup-edit v-model="props.row.Note">
+            <q-td key="note" :props="props">
+              {{ props.row.note }}
+              <q-popup-edit v-model="props.row.note">
                 <q-input
-                  v-model="props.row.Note"
+                  v-model="props.row.note"
                   dense
                   autofocus
                   counter
                 ></q-input>
               </q-popup-edit>
             </q-td>
-            <q-td key="Partner" :props="props">
-              {{ props.row.Partner }}
-              <q-popup-edit v-model="props.row.Partner">
+            <q-td key="partner" :props="props">
+              {{ props.row.partner }}
+              <q-popup-edit v-model="props.row.partner">
                 <q-input
-                  v-model="props.row.Partner"
+                  v-model="props.row.partner"
                   dense
                   autofocus
                   counter
                 ></q-input>
               </q-popup-edit>
             </q-td>
-            <q-td key="OrderId" :props="props">
-              {{ props.row.OrderId }}
-              <q-popup-edit v-model="props.row.OrderId">
+            <q-td key="orderId" :props="props">
+              {{ props.row.orderId }}
+              <q-popup-edit v-model="props.row.orderId">
                 <q-input
-                  v-model="props.row.OrderId"
+                  v-model="props.row.orderId"
                   dense
                   autofocus
                   counter
@@ -254,6 +254,16 @@
             </q-td>
           </q-tr>
         </template>
+        <template v-slot:top>
+          <q-btn
+            flat
+            outline
+            dense
+            color="black"
+            label="Upload"
+            @click="upload"
+          ></q-btn>
+        </template>
       </q-table>
     </div>
   </div>
@@ -263,7 +273,7 @@
 import { ref } from 'vue';
 import type { Candidate } from './models';
 import { useCandidateStore } from 'src/stores/candidateStore';
-import { Dialog } from 'quasar';
+import { Dialog, Loading } from 'quasar';
 
 const candidateStore = useCandidateStore();
 
@@ -272,99 +282,120 @@ const data = candidateStore.candidates;
 const columns = [
   //{ name: 'id', required: true, label: 'ID', align: 'left', field: 'id' },
   {
-    name: 'FirstName',
+    name: 'firstName',
     required: true,
     label: 'First Name',
     align: 'left',
-    field: 'FirstName',
+    field: 'firstName',
   },
   {
-    name: 'LastName',
+    name: 'lastName',
     required: true,
     label: 'Last Name',
     align: 'left',
-    field: 'LastName',
+    field: 'lastName',
   },
   {
-    name: 'BirthDate',
+    name: 'birthDate',
     required: true,
     label: 'Birth Date',
     align: 'left',
-    field: (row: Candidate) => row.BirthDate.toLocaleDateString(),
+    field: (row: Candidate) => row.birthDate.toLocaleDateString(),
   },
   {
-    name: 'Email',
+    name: 'email',
     required: true,
     label: 'Email',
     align: 'left',
-    field: 'Email',
+    field: 'email',
   },
-  { name: 'Code', required: true, label: 'Code', align: 'left', field: 'Code' },
+  { name: 'code',
+    required: true,
+    label: 'Code',
+    align: 'left',
+    field: 'code' },
   {
-    name: 'Phone',
+    name: 'phone',
     required: true,
     label: 'Phone',
     align: 'left',
-    field: 'Phone',
+    field: 'phone',
   },
   {
-    name: 'Location',
+    name: 'location',
     required: true,
     label: 'Location',
     align: 'left',
-    field: 'Location',
+    field: 'location',
   },
   {
-    name: 'Level',
+    name: 'level',
     required: true,
     label: 'Level',
     align: 'left',
-    field: 'Level',
+    field: 'level',
   },
   {
-    name: 'TypeOfExam',
+    name: 'typeOfExam',
     required: true,
     label: 'Type Of Exam',
     align: 'left',
-    field: 'TypeOfExam',
+    field: 'typeOfExam',
   },
   {
-    name: 'DateOfExam',
+    name: 'dateOfExam',
     required: true,
     label: 'Date Of Exam',
     align: 'left',
-    field: (row: Candidate) => row.DateOfExam.toLocaleDateString(),
+    field: (row: Candidate) => row.dateOfExam.toLocaleDateString(),
   },
   {
-    name: 'CrfToSchool',
+    name: 'crfToSchool',
     required: true,
     label: 'CRF To School',
     align: 'left',
-    field: 'CrfToSchool',
+    field: 'crfToSchool',
   },
   {
-    name: 'Requirements',
+    name: 'requirements',
     required: true,
     label: 'Requirements',
     align: 'left',
-    field: 'Requirements',
+    field: 'requirements',
   },
-  { name: 'Mock', required: true, label: 'Mock', align: 'left', field: 'Mock' },
-  { name: 'Paid', required: true, label: 'Paid', align: 'left', field: 'Paid' },
-  { name: 'Note', required: true, label: 'Note', align: 'left', field: 'Note' },
+  { name: 'mock',
+    required: true,
+    label: 'Mock',
+    align: 'left',
+    field: 'mock'
+  },
   {
-    name: 'Partner',
+    name: 'paid',
+    required: true,
+    label: 'Paid',
+    align: 'left',
+    field: 'paid'
+  },
+  {
+    name: 'note',
+    required: true,
+    label: 'Note',
+    align: 'left',
+    field: 'note'
+  },
+  {
+    name: 'partner',
     required: true,
     label: 'Partner',
     align: 'left',
-    field: 'Partner',
+    field: 'partner',
   },
   {
-    name: 'OrderId',
+    name: 'orderId',
     required: true,
     label: 'Order ID',
     align: 'left',
-    field: 'OrderId',
+    field: 'orderId',
   },
   {
     name: 'actions',
@@ -411,6 +442,17 @@ const deleteItem = (item: Candidate) => {
     inactiveRows.value.push(item);
     candidateStore.removeCandidate(item);
   });
+};
+
+const upload = async () => {
+  Loading.show({
+      message: 'Uploading candidates',
+      spinnerColor: 'amber',
+      messageColor: 'amber',
+      backgroundColor: 'black',
+    });
+  await candidateStore.uploadCandidates();
+  Loading.hide();
 };
 </script>
 <style lang="scss">
