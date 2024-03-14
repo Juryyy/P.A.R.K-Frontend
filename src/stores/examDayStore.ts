@@ -83,5 +83,24 @@ export const useExamDayStore = defineStore('examDay', {
         });
       }
     },
+
+    async changeLock(id: number) {
+      try {
+        await api.put(`/examDays/changeLock/${id}`);
+        Notify.create({
+          color: 'positive',
+          message: 'Lock changed',
+          position: 'bottom',
+          icon: 'check',
+        });
+      } catch (error) {
+        Notify.create({
+          color: 'negative',
+          message: 'Error during changing lock',
+          position: 'bottom',
+          icon: 'report_problem',
+        });
+      }
+    }
   },
 });

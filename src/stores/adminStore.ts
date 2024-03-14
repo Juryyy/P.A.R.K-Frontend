@@ -104,11 +104,12 @@ export const useAdminStore = defineStore('admin', {
       }
     },
 
-    async addVenue(location: number, venue: string){
+    async addVenue(location: number, venue: string, link: string){
       try {
         const response = await api.post('/office/addVenue', {
           location,
-          venue
+          venue,
+          link
         });
         Notify.create({
           color: 'positive',
@@ -121,6 +122,46 @@ export const useAdminStore = defineStore('admin', {
         Notify.create({
           color: 'negative',
           message: 'Error during adding venue',
+          position: 'bottom',
+          icon: 'report_problem',
+        });
+      }
+    },
+
+    async removeLocation(location: number){
+      try {
+        const response = await api.delete(`/office/deleteLocation/${location}`);
+        Notify.create({
+          color: 'positive',
+          message: response.data.success,
+          position: 'bottom',
+          icon: 'check',
+        });
+      }
+      catch (error) {
+        Notify.create({
+          color: 'negative',
+          message: 'Error during deleting location',
+          position: 'bottom',
+          icon: 'report_problem',
+        });
+      }
+    },
+
+    async removeVenue(venue: number){
+      try {
+        const response = await api.delete(`/office/deleteVenue/${venue}`);
+        Notify.create({
+          color: 'positive',
+          message: response.data.success,
+          position: 'bottom',
+          icon: 'check',
+        });
+      }
+      catch (error) {
+        Notify.create({
+          color: 'negative',
+          message: 'Error during deleting venue',
           position: 'bottom',
           icon: 'report_problem',
         });

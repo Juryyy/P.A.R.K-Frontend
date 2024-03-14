@@ -1,7 +1,8 @@
 <template>
   <q-page>
     <div class="table-container q-my-md">
-      <q-table
+      <h4 v-if="userResponses.length === 0">No availability yet, wait for Center Exam Manager to create some</h4>
+      <q-table v-else
         class="primary-header"
         :rows="userResponses"
         :columns="columns"
@@ -16,6 +17,7 @@
               :options="options"
               type="radio"
               inline
+              :disable="props.row.isLocked"
             />
           </q-td>
         </template>

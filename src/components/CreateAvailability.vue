@@ -54,11 +54,14 @@
         <template v-slot:body-cell-actions="props">
           <q-td :props="props">
             <q-btn-group>
-              <q-btn
-                @click="editExamDay(props.row.id)"
-                icon="edit"
-                color="blue"
-              />
+              <q-btn v-if="props.row.isLocked" icon="lock" color="grey" @click="changeLock(props.row.id)">
+                <q-tooltip class="bg-grey" :delay="250"
+                    >This date is locked</q-tooltip>
+              </q-btn>
+              <q-btn v-else-if="props.row.isLocked === false" icon="lock_open" color="orange" @click="changeLock(props.row.id)">
+                <q-tooltip class="bg-orange" :delay="250"
+                    >This date is unlocked</q-tooltip>
+              </q-btn>
               <q-btn
                 @click="deleteExamDay(props.row.id)"
                 icon="delete"
@@ -82,6 +85,7 @@ const examDayStore = useExamDayStore();
 
 const examDays: DayOfExams[] = examDayStore.upcomingExamDays;
 const currentDate = new Date();
+
 
 const examDaysRef = ref(examDays);
 
@@ -184,6 +188,15 @@ const colorPick = (date: string) => {
   }
 
   return 'white';
+};
+
+const changeLock = async (id: number) => {
+  const examDay = examDaysRef.value.find((day) => day.id === id);
+  if (examDay) {
+    await examDayStore.changeLock(id);
+    await examDayStore.loadExamDays();
+    examDaysRef.value = examDayStore.upcomingExamDays;
+  }
 };
 </script>
 

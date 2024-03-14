@@ -129,6 +129,7 @@ import { computed, reactive, ref, Ref, watch} from 'vue';
 import { User, RoleEnum } from 'src/stores/db/types';
 import { router } from 'src/router/index';
 import { useUserStore } from 'src/stores/userStore';
+import { onBeforeRouteLeave } from 'vue-router';
 
 const adminStore = useAdminStore();
 const userStore = useUserStore();
@@ -136,8 +137,6 @@ const userStore = useUserStore();
 const users: User[] = userStore.users;
 const usersRef: Ref<User[]> = ref(users);
 const currentUserRole = userStore.getUserRole();
-
-console.log(currentUserRole)
 
 const columns = [
   {
@@ -209,7 +208,7 @@ const editUser = async (item: User) => {
 };
 
 const viewUser = (item: User) => {
-  router.push(`/users/${item.id}`);
+  router.push(`/user/${item.id}`);
 };
 
 const Roles = computed(() => {
@@ -243,4 +242,14 @@ watch(usersRef, (newUsers, oldUsers) => {
 const handleRoleChange = (user: User, change : boolean) => {
   user.isRoleChanged = change;
 };
+
+onBeforeRouteLeave(() => {
+  watch(usersRef, (newUsers, oldUsers) => {
+    newUsers.forEach((newUser, index) => {
+      if (newUser.role !== oldUsers[index].role) {
+        usersRef.value[index].isRoleChanged = true;
+      }
+    });
+  }, { deep: true });
+});
 </script>

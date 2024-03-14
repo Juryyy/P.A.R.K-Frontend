@@ -20,7 +20,7 @@ const routes: RouteRecordRaw[] = [
         name: 'AvailabiltyCheck',
       },
       {
-        path: 'users/:id',
+        path: 'user/:id',
         component: () => import('pages/UserProfilePage.vue'),
         name: 'UserProfile',
       },
@@ -51,6 +51,7 @@ const routes: RouteRecordRaw[] = [
         path: 'admin-panel',
         component: () => import('pages/admin/AdminPanel.vue'),
         name: 'AdminPanel',
+        beforeEnter: checkOffice,
       },
       {
         path : 'test',

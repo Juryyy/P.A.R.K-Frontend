@@ -122,6 +122,7 @@ export interface Venue {
   id: number;
   name: string;
   locationId: number;
+  gLink: string;
 }
 
 export interface Location {
