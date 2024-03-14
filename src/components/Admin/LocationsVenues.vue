@@ -43,6 +43,7 @@
   <q-dialog v-model="state.showVenue">
     <q-card>
       <q-card-section>
+        <h4 class="text-center">{{selectedLocation.name}}</h4>
         <div style="display: flex; align-items: center;">
           <q-input v-model="venueName" label="Venue Name" />
           <q-btn icon="map" color="primary" @click="showMap" />

@@ -1,65 +1,98 @@
 <template>
   <div>
     <q-card v-for="post in posts" :key="post.id">
-       <q-card-section>
-          <q-item>
-            <q-item-section>
-              <q-item-label>{{ post.title }}</q-item-label>
-              <q-item-label caption>{{ post.body }}</q-item-label>
-              <q-item-label v-for="link in post.link" :key="link">
-                <a :href="link" download>Download File</a>
-              </q-item-label>
-              <q-item-label>
-                <q-chip v-for="role in post.roles" :key="role" :label="role" />
-              </q-item-label>
-            </q-item-section>
-          </q-item>
-       </q-card-section>
+      <q-card-section>
+        <q-item>
+          <q-item-section>
+            <q-item-label>{{ post.title }}</q-item-label>
+            <q-item-label caption>{{ post.body }}</q-item-label>
+            <q-item-label v-for="link in post.link" :key="link">
+              <a :href="link" download>Download File</a>
+            </q-item-label>
+            <q-item-label>
+              <q-chip v-for="role in post.roles" :key="role" :label="role" />
+            </q-item-label>
+          </q-item-section>
+        </q-item>
+      </q-card-section>
     </q-card>
 
     <q-dialog v-model="show" persistent>
       <q-card>
         <q-card-section>
-          <h2>Create post</h2>
+          <h4>Create post</h4>
           <q-input v-model="newPost.title" label="Title" />
-          <q-input class="q-mt-sm" v-model="newPost.body" label="Content" type="textarea" />
-          <q-select
-          v-model="newPost.roles"
-          label="Roles"
-          multiple
-          use-chips
-          :options="roles"
-          clearable
-          use-input
+          <q-editor
+            class="q-mt-sm"
+            v-model="newPost.body"
+            label="Content"
+            :toolbar="[
+              [
+                'bold',
+                'italic',
+                'strike',
+                'link',
+                'underline',
+                'subscript',
+                'superscript',
+              ],
+              ['unordered', 'ordered'],
+              [
+                {
+                  label: $q.lang.editor.align,
+                  icon: $q.iconSet.editor.align,
+                  fixedLabel: true,
+                  list: 'only-icons',
+                  options: ['left', 'center', 'right', 'justify'],
+                },
+              ],
+            ]"
           />
           <q-select
-          clearable
-          v-model="newPost.users"
-          label="Users"
-          multiple
-          use-chips
-          :options="userOptions"
-          use-input
-          input-debounce="300"
-          @filter="filter"
-        />
+            v-model="newPost.roles"
+            label="Roles"
+            multiple
+            use-chips
+            :options="roles"
+            clearable
+            use-input
+          />
+          <q-select
+            clearable
+            v-model="newPost.users"
+            label="Users"
+            multiple
+            use-chips
+            :options="userOptions"
+            use-input
+            input-debounce="300"
+            @filter="filter"
+          />
 
-        <q-input v-model="linkInput" label="Link" @keypress.enter="addLink" />
-        <q-btn class="q-mt-md" color="primary" label="Add Link" @click="addLink" />
+          <q-input v-model="linkInput" label="Link" @keypress.enter="addLink" />
+          <q-btn
+            class="q-mt-md"
+            color="primary"
+            label="Add Link"
+            @click="addLink"
+          />
 
-        <div v-if="newPost.link.length > 0">
-          <q-item-label class="q-mt-md">
-            Links:
-          </q-item-label>
-          <q-item v-for="(link, index) in newPost.link" :key="index">
-            <q-item-section>
-              <q-item-label>{{ link }}</q-item-label>
-            </q-item-section>
-            <q-item-section side>
-              <q-btn flat color="red" icon="delete" @click="removeLink(index)" />
-            </q-item-section>
-          </q-item>
-        </div>
+          <div v-if="newPost.link.length > 0">
+            <q-item-label class="q-mt-md"> Links: </q-item-label>
+            <q-item v-for="(link, index) in newPost.link" :key="index">
+              <q-item-section>
+                <q-item-label>{{ link }}</q-item-label>
+              </q-item-section>
+              <q-item-section side>
+                <q-btn
+                  flat
+                  color="red"
+                  icon="delete"
+                  @click="removeLink(index)"
+                />
+              </q-item-section>
+            </q-item>
+          </div>
         </q-card-section>
 
         <q-card-actions align="right">
@@ -131,7 +164,10 @@ const save = async () => {
 };
 
 const userOptions = computed(() => {
-  return userStore.users.map(user => ({ label: `${user.firstName} ${user.lastName}`, value: user.id }));
+  return userStore.users.map((user) => ({
+    label: `${user.firstName} ${user.lastName}`,
+    value: user.id,
+  }));
 });
 
 type UpdateFunction = (callback: () => void) => void;
@@ -139,14 +175,14 @@ type UpdateFunction = (callback: () => void) => void;
 const filterFn = (val: string, update: UpdateFunction) => {
   if (val === '') {
     update(() => {
-      usersRef.value = userStore.users.map(user => ({ ...user }));
+      usersRef.value = userStore.users.map((user) => ({ ...user }));
     });
     return;
   }
 
   update(() => {
     const needle = val.toLowerCase();
-    usersRef.value = userStore.users.filter(user =>
+    usersRef.value = userStore.users.filter((user) =>
       `${user.firstName} ${user.lastName}`.toLowerCase().includes(needle)
     );
   });
@@ -168,5 +204,4 @@ const addLink = () => {
 const removeLink = (index: number) => {
   newPost.link.splice(index, 1);
 };
-
 </script>
