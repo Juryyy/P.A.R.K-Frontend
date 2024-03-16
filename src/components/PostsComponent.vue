@@ -6,8 +6,8 @@
           <q-item-section>
             <q-item-label>{{ post.title }}</q-item-label>
             <q-item-label caption>{{ post.body }}</q-item-label>
-            <q-item-label v-for="link in post.link" :key="link">
-              <a :href="link" download>Download File</a>
+            <q-item-label v-for="link in post.links" :key="link.link">
+              <a :href="link.link" download>Download File</a>
             </q-item-label>
             <q-item-label>
               <q-chip v-for="role in post.roles" :key="role" :label="role" />
@@ -69,7 +69,8 @@
             @filter="filter"
           />
 
-          <q-input v-model="linkInput" label="Link" @keypress.enter="addLink" />
+          <q-input v-model="linkName" label="Link/File Name" />
+          <q-input v-model="link" label="Link/File URL" @keypress.enter="addLink" />
           <q-btn
             class="q-mt-md"
             color="primary"
@@ -77,9 +78,9 @@
             @click="addLink"
           />
 
-          <div v-if="newPost.link.length > 0">
+          <div v-if="newPost.links.length > 0">
             <q-item-label class="q-mt-md"> Links: </q-item-label>
-            <q-item v-for="(link, index) in newPost.link" :key="index">
+            <q-item v-for="(link, index) in newPost.links" :key="index">
               <q-item-section>
                 <q-item-label>{{ link }}</q-item-label>
               </q-item-section>
@@ -115,7 +116,7 @@
 import { ref, reactive, onBeforeMount, computed } from 'vue';
 import { usePostStore } from 'src/stores/postStore';
 import { useUserStore } from 'src/stores/userStore';
-import { Post, RoleEnum, User } from 'src/stores/db/types';
+import { Post, RoleEnum, User, DriveLink } from 'src/stores/db/types';
 import { Loading } from 'quasar';
 import config from 'src/config';
 
@@ -141,8 +142,11 @@ const newPost = reactive<Post>({
   body: '',
   roles: [],
   users: [],
-  link: [],
+  links: [],
 });
+
+const linkName = ref('');
+const link = ref('');
 
 const show = ref(false);
 
@@ -192,16 +196,16 @@ const filter = (value: string, update: UpdateFunction) => {
   filterFn(value, update);
 };
 
-const linkInput = ref('');
-
 const addLink = () => {
-  if (linkInput.value.trim() !== '') {
-    newPost.link.push(linkInput.value.trim());
-    linkInput.value = '';
+  if (link.value.trim() !== '' && linkName.value.trim() !== '') {
+    newPost.links.push({ name: linkName.value.trim(), link: link.value.trim() });
+    link.value = '';
+    linkName.value = '';
   }
 };
 
+
 const removeLink = (index: number) => {
-  newPost.link.splice(index, 1);
+  newPost.links.splice(index, 1);
 };
 </script>

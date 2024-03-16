@@ -75,7 +75,10 @@
 
             <div>
               Examiners:
-              <div v-for="examiner in exam.examiners" :key="examiner.id">
+              <div v-if="exam.examiners.length === 0">
+                No examiners assigned
+              </div>
+              <div v-else v-for="examiner in exam.examiners" :key="examiner.id">
                 {{ examiner.firstName }} {{ examiner.lastName }}
               </div>
             </div>

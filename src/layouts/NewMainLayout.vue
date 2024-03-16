@@ -110,6 +110,14 @@
               <q-item-label
                 >Note: <b>{{ exam.note }}</b></q-item-label
               >
+              <q-item-label>
+                <q-btn
+                  color="primary"
+                  label="View"
+                  @click="() => router.push(`/exams/${exam.id}`)"
+                />
+                <q-btn color="primary" icon="map" @click="showVenue(exam.venueLink)"/>
+              </q-item-label>
             </q-card-section>
           </q-card>
         </q-card-section>
@@ -130,7 +138,7 @@ import EssentialLink, {
 import { useUserStore } from 'src/stores/userStore';
 import { useAuthStore } from 'src/stores/authStore';
 import { router } from 'src/router/index';
-import { Exam } from 'src/stores/db/types';
+import { ExamWithVenueLink } from 'src/stores/db/types';
 import { Loading } from 'quasar';
 
 const userStore = useUserStore();
@@ -155,7 +163,7 @@ const logout = async () => {
   router.push('/login');
 };
 
-const exams: Exam[] = userStore.usersExams;
+const exams: ExamWithVenueLink[] = userStore.usersExams;
 const usersExamsRef = ref(exams);
 const user = computed(() => userStore.user);
 const userAvatar = ref('');
@@ -211,6 +219,7 @@ const rightDrawerOpen = ref(false);
 
 function toggleRightDrawer() {
   rightDrawerOpen.value = !rightDrawerOpen.value;
+  console.log(usersExamsRef.value)
 }
 
 const miniState = ref(true);
@@ -229,6 +238,11 @@ const formatDate = (datetime: Date) => {
   const year = date.getFullYear().toString().padStart(2, '0');
   return `${day}.${month}.${year}`;
 };
+
+const showVenue = (gLink : string) => {
+  window.open(gLink, '_blank');
+}
+
 </script>
 <style lang="scss" scoped>
 .card {

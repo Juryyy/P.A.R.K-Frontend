@@ -65,6 +65,10 @@ export interface Exam {
   candidates: string[];
 }
 
+export interface ExamWithVenueLink extends Exam {
+  venueLink: string;
+}
+
 export enum RoleEnum {
   Office = 'Office',
   Supervisor = 'Supervisor',
@@ -137,5 +141,13 @@ export interface Post {
   body: string;
   roles?: RoleEnum[],
   users?: User[],
-  link: string[];
+  links: DriveLink[];
 }
+
+export interface DriveLink{
+  id?: number;
+  link: string;
+  name: string;
+  postId?: number;
+}
+
