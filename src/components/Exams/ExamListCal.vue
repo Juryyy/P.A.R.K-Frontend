@@ -205,6 +205,7 @@ import { useExamStore } from 'src/stores/examStore';
 import { useAdminStore } from 'src/stores/adminStore';
 import { Loading, Notify } from 'quasar';
 import { DayOfExams, Exam, LevelEnum, examTypeEnum, Location, Venue} from 'src/stores/db/types';
+import { router } from 'src/router/index';
 
 const examDayStore = useExamDayStore();
 const examStore = useExamStore();
@@ -310,9 +311,7 @@ const getExamDayId = (examId: number) => {
 };
 
 const editExam = async (examId: number) => {
-  const getExamDay = getExamDayId(examId);
-  if (getExamDay) await examDayStore.loadResponsesForExamDay(getExamDay);
-  console.log('Edit exam with id:', examId, 'and exam day id:', getExamDay);
+  router.push(`/exams/${examId}`);
 };
 
 const highlightDays = (date: string) => {
@@ -329,7 +328,6 @@ const highlightDays = (date: string) => {
   });
 };
 
-// Use computed to track changes in examsRef
 const filteredExams = computed(() => {
   if (state.selectedDate) {
     const [day, month, year] = state.selectedDate.split('.');

@@ -8,7 +8,8 @@ export const useExamStore = defineStore('exam', {
   state: () => ({
     upcomingExams: ref<Exam[]>([]),
     pastExams: ref([]),
-    selectedExam: ref(null),
+    selectedExam: ref(),
+    selectedExamDay: ref(),
   }),
   actions: {
     async loadUpcomingExams() {
@@ -53,5 +54,19 @@ export const useExamStore = defineStore('exam', {
         });
       }
     },
+
+    async getExam(id: number) {
+      try {
+        const response = await api.get(`/exams/${id}`);
+        this.selectedExam = response.data;
+      } catch (error) {
+        Notify.create({
+          color: 'negative',
+          message: 'Error during getting exam',
+          position: 'bottom',
+          icon: 'report_problem',
+        });
+      }
+    }
   },
 });

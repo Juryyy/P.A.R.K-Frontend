@@ -42,6 +42,12 @@ const routes: RouteRecordRaw[] = [
         beforeEnter: checkOffice,
       },
       {
+        path: 'exams/:id',
+        component: () => import('pages/ExamPage.vue'),
+        name: 'Exam',
+        beforeEnter: checkOffice,
+      },
+      {
         path: 'create-availability',
         component: () => import('pages/admin/CreateAvailabilityPage.vue'),
         name: 'CreateAvailability',

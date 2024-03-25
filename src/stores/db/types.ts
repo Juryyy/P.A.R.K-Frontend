@@ -104,6 +104,14 @@ export interface UserResponsesWithType {
   examiners: boolean;
 }
 
+export interface dayResponse {
+  dayOfExamsId: number;
+  id : number;
+  response : string;
+  userName : string;
+  userRole : string;
+}
+
 export enum LevelEnum {
   A1 = 'A1',
   A2 = 'A2',

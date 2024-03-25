@@ -2,11 +2,12 @@ import { defineStore } from 'pinia';
 import { api } from '../boot/axios';
 import { Notify } from 'quasar';
 import { ref } from 'vue';
+import { dayResponse } from './db/types';
 
 export const useExamDayStore = defineStore('examDay', {
   state: () => ({
     upcomingExamDays: ref([]),
-    responsesForExamDay: ref([]),
+    responsesForExamDay: ref<dayResponse[]>([]),
   }),
   actions: {
     async loadExamDays() {
