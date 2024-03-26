@@ -452,6 +452,7 @@ const upload = async () => {
       backgroundColor: 'black',
     });
   await candidateStore.uploadCandidates();
+  candidateStore.candidates.splice(0, candidateStore.candidates.length);
   Loading.hide();
 };
 </script>

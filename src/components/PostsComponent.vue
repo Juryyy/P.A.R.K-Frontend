@@ -82,7 +82,7 @@
             <q-item-label class="q-mt-md"> Links: </q-item-label>
             <q-item v-for="(link, index) in newPost.links" :key="index">
               <q-item-section>
-                <q-item-label>{{ link }}</q-item-label>
+                <q-item-label>{{ link.name }} : {{ link.link}}</q-item-label>
               </q-item-section>
               <q-item-section side>
                 <q-btn

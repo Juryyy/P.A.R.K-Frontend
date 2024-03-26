@@ -110,13 +110,18 @@
               <q-item-label
                 >Note: <b>{{ exam.note }}</b></q-item-label
               >
-              <q-item-label>
+              <q-item-label
+              class="absolute-top-right q-ma-sm"
+              >
                 <q-btn
-                  color="primary"
+                  class="q-mr-xs"
+                  color="secondary"
                   label="View"
-                  @click="() => router.push(`/exams/${exam.id}`)"
+                  @click="() => {
+                    router.push(`/exams/${exam.id}`)
+                }"
                 />
-                <q-btn color="primary" icon="map" @click="showVenue(exam.venueLink)"/>
+                <q-btn color="secondary" icon="map" @click="showVenue(exam.venueLink)"/>
               </q-item-label>
             </q-card-section>
           </q-card>
