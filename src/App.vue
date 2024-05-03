@@ -1,5 +1,5 @@
 <template>
-  <router-view />
+  <router-view :key="$route.fullPath" />
 </template>
 
 <script setup lang="ts">
@@ -8,7 +8,11 @@ import { useUserStore } from 'src/stores/userStore';
 
 const userStore = useUserStore();
 
-onMounted(() => {
+onMounted(async () => {
   userStore.getUserInfo();
+  if(userStore.user.email !== null){
+    await userStore.getUsersExams();
+    await userStore.getUsersAvatar();
+  }
 });
 </script>

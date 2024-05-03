@@ -156,8 +156,6 @@ onBeforeMount(async () => {
     messageColor: 'amber',
     backgroundColor: 'black',
   });
-  await userStore.getUsersExams();
-  await userStore.getUsersAvatar();
   usersExamsRef.value = userStore.usersExams;
   userAvatar.value = userStore.userAvatar;
   Loading.hide();

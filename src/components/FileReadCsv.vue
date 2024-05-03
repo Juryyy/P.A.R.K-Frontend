@@ -15,7 +15,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import type { Candidate } from './models';
-import * as h from 'src/functions/FileReadHelper';
+import * as h from 'src/helpers/FileReadHelper'
 import { useCandidateStore } from 'src/stores/candidateStore';
 
 const candidateStore = useCandidateStore();
@@ -104,3 +104,4 @@ const uploadCSV = async (event: Event) => {
   }
 };
 </script>
+src/helpers/FileReadHelper

@@ -3,7 +3,7 @@ import { api } from '../boot/axios';
 import { ref } from 'vue';
 import { Notify } from 'quasar';
 import { RoleEnum } from './db/types';
-import { removeSpaces } from '../functions/RemoveSpaces';
+import { removeSpaces } from '../helpers/RemoveSpaces';
 import { Location } from 'src/stores/db/types';
 
 export const useAdminStore = defineStore('admin', {

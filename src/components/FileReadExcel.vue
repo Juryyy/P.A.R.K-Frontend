@@ -13,7 +13,6 @@
 import { ref } from 'vue';
 import * as ExcelJS from 'exceljs';
 import type { Candidate } from './models';
-import * as h from 'src/functions/FileReadHelper';
 
 
 const file = ref<File | null>(null)
@@ -43,3 +42,4 @@ const uploadExcel = (event: Event) => {
   }
 };
 </script>
+src/helpers/FileReadHelper

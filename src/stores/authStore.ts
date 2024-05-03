@@ -7,6 +7,8 @@ import { useUserStore } from './userStore';
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     user: undefined as User | undefined,
+    verification : false as boolean,
+    email : '' as string,
   }),
   actions: {
     setUserInfo(userInfo: User) {
@@ -17,14 +19,38 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
-    async login(email: string, password: string) {
+    async verifyUser(email : string, code : string){ {
       try {
-        const response = await api.post('/auth/login', { email, password });
+        const response = await api.post('/auth/verify', { email, code });
         const userInfo = response.data as User;
         this.setUserInfo(userInfo);
         Notify.create({
           color: 'positive',
-          message: 'Login successful',
+          message: 'Verification successful',
+          position: 'top',
+          icon: 'check',
+        });
+      } catch (error) {
+        console.error('Error during verification:', error);
+        Notify.create({
+          color: 'negative',
+          message: 'Error during verification',
+          position: 'top',
+          icon: 'report_problem',
+          });
+        }
+      }
+    },
+    async login(email: string, password: string) {
+      try {
+        const response = await api.post('/auth/login', { email, password });
+        if(response.status === 200){
+          this.verification = true;
+          this.email = email;
+        }
+        Notify.create({
+          color: 'positive',
+          message: '2FA code sent to your email',
           position: 'top',
           icon: 'check',
         });
