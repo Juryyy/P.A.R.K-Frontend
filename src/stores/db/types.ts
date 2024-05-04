@@ -146,10 +146,14 @@ export interface Location {
 export interface Post {
   id?: number;
   title: string;
-  body: string;
-  roles?: RoleEnum[],
+  content: string;
+  authorId?: number;
+  author?: User;
+  createdAt?: Date;
+  updatedAt?: Date;
+  taggedRoles?: RoleEnum[],
   users?: User[],
-  links: DriveLink[];
+  driveLink: DriveLink[];
 }
 
 export interface DriveLink{

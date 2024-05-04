@@ -3,6 +3,7 @@ import { api } from '../boot/axios';
 import { Notify } from 'quasar';
 import { ref } from 'vue';
 import { Post, RoleEnum } from 'src/stores/db/types';
+import { removeSpaces } from '../helpers/RemoveSpaces';
 
 export const usePostStore = defineStore('post', {
   state: () => ({
@@ -14,9 +15,10 @@ export const usePostStore = defineStore('post', {
       try {
         await api.post('/posts/create', {
           title: post.title,
-          body: post.body,
-          roles: post.roles,
-          link: post.link
+          content: post.content,
+          roles: post.taggedRoles?.map((role) => removeSpaces(role)),
+          driveLink: post.driveLink,
+          users: post.users
         });
         Notify.create({
           color: 'positive',

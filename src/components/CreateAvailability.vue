@@ -27,7 +27,7 @@
 
     <div class="table-container">
       <q-table
-        class="primary-header"
+        class="primary-header q-mb-md"
         :rows="examDaysRef"
         :columns="columns"
         row-key="date"

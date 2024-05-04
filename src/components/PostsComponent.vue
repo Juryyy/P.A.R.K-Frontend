@@ -1,16 +1,22 @@
 <template>
   <div>
-    <q-card v-for="post in posts" :key="post.id">
-      <q-card-section>
+    <q-card class="q-ma-md" v-for="post in postsRef" :key="post.id">
+      <q-card-section style="border: 6px solid #CBE09D;">
         <q-item>
-          <q-item-section>
-            <q-item-label>{{ post.title }}</q-item-label>
-            <q-item-label caption>{{ post.body }}</q-item-label>
-            <q-item-label v-for="link in post.links" :key="link.link">
-              <a :href="link.link" download>Download File</a>
+          <q-item-section >
+            <q-item-label class="text-center">{{ post.title }}</q-item-label>
+            <q-item-label class="text-right" >
+              <q-badge class="q-ml-xs" color="secondary" v-for="role in post.taggedRoles" :key="role" :label="role" />
+            </q-item-label>
+            <q-item-label class="text-right" >
+              <q-badge v-if="datesMatch(post.createdAt, post.updatedAt)" color="primary" clickable :label="post.createdAt ? new Date(post.createdAt).toLocaleDateString('en-US') : ''" />
+              <q-badge v-else color="warning" clickable :label="post.updatedAt ? new Date(post.updatedAt).toLocaleDateString('en-US') : ''" />
             </q-item-label>
             <q-item-label>
-              <q-chip v-for="role in post.roles" :key="role" :label="role" />
+            <div v-html="post.content" class="q-item-label" caption></div>
+            </q-item-label>
+            <q-item-label v-for="link in post.driveLink" :key="link.link">
+              <q-btn color="secondary" :label="link.name" type="a" :href="link.link" target="_blank" download />
             </q-item-label>
           </q-item-section>
         </q-item>
@@ -24,7 +30,7 @@
           <q-input v-model="newPost.title" label="Title" />
           <q-editor
             class="q-mt-sm"
-            v-model="newPost.body"
+            v-model="newPost.content"
             label="Content"
             :toolbar="[
               [
@@ -49,7 +55,7 @@
             ]"
           />
           <q-select
-            v-model="newPost.roles"
+            v-model="newPost.taggedRoles"
             label="Roles"
             multiple
             use-chips
@@ -78,9 +84,9 @@
             @click="addLink"
           />
 
-          <div v-if="newPost.links.length > 0">
+          <div v-if="newPost.driveLink.length > 0">
             <q-item-label class="q-mt-md"> Links: </q-item-label>
-            <q-item v-for="(link, index) in newPost.links" :key="index">
+            <q-item v-for="(link, index) in newPost.driveLink" :key="index">
               <q-item-section>
                 <q-item-label>{{ link.name }} : {{ link.link}}</q-item-label>
               </q-item-section>
@@ -123,26 +129,26 @@ import config from 'src/config';
 const postStore = usePostStore();
 const userStore = useUserStore();
 
+const { users } : { users: User[] } = useUserStore();
+
+const posts = postStore.posts;
+
 onBeforeMount(async () => {
-  //await postStore.getPosts();
-  await userStore.getAllUsers();
   roles.value = Object.values(RoleEnum);
   usersRef.value = userStore.users.map((user) => ({ ...user }));
   console.log(usersRef.value);
+  console.log(postStore.posts);
 });
 
-const posts: Post[] = postStore.posts;
-const users: User[] = userStore.users;
-
-const postsRef = ref<Post[]>(posts);
+const postsRef = ref(posts);
 const usersRef = ref<User[]>(users);
 
 const newPost = reactive<Post>({
   title: '',
-  body: '',
-  roles: [],
+  content: '',
+  taggedRoles: [],
   users: [],
-  links: [],
+  driveLink: [],
 });
 
 const linkName = ref('');
@@ -160,7 +166,7 @@ const save = async () => {
     backgroundColor: 'black',
   });
   console.log(newPost);
-  //await postStore.addPost(newPost);
+  await postStore.addPost(newPost);
   show.value = false;
   await postStore.getPosts();
   postsRef.value = postStore.posts;
@@ -198,14 +204,33 @@ const filter = (value: string, update: UpdateFunction) => {
 
 const addLink = () => {
   if (link.value.trim() !== '' && linkName.value.trim() !== '') {
-    newPost.links.push({ name: linkName.value.trim(), link: link.value.trim() });
+    newPost.driveLink.push({ name: linkName.value.trim(), link: link.value.trim() });
     link.value = '';
     linkName.value = '';
   }
 };
 
+const datesMatch = (date1: Date | undefined, date2: Date | undefined) => {
+  if (!date1 || !date2) {
+    return false;
+  }
+  const d1 = new Date(date1);
+  const d2 = new Date(date2);
+  return d1.getFullYear() === d2.getFullYear() && d1.getMonth() === d2.getMonth() && d1.getDate() === d2.getDate();
+};
 
 const removeLink = (index: number) => {
-  newPost.links.splice(index, 1);
+  newPost.driveLink.splice(index, 1);
 };
 </script>
+<style scoped>
+.badge-container {
+  position: relative;
+}
+
+.top-right-badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+</style>
