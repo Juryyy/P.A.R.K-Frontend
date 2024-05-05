@@ -92,7 +92,8 @@ const Login = ref(false);
 const login = async (event: Event) => {
   event?.preventDefault();
   await authStore.login(state.email, state.password);
-  Login.value = true;
+
+  if(authStore.verification) Login.value = true;
 };
 
 const validate = async (event: Event) => {

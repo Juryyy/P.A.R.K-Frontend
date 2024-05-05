@@ -355,9 +355,11 @@ const filteredExams = computed(() => {
 });
 
 const formatTime = (datetime: Date) => {
+  console.log(datetime)
   const date = new Date(datetime);
-  const hours = date.getHours().toString().padStart(2, '0');
-  const minutes = date.getMinutes().toString().padStart(2, '0');
+  const hours = date.getUTCHours().toString().padStart(2, '0');
+  const minutes = date.getUTCMinutes().toString().padStart(2, '0');
+  console.log(`${hours}:${minutes}`)
   return `${hours}:${minutes}`;
 };
 
