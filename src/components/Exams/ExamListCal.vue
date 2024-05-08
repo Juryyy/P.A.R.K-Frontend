@@ -54,7 +54,7 @@
                 v-for="supervisor in exam.supervisors"
                 :key="supervisor.id"
               >
-                {{ supervisor.firstName }} {{ supervisor.lastName }}
+                <b>{{ supervisor.firstName }} {{ supervisor.lastName }}</b>
               </div>
             </div>
 
