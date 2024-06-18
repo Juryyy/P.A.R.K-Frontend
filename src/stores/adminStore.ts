@@ -70,7 +70,6 @@ export const useAdminStore = defineStore('admin', {
     async getLocationsWithVenues(){
       try {
         const response = await api.get('/office/locationsWithVenues');
-        console.log(response.data);
         this.locationsWithVenues = response.data as Location[];
       } catch (error) {
         Notify.create({

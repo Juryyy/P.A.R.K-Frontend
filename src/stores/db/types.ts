@@ -110,6 +110,7 @@ export interface dayResponse {
   response : string;
   userName : string;
   userRole : string;
+  assigned: boolean;
 }
 
 export enum LevelEnum {

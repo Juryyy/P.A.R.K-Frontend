@@ -60,14 +60,34 @@
     bordered
     class="q-ma-md"
   >
+  <q-card-section>
+  <div class="text-h6">Supervisors</div>
   <div v-for="response in responses" :key="response.id">
-    <q-card-section>
-      <div class="text-h6">Response for {{ response.userName}}</div>
-      <div>Response: {{ response.response }}</div>
-      <div>Role: {{ response.userRole }}</div>
-    </q-card-section>
+    <div v-if="response.response !== 'No' && (response.userRole === 'Supervisor' || response.userRole === 'SeniorSupervisor' || response.userRole === 'Office')">
+      <div class="text-h6">{{ response.userName}}</div>
+      <div>Response: {{ response.userRole }}</div>
+    </div>
   </div>
+  </q-card-section>
   </q-card>
+
+  <q-card
+  bordered
+  class="q-ma-md"
+>
+<q-card-section>
+  <div class="text-h6">Supervisors - no</div>
+  <q-separator/>
+  <div v-for="response in responses" :key="response.id">
+    <div v-if="response.response === 'No' && (response.userRole === 'Supervisor' || response.userRole === 'SeniorSupervisor' || response.userRole === 'Office')">
+      <div class="text-h6">{{ response.userName}}</div>
+      <div>Response: {{ response.userRole }}</div>
+      <q-separator/>
+    </div>
+  </div>
+</q-card-section>
+</q-card>
+
 </template>
 
 <script setup lang="ts">
@@ -78,5 +98,7 @@ const props = defineProps<{
   exam: Exam;
   responses: dayResponse[];
 }>();
+
+console.log(props.responses)
 
 </script>
