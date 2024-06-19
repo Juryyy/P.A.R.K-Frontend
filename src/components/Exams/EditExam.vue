@@ -61,11 +61,13 @@
     class="q-ma-md"
   >
   <q-card-section>
-  <div class="text-h6">Supervisors</div>
+  <div class="text-h4">Supervisors</div>
+  <q-separator class="q-my-sm"/>
   <div v-for="response in responses" :key="response.id">
     <div v-if="response.response !== 'No' && (response.userRole === 'Supervisor' || response.userRole === 'SeniorSupervisor' || response.userRole === 'Office')">
-      <div class="text-h6">{{ response.userName}}</div>
-      <div>Response: {{ response.userRole }}</div>
+      <div class="text-h6 text-weight-bold">{{ response.userName}}
+      <q-btn @click="addToExam(response.id)" icon="add" color="primary" round size="md"/>
+      </div>
     </div>
   </div>
   </q-card-section>
@@ -76,8 +78,8 @@
   class="q-ma-md"
 >
 <q-card-section>
-  <div class="text-h6">Supervisors - no</div>
-  <q-separator/>
+  <div class="text-h4">Invigilators</div>
+  <q-separator class="q-my-sm"/>
   <div v-for="response in responses" :key="response.id">
     <div v-if="response.response === 'No' && (response.userRole === 'Supervisor' || response.userRole === 'SeniorSupervisor' || response.userRole === 'Office')">
       <div class="text-h6">{{ response.userName}}</div>
@@ -100,5 +102,9 @@ const props = defineProps<{
 }>();
 
 console.log(props.responses)
+
+const addToExam = (id: number) => {
+  console.log(id)
+}
 
 </script>
