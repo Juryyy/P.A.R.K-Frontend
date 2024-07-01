@@ -1,6 +1,6 @@
 <template>
-  <q-page>
-    <div class="table-container q-my-md">
+  <q-page class="page-container">
+    <div class="q-pa-md q-gutter-md content-container">
       <h4 v-if="userResponses.length === 0">No availability yet, wait for Center Exam Manager to create some</h4>
       <q-table v-else
         class="primary-header"
@@ -9,21 +9,36 @@
         row-key="date"
         :hide-pagination="true"
         :rows-per-page-options="[0]"
+        flat
+        bordered
+        square
       >
         <template v-slot:body-cell-action="props">
           <q-td :props="props">
-            <q-option-group
-              v-model="props.row.response"
-              :options="options"
-              type="radio"
-              inline
-              :disable="props.row.isLocked"
-            />
+            <div class="q-gutter-xs response-layout">
+              <div class="response-group compact-width">
+                <q-option-group
+                  v-model="props.row.response"
+                  :options="options.slice(0, 2)"
+                  type="radio"
+                  inline
+                  :disable="props.row.isLocked"
+                />
+              </div>
+              <div class="response-group compact-width">
+                <q-option-group
+                  v-model="props.row.response"
+                  :options="options.slice(2)"
+                  type="radio"
+                  inline
+                  :disable="props.row.isLocked"
+                />
+              </div>
+            </div>
           </q-td>
         </template>
         <template v-slot:bottom>
-          <div class="submit-btn">
-            <div></div>
+          <div class="q-pa-sm q-gutter-sm flex flex-row-reverse">
             <q-btn push color="primary" label="Submit" @click="handleSubmit" />
           </div>
         </template>
@@ -49,13 +64,14 @@ const columns: any = [
     sortable: true,
     format: (val: string) => new Date(val).toLocaleDateString(),
   },
-  { name: 'action', align: 'left', label: 'Response', field: 'response' },
+  { name: 'action', align: 'center', label: 'Response', field: 'response' },
 ];
 
 const options = [
   { label: 'Yes', value: 'Yes' },
-  { label: 'Maybe', value: 'Maybe' },
   { label: 'No', value: 'No' },
+  { label: 'AM', value: 'AM' },
+  { label: 'PM', value: 'PM' },
 ];
 
 const handleSubmit = async () => {
@@ -67,21 +83,48 @@ const handleSubmit = async () => {
 };
 </script>
 
-<style scoped>
-.table-container {
+<style scoped lang="scss">
+.page-container {
   display: flex;
   justify-content: center;
-  width: 100%;
 }
 
-.table-container table {
+.content-container {
   width: 100%;
+  @media(min-width: 600px){
+    max-width: 30%; /* Adjust the max-width as necessary */
+  }
 }
 
-.submit-btn {
+.response-layout {
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   align-items: center;
-  width: 100%;
+  flex-direction: column;
+}
+
+.response-group {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.compact-width {
+  max-width: 100%; /* Adjust the max-width as necessary */
+}
+
+.q-table .q-table__body > tr > td {
+  vertical-align: middle;
+  text-align: center;
+}
+
+@media (max-width: 600px) {
+  .response-layout {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .compact-width {
+    width: 100%;
+  }
 }
 </style>

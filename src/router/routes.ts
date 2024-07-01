@@ -59,11 +59,6 @@ const routes: RouteRecordRaw[] = [
         name: 'AdminPanel',
         beforeEnter: checkOffice,
       },
-      {
-        path : 'test',
-        component: () => import('components/PostsComponent.vue'),
-        name: 'TestSchedule'
-      }
     ],
   },
   {
@@ -80,6 +75,11 @@ const routes: RouteRecordRaw[] = [
     path: '/verify',
     component: () => import('pages/VerifyPage.vue'),
     name: 'Verify',
+  },
+  {
+    path: '/test',
+    component: () => import('pages/TestPage.vue'),
+    name: 'Test',
   },
   {
     path: '/:catchAll(.*)*',

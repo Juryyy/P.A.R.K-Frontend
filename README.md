@@ -6,10 +6,17 @@
 - search
 - pagination
 
+- todo upload file from post screen
+
 
 # - [?] Availability
 - comments ?
 - autolock
+
+- zrušit maybe
+- yes/no/am/pm
+- note z profilu
+
 
 # - [?] Profile
 - edit profile
@@ -17,6 +24,9 @@
 - deactivation/activation
 - 2FA modification
 - avatar upload
+
+- levels
+- multiple roles
 
 # - [?] Exams
 - [] exam creation
