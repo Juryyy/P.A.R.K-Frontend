@@ -46,6 +46,7 @@ const routes: RouteRecordRaw[] = [
         component: () => import('pages/ExamPage.vue'),
         name: 'Exam',
         beforeEnter: checkOffice,
+        props: true,
       },
       {
         path: 'create-availability',

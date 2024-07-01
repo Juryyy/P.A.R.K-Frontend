@@ -77,8 +77,8 @@
 
 <script setup lang="ts">
 import { reactive, ref } from 'vue';
-import { useExamDayStore } from 'src/stores/examDayStore';
-import { DayOfExams } from 'src/stores/db/types';
+import { useExamDayStore } from '../../stores/examDayStore';
+import { DayOfExams } from '../../stores/db/types';
 import { Loading, Dialog } from 'quasar';
 
 const examDayStore = useExamDayStore();
@@ -94,7 +94,7 @@ const state = reactive({
     .toString()
     .padStart(2, '0')}-${currentDate.getDate().toString().padStart(2, '0')}`,
   invigilators: true,
-  examiners: false,
+  examiners: true,
 });
 
 const addDate = async () => {
@@ -102,7 +102,6 @@ const addDate = async () => {
   await examDayStore.addExamDay(sDate, state.invigilators, state.examiners);
   await examDayStore.loadExamDays();
   examDaysRef.value = examDayStore.upcomingExamDays;
-  examDaysRef.value.reverse();
 };
 
 const columns: any = [
@@ -119,10 +118,6 @@ const formatDate = (date: Date) => {
       year: 'numeric',
     })
     .replace(/(\d{2})\/(\d{2})\/(\d{4})/, '$2.$1.$3'); // DD.MM.YYYY
-};
-
-const editExamDay = (id: number) => {
-  console.log('Edit exam day with ID:', id);
 };
 
 const deleteExamDay = async (id: number) => {

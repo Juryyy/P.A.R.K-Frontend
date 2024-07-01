@@ -1,110 +1,135 @@
 <template>
-    <q-card
-          bordered
-          class="q-ma-md"
-        >
-          <q-card-section>
-            <div class="text-h5">{{ exam.location }}</div>
-            <div class="text-h6">Venue: {{ exam.venue }} </div>
-            <div>Type: {{ exam.type }}</div>
-            <div>Levels: {{ exam.levels.join(', ') }}</div>
-            <div>Start time: {{ exam.startTime }}</div>
-            <div>End time: {{ exam.endTime }}</div>
-            <div>
-              Note:
-              <span>
-                {{ exam.note }}
-              </span>
-            </div>
-            <q-separator />
-            <div>
-              Supervisors:
-              <div v-if="exam.supervisors.length === 0">
-                No supervisors assigned
-              </div>
-
-              <div
-                v-else
-                v-for="supervisor in exam.supervisors"
-                :key="supervisor.id"
-              >
-                {{ supervisor.firstName }} {{ supervisor.lastName }}
-              </div>
-            </div>
-
-            <div>
-              Invigilators:
-              <div v-if="exam.invigilators.length === 0">
-                No invigilators assigned
-              </div>
-
-              <div
-                v-else
-                v-for="invigilator in exam.invigilators"
-                :key="invigilator.id"
-              >
-                {{ invigilator.firstName }} {{ invigilator.lastName }}
-              </div>
-            </div>
-
-            <div>
-              Examiners:
-              <div v-for="examiner in exam.examiners" :key="examiner.id">
-                {{ examiner.firstName }} {{ examiner.lastName }}
-              </div>
-            </div>
-          </q-card-section>
-  </q-card>
-
-  <q-card
-    bordered
-    class="q-ma-md"
-  >
-  <q-card-section>
-  <div class="text-h4">Supervisors</div>
-  <q-separator class="q-my-sm"/>
-  <div v-for="response in responses" :key="response.id">
-    <div v-if="response.response !== 'No' && (response.userRole === 'Supervisor' || response.userRole === 'SeniorSupervisor' || response.userRole === 'Office')">
-      <div class="text-h6 text-weight-bold">{{ response.userName}}
-      <q-btn @click="addToExam(response.id)" icon="add" color="primary" round size="md"/>
+  <q-card bordered class="q-ma-md" >
+    <q-card-section>
+      <div class="text-h5">{{ exam.location }}</div>
+      <div class="text-h6">Venue: {{ exam.venue }}</div>
+      <div>Type: {{ exam.type }}</div>
+      <div>Levels: {{ exam.levels.join(', ') }}</div>
+      <div>Start time: {{ formatTime(exam.startTime) }}</div>
+      <div>End time: {{ formatTime(exam.endTime) }}</div>
+      <div>
+        Note:
+        <span>
+          {{ exam.note }}
+        </span>
       </div>
-    </div>
-  </div>
-  </q-card-section>
+      <q-separator />
+      <div v-for="(role, key) in roles" :key="key">
+        {{ role.title }}:
+        <div v-if="exam[key].length === 0">
+          No {{ key }} assigned
+        </div>
+        <div class="text-bold" v-else v-for="person in exam[key]" :key="person.id">
+          {{ person.firstName }} {{ person.lastName }}
+        </div>
+      </div>
+    </q-card-section>
   </q-card>
 
-  <q-card
-  bordered
-  class="q-ma-md"
->
-<q-card-section>
-  <div class="text-h4">Invigilators</div>
-  <q-separator class="q-my-sm"/>
-  <div v-for="response in responses" :key="response.id">
-    <div v-if="response.response === 'No' && (response.userRole === 'Supervisor' || response.userRole === 'SeniorSupervisor' || response.userRole === 'Office')">
-      <div class="text-h6">{{ response.userName}}</div>
-      <div>Response: {{ response.userRole }}</div>
-      <q-separator/>
+  <div>
+    <q-toggle class="text-h6" v-model="isOverrideActive">
+      Switch to override responses
+    </q-toggle>
+    <div v-for="(role, key) in roles" :key="key">
+      <q-card bordered class="q-ma-md">
+        <div class="text-h4 q-ml-md q-mt-md">{{ role.title }}</div>
+        <q-card-section>
+          <q-separator class="q-mb-sm" />
+          <div class="responsive-columns">
+            <div v-for="answer in answers" :key="answer" class="responsive-column">
+              <q-card bordered class="q-ma-xs" :style="getAnswerStyle(answer)">
+                <div class="text-h5 q-ma-sm">{{ roleTitles[answer] }}</div>
+                <q-separator class="q-mx-sm" />
+                <q-card-section>
+                  <div v-for="response in filteredResponses(answer, [...role.filterRoles])" :key="response.id">
+                    <div v-if="!response.assigned" class="text-h6 text-weight-bold">
+                      {{ response.userName }}
+                      <q-btn v-if="!isAssignedToExam(response.id) && (isOverrideActive || response.response !== 'No')" @click="addToExam(response.id)" icon="add" round color="primary" size="sm" />
+                    </div>
+                  </div>
+                </q-card-section>
+              </q-card>
+            </div>
+          </div>
+        </q-card-section>
+      </q-card>
     </div>
   </div>
-</q-card-section>
-</q-card>
-
 </template>
 
 <script setup lang="ts">
 import { dayResponse, Exam } from 'src/stores/db/types';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
+import { formatTime } from 'src/helpers/formatTime';
 
 const props = defineProps<{
   exam: Exam;
   responses: dayResponse[];
 }>();
 
-console.log(props.responses)
+const roles = {
+  supervisors: { title: 'Supervisors', filterRoles: ['Supervisor', 'SeniorSupervisor', 'Office'] },
+  invigilators: { title: 'Invigilators', filterRoles: ['Supervisor', 'SeniorSupervisor', 'Invigilator', 'Office'] },
+  examiners: { title: 'Examiners', filterRoles: ['Examiner'] }
+} as const;
+
+const roleTitles = {
+  Yes: 'Confirmed',
+  AM: 'Morning',
+  PM: 'Afternoon',
+  No: 'Declined'
+} as const;
+
+type RoleTitleKey = keyof typeof roleTitles;
 
 const addToExam = (id: number) => {
-  console.log(id)
+  console.log(id);
+};
+
+const answers: RoleTitleKey[] = ['Yes', 'AM', 'PM', 'No'];
+
+const filteredResponses = (answer: RoleTitleKey, filterRoles: string[]) => {
+  return props.responses.filter(response => response.response === answer && (filterRoles.length === 0 || filterRoles.includes(response.userRole)));
+};
+
+const isOverrideActive = ref(false);
+
+const isAssignedToExam = (id: number) => {
+  return props.exam.supervisors.some(s => s.id === id) ||
+         props.exam.invigilators.some(i => i.id === id) ||
+         props.exam.examiners.some(e => e.id === id);
+};
+
+const getAnswerStyle = (answer: RoleTitleKey) => {
+  switch (answer) {
+    case 'Yes':
+      return { backgroundColor: '#e8f5e9' }; // Light Green
+    case 'AM':
+      return { backgroundColor: '#fffde7' }; // Light Yellow
+    case 'PM':
+      return { backgroundColor: '#e3f2fd' }; // Light Blue
+    case 'No':
+      return { backgroundColor: '#ffebee' }; // Light Red
+    default:
+      return {};
+  }
+};
+</script>
+
+<style scoped>
+.responsive-columns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
-</script>
+.responsive-column {
+  flex: 1 1 calc(50% - 1rem);
+}
+
+@media (min-width: 600px) {
+  .responsive-column {
+    flex: 1 1 calc(25% - 1rem);
+  }
+}
+</style>

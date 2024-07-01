@@ -1,11 +1,11 @@
 <template>
   <q-page v-if="state.loaded">
-    <CheckList />
+    <FillAvailability />
   </q-page>
 </template>
 
 <script setup lang="ts">
-import CheckList from 'src/components/CheckList.vue';
+import FillAvailability from 'src/components/Availability/FillAvailability.vue';
 import { onMounted, reactive } from 'vue';
 import { useAvailabilityStore } from 'src/stores/availabilityStore';
 import { Loading } from 'quasar';

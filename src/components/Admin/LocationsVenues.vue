@@ -64,7 +64,7 @@
 import { ref, reactive } from 'vue';
 import { useAdminStore } from 'src/stores/adminStore';
 import { Location } from 'src/stores/db/types';
-import { Loading, Notify } from 'quasar';
+import { Loading, Notify, Dialog } from 'quasar';
 
 const adminStore = useAdminStore();
 
@@ -109,11 +109,24 @@ const addVenue = async (location: Location) => {
 };
 
 const removeVenue = async (venue: number) => {
-  Loading.show({ message: 'Removing venue', spinnerSize: 140, spinnerColor: 'amber', backgroundColor: 'black'});
-  await adminStore.removeVenue(venue);
-  await adminStore.getLocationsWithVenues();
-  locationsRef.value = adminStore.locationsWithVenues;
-  Loading.hide();
+  Dialog.create({
+    title: 'Remove Venue',
+    message: 'Are you sure?',
+    ok: {
+      label: 'Yes',
+      color: 'positive',
+    },
+    cancel: {
+      label: 'No',
+      color: 'negative',
+    },
+  }).onOk(async () => {
+    Loading.show({ message: 'Removing venue', spinnerSize: 140, spinnerColor: 'amber', backgroundColor: 'black'});
+    await adminStore.removeVenue(venue);
+    await adminStore.getLocationsWithVenues();
+    locationsRef.value = adminStore.locationsWithVenues;
+    Loading.hide();
+  });
 };
 
 const showVenueDialog = (locationId: number) => {

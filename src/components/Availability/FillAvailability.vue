@@ -48,8 +48,8 @@
 </template>
 
 <script setup lang="ts">
-import { useAvailabilityStore } from 'src/stores/availabilityStore';
-import { UserAnswers, UserResponses } from 'src/stores/db/types';
+import { useAvailabilityStore } from '../../stores/availabilityStore'
+import { UserAnswers, UserResponses } from '../../stores/db/types';
 
 const { userResponses }: { userResponses: UserResponses[] } =
   useAvailabilityStore();

@@ -206,6 +206,8 @@ import { useAdminStore } from 'src/stores/adminStore';
 import { Loading, Notify } from 'quasar';
 import { DayOfExams, Exam, LevelEnum, examTypeEnum, Location, Venue} from 'src/stores/db/types';
 import { router } from 'src/router/index';
+import { formatTime } from 'src/helpers/formatTime';
+import { nextTick } from 'vue';
 
 const examDayStore = useExamDayStore();
 const examStore = useExamStore();
@@ -311,6 +313,7 @@ const getExamDayId = (examId: number) => {
 };
 
 const editExam = async (examId: number) => {
+  await nextTick();
   router.push(`/exams/${examId}`);
 };
 
@@ -353,15 +356,6 @@ const filteredExams = computed(() => {
     return [];
   }
 });
-
-const formatTime = (datetime: Date) => {
-  console.log(datetime)
-  const date = new Date(datetime);
-  const hours = date.getUTCHours().toString().padStart(2, '0');
-  const minutes = date.getUTCMinutes().toString().padStart(2, '0');
-  console.log(`${hours}:${minutes}`)
-  return `${hours}:${minutes}`;
-};
 
 const showNoteDialog = ref(false);
 

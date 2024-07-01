@@ -8,7 +8,7 @@ export const useExamStore = defineStore('exam', {
   state: () => ({
     upcomingExams: ref<Exam[]>([]),
     pastExams: ref([]),
-    selectedExam: ref(),
+    selectedExam: ref<Exam>(),
     selectedExamDay: ref(),
   }),
   actions: {
