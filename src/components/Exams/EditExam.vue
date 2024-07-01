@@ -32,19 +32,18 @@
     </q-toggle>
     <div v-for="(role, key) in roles" :key="key">
       <q-card bordered class="q-ma-md">
-        <div class="text-h4 q-ml-md q-mt-md">{{ role.title }}</div>
+        <div class="text-h5 text-bold q-ml-md q-mt-md text-center">{{ role.title }}</div>
         <q-card-section>
-          <q-separator class="q-mb-sm" />
           <div class="responsive-columns">
             <div v-for="answer in answers" :key="answer" class="responsive-column">
               <q-card bordered class="q-ma-xs" :style="getAnswerStyle(answer)">
-                <div class="text-h5 q-ma-sm">{{ roleTitles[answer] }}</div>
+                <div class="text-h5 q-ma-sm text-center">{{ roleTitles[answer] }}</div>
                 <q-separator class="q-mx-sm" />
                 <q-card-section>
                   <div v-for="response in filteredResponses(answer, [...role.filterRoles])" :key="response.id">
-                    <div v-if="!response.assigned" class="text-h6 text-weight-bold">
+                    <div v-if="!response.assigned" class="text-h6 text-weight-bold name-wrapper">
                       {{ response.userName }}
-                      <q-btn v-if="!isAssignedToExam(response.id) && (isOverrideActive || response.response !== 'No')" @click="addToExam(response.id)" icon="add" round color="primary" size="sm" />
+                      <q-btn v-if="!response.assigned && (isOverrideActive || response.response !== 'No')" @click="addToExam(response.id)" icon="add" round color="primary" size="xs" />
                     </div>
                   </div>
                 </q-card-section>
@@ -59,7 +58,7 @@
 
 <script setup lang="ts">
 import { dayResponse, Exam } from 'src/stores/db/types';
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
 import { formatTime } from 'src/helpers/formatTime';
 
 const props = defineProps<{
@@ -125,6 +124,12 @@ const getAnswerStyle = (answer: RoleTitleKey) => {
 
 .responsive-column {
   flex: 1 1 calc(50% - 1rem);
+}
+
+.name-wrapper {
+  max-width: 100%;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 @media (min-width: 600px) {
