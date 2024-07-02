@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { api } from '../boot/axios';
 import { Notify } from 'quasar';
 import { ref } from 'vue';
-import { Exam } from './db/types';
+import { Exam, RoleEnum } from './db/types';
 
 export const useExamStore = defineStore('exam', {
   state: () => ({
@@ -67,6 +67,56 @@ export const useExamStore = defineStore('exam', {
           icon: 'report_problem',
         });
       }
+    },
+
+  async addWorker(examId : number, userId: number, role: string, override: boolean, position: string) {
+    try {
+      await api.post('/exams/addWorker', {
+        examId,
+        userId,
+        role,
+        override,
+        position
+      });
+      Notify.create({
+        color: 'positive',
+        message: 'Worker added',
+        position: 'bottom',
+        icon: 'check',
+      });
+    } catch (error) {
+      Notify.create({
+        color: 'negative',
+        message: 'Error during adding worker',
+        position: 'bottom',
+        icon: 'report_problem',
+      });
     }
   },
+
+  async removeWorker(examId : number, userId: number, position: string) {
+    console.log('examId', examId, 'userId', userId, 'position', position);
+    try {
+      await api.post('/exams/removeWorker', {
+        examId,
+        userId,
+        position
+      });
+      Notify.create({
+        color: 'positive',
+        message: 'Worker removed',
+        position: 'bottom',
+        icon: 'check',
+      });
+    } catch (error) {
+      Notify.create({
+        color: 'negative',
+        message: 'Error during removing worker',
+        position: 'bottom',
+        icon: 'report_problem',
+      });
+    }
+  }
+},
 });
+

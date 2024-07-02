@@ -21,6 +21,7 @@
         </div>
         <div class="text-bold" v-else v-for="person in exam[key]" :key="person.id">
           {{ person.firstName }} {{ person.lastName }}
+          <q-btn @click="removeFromExam(exam.id, person.id, role.title)" icon="remove" round color="negative" size="xs" />
         </div>
       </div>
     </q-card-section>
@@ -43,7 +44,7 @@
                   <div v-for="response in filteredResponses(answer, [...role.filterRoles])" :key="response.id">
                     <div v-if="!response.assigned" class="text-h6 text-weight-bold name-wrapper">
                       {{ response.userName }}
-                      <q-btn v-if="!response.assigned && (isOverrideActive || response.response !== 'No')" @click="addToExam(response.id)" icon="add" round color="primary" size="xs" />
+                      <q-btn v-if="!response.assigned && (isOverrideActive || response.response !== 'No')" @click="addToExam(exam.id, response.userId, response.userRole, isOverrideActive, response.dayOfExamsId, role.title)" icon="add" round color="primary" size="xs" />
                     </div>
                   </div>
                 </q-card-section>
@@ -57,9 +58,14 @@
 </template>
 
 <script setup lang="ts">
-import { dayResponse, Exam } from 'src/stores/db/types';
+import { dayResponse, Exam, RoleEnum } from 'src/stores/db/types';
 import { ref } from 'vue';
 import { formatTime } from 'src/helpers/formatTime';
+import { useExamStore } from 'src/stores/examStore';
+import { useExamDayStore } from 'src/stores/examDayStore';
+
+const examStore = useExamStore();
+const examDayStore = useExamDayStore();
 
 const props = defineProps<{
   exam: Exam;
@@ -67,9 +73,9 @@ const props = defineProps<{
 }>();
 
 const roles = {
-  supervisors: { title: 'Supervisors', filterRoles: ['Supervisor', 'SeniorSupervisor', 'Office'] },
-  invigilators: { title: 'Invigilators', filterRoles: ['Supervisor', 'SeniorSupervisor', 'Invigilator', 'Office'] },
-  examiners: { title: 'Examiners', filterRoles: ['Examiner'] }
+  supervisors: { title: 'Supervisor', filterRoles: ['Supervisor', 'SeniorSupervisor', 'Office'] },
+  invigilators: { title: 'Invigilator', filterRoles: ['Supervisor', 'SeniorSupervisor', 'Invigilator', 'Office'] },
+  examiners: { title: 'Examiner', filterRoles: ['Examiner'] }
 } as const;
 
 const roleTitles = {
@@ -81,8 +87,19 @@ const roleTitles = {
 
 type RoleTitleKey = keyof typeof roleTitles;
 
-const addToExam = (id: number) => {
-  console.log(id);
+const addToExam = async (examId: number, userId: number, role: string, override: boolean, dayId: number, position: string) => {
+  await examStore.addWorker(examId, userId, role, override, position);
+  await examDayStore.loadResponsesForExamDay(dayId);
+  await examStore.getExam(examId);
+  console.log(examId, userId, role, override, dayId);
+};
+
+const removeFromExam = async (examId: number, userId: number, position: string) => {
+  await examStore.removeWorker(examId, userId, position);
+  await examStore.getExam(examId);
+  //from responses[0] get dayId
+  const dayId = props.responses[0].dayOfExamsId;
+  await examDayStore.loadResponsesForExamDay(dayId);
 };
 
 const answers: RoleTitleKey[] = ['Yes', 'AM', 'PM', 'No'];
@@ -92,12 +109,6 @@ const filteredResponses = (answer: RoleTitleKey, filterRoles: string[]) => {
 };
 
 const isOverrideActive = ref(false);
-
-const isAssignedToExam = (id: number) => {
-  return props.exam.supervisors.some(s => s.id === id) ||
-         props.exam.invigilators.some(i => i.id === id) ||
-         props.exam.examiners.some(e => e.id === id);
-};
 
 const getAnswerStyle = (answer: RoleTitleKey) => {
   switch (answer) {
