@@ -7,7 +7,7 @@ export interface User {
   drivingLicense: boolean;
   note: string | null;
   adminNote: string | null;
-  role: RoleEnum;
+  role: RoleEnum[];
   avatarUrl: string | null;
   activatedAccount: boolean;
   deactivated: boolean;
@@ -32,7 +32,7 @@ export interface UserInfo {
   drivingLicense: boolean | null;
   note: string | null;
   adminNote: string | null;
-  role: string | null;
+  role: string[] | null;
   avatarUrl: string | null;
   activatedAccount: boolean | null;
   deactivated: boolean | null;
@@ -109,7 +109,7 @@ export interface dayResponse {
   id : number;
   response : string;
   userName : string;
-  userRole : string;
+  userRole : string[];
   assigned: boolean;
   userId: number;
 }

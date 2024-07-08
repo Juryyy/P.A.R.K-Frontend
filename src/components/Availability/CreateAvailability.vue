@@ -7,6 +7,7 @@
         mask="YYYY-MM-DD"
         :events="highlightDays"
         :event-color="colorPick"
+        :options="disablePastDates"
         today-btn
         no-unset
       />
@@ -85,7 +86,6 @@ const examDayStore = useExamDayStore();
 
 const examDays: DayOfExams[] = examDayStore.upcomingExamDays;
 const currentDate = new Date();
-
 
 const examDaysRef = ref(examDays);
 
@@ -183,6 +183,15 @@ const colorPick = (date: string) => {
   }
 
   return 'white';
+};
+
+const disablePastDates = (date: string) => {
+  const [year, month, day] = date.split('/');
+  const selectedDate = new Date(`${year}-${month}-${day}`);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  return selectedDate >= today;
 };
 
 const changeLock = async (id: number) => {

@@ -14,25 +14,43 @@ export const useUserStore = defineStore('user', {
     users : ref([] as User[]),
   }),
   actions: {
+    async updateUserInfo(userInfo: UserInfo) {
+      // Add update user info on backend
+      this.user = userInfo;
+      for (const [key, value] of Object.entries(userInfo)) {
+        if (key === 'role' && Array.isArray(value)) {
+          localStorage.setItem(key, JSON.stringify(value)); // Serialize array
+        } else {
+          localStorage.setItem(key, String(value));
+        }
+      }
+    },
+
+
     getUserInfo() {
       const user = {} as UserInfo;
       user.id = Number(localStorage.getItem('id'));
       user.email = localStorage.getItem('email');
       user.firstName = localStorage.getItem('firstName');
       user.lastName = localStorage.getItem('lastName');
-      user.drivingLicense = Boolean(localStorage.getItem('drivingLicense'));
+      user.drivingLicense = localStorage.getItem('drivingLicense') === 'true';
       user.note = localStorage.getItem('note');
       user.adminNote = localStorage.getItem('adminNote');
-      user.role = localStorage.getItem('role');
+
+      // Deserialize the roles array
+      const roles = localStorage.getItem('role');
+      user.role = roles ? JSON.parse(roles) : [];
+
       user.avatarUrl = localStorage.getItem('avatarUrl');
-      user.activatedAccount = Boolean(localStorage.getItem('activatedAccount'));
-      user.deactivated = Boolean(localStorage.getItem('deactivated'));
+      user.activatedAccount = localStorage.getItem('activatedAccount') === 'true';
+      user.deactivated = localStorage.getItem('deactivated') === 'true';
       this.user = user;
       return this.user;
     },
 
     getUserRole() {
-      return localStorage.getItem('role');
+      const roles = localStorage.getItem('role');
+      return roles ? JSON.parse(roles) : [];
     },
 
     getUserId() {
@@ -77,13 +95,6 @@ export const useUserStore = defineStore('user', {
       }
     },
 
-    async updateUserInfo(userInfo: UserInfo) {
-      //add update user info on backend
-      this.user = userInfo;
-      for (const [key, value] of Object.entries(userInfo)) {
-        localStorage.set(key, value);
-      }
-    },
     async getProfile(userId: number) {
       try{
         const response = await api.get(`/users/profile/${userId}`);
@@ -127,14 +138,14 @@ export const useUserStore = defineStore('user', {
     async getAllUsers() {
       try {
         const response = await api.get('/users/allUsers');
-        response.data.forEach((user: UserInfo) => {
-          if (user.role === 'SeniorSupervisor') {
-            user.role = 'Senior Supervisor';
-          }
-          if (user.role === 'SeniorInvigilator') {
-            user.role = 'Senior Invigilator';
-          }
-        });
+        //response.data.forEach((user: UserInfo) => {
+        //  if (user.role?.includes('SeniorSupervisor') ) {
+        //    user.role = 'Senior Supervisor';
+        //  }
+        //  if (user.role === 'SeniorInvigilator') {
+        //    user.role = 'Senior Invigilator';
+        //  }
+        //});
         this.users = response.data;
       } catch (error) {
         Notify.create({

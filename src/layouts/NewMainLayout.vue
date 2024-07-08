@@ -12,9 +12,9 @@
         />
         <q-toolbar-title> P.A.R.K Admin </q-toolbar-title>
         <div v-if="!rightDrawerOpen">
-          <q-avatar size="46px" class="q-pr-xl"
-            ><img :src="userAvatar" alt="User Avatar"
-          /></q-avatar>
+          <q-avatar size="46px" class="q-pr-xl">
+            <img :src="userAvatar" alt="User Avatar" />
+          </q-avatar>
           <b class="q-px-xs">{{ user?.firstName }} {{ user?.lastName }}</b>
         </div>
         <q-btn dense flat round icon="menu" @click="toggleRightDrawer" />
@@ -45,9 +45,9 @@
           <q-separator
             color="primary"
             spaced="8px"
-            v-if="user.role === 'Office'"
+            v-if="user?.role?.includes('Office')"
           />
-          <q-list v-if="user.role === 'Office'">
+          <q-list v-if="user?.role?.includes('Office')">
             <essential-link
               v-for="link in adminEssentialLinks"
               :key="link.title"
@@ -72,7 +72,15 @@
             <div class="text-weight-bold">
               {{ user?.firstName }} {{ user?.lastName }}
             </div>
-            <div>{{ user?.role }}</div>
+            <div>
+              <q-badge
+                v-for="role in user?.role"
+                :key="role"
+                :color="getRoleColor(role as RoleEnum)"
+                class="q-mr-sm q-mb-sm"
+                :label="role"
+              />
+            </div>
           </div>
         </q-img>
 
@@ -84,35 +92,33 @@
             :key="exam.id"
           >
             <q-card-section>
-              <q-item-label
-                >Location: <b>{{ exam.location }}</b></q-item-label
-              >
+              <q-item-label>
+                Location: <b>{{ exam.location }}</b>
+              </q-item-label>
 
-              <q-item-label
-                >Venue: <b>{{ exam.venue }}</b></q-item-label
-              >
-              <q-item-label
-                >Date: <b>{{ formatDate(exam.startTime) }} </b></q-item-label
-              >
-              <q-item-label
-                >Time:
-                <b
-                  >{{
+              <q-item-label>
+                Venue: <b>{{ exam.venue }}</b>
+              </q-item-label>
+              <q-item-label>
+                Date: <b>{{ formatDate(exam.startTime) }} </b>
+              </q-item-label>
+              <q-item-label>
+                Time:
+                <b>
+                  {{
                     formatTime(exam.startTime) +
                     ' - ' +
                     formatTime(exam.endTime)
                   }}
-                </b></q-item-label
-              >
-              <q-item-label
-                >Type: <b>{{ exam.type }}</b></q-item-label
-              >
-              <q-item-label
-                >Note: <b>{{ exam.note }}</b></q-item-label
-              >
-              <q-item-label
-              class="absolute-top-right q-ma-sm"
-              >
+                </b>
+              </q-item-label>
+              <q-item-label>
+                Type: <b>{{ exam.type }}</b>
+              </q-item-label>
+              <q-item-label>
+                Note: <b>{{ exam.note }}</b>
+              </q-item-label>
+              <q-item-label class="absolute-top-right q-ma-sm">
                 <q-btn
                   class="q-mr-xs"
                   color="secondary"
@@ -121,7 +127,11 @@
                     router.push(`/exams/${exam.id}`)
                 }"
                 />
-                <q-btn color="secondary" icon="map" @click="showVenue(exam.venueLink)"/>
+                <q-btn
+                  color="secondary"
+                  icon="map"
+                  @click="showVenue(exam.venueLink)"
+                />
               </q-item-label>
             </q-card-section>
           </q-card>
@@ -137,13 +147,11 @@
 
 <script setup lang="ts">
 import { computed, onBeforeMount, ref } from 'vue';
-import EssentialLink, {
-  EssentialLinkProps,
-} from 'components/Auth_nav/EssentialLink.vue';
+import EssentialLink, { EssentialLinkProps } from 'components/Auth_nav/EssentialLink.vue';
 import { useUserStore } from 'src/stores/userStore';
 import { useAuthStore } from 'src/stores/authStore';
 import { router } from 'src/router/index';
-import { ExamWithVenueLink } from 'src/stores/db/types';
+import { ExamWithVenueLink, RoleEnum } from 'src/stores/db/types';
 import { Loading } from 'quasar';
 
 const userStore = useUserStore();
@@ -222,7 +230,7 @@ const rightDrawerOpen = ref(false);
 
 function toggleRightDrawer() {
   rightDrawerOpen.value = !rightDrawerOpen.value;
-  console.log(usersExamsRef.value)
+  console.log(usersExamsRef.value);
 }
 
 const miniState = ref(true);
@@ -242,11 +250,39 @@ const formatDate = (datetime: Date) => {
   return `${day}.${month}.${year}`;
 };
 
-const showVenue = (gLink : string) => {
+const showVenue = (gLink: string) => {
   window.open(gLink, '_blank');
-}
+};
 
+function getRoleColor(role: RoleEnum): string {
+  switch (role) {
+    case RoleEnum.Office:
+      return 'primary';
+    case RoleEnum.Supervisor:
+      return 'secondary';
+    case RoleEnum.SeniorSupervisor:
+      return 'accent';
+    case RoleEnum.Invigilator:
+      return 'positive';
+    case RoleEnum.SeniorInvigilator:
+      return 'negative';
+    case RoleEnum.Tech:
+      return 'info';
+    case RoleEnum.Examiner:
+      return 'warning';
+    default:
+      return 'grey';
+  }
+}
 </script>
+
+<style lang="scss" scoped>
+.card {
+  background-color: $primary;
+}
+</style>
+
+
 <style lang="scss" scoped>
 .card {
   background-color: $primary;

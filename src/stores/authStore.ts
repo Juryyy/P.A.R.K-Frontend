@@ -14,8 +14,11 @@ export const useAuthStore = defineStore('auth', {
     setUserInfo(userInfo: User) {
       this.user = userInfo;
       for (const [key, value] of Object.entries(userInfo)) {
-        //encode the value to a string
-        localStorage.setItem(key, value);
+        if (key === 'role' && Array.isArray(value)) {
+          localStorage.setItem(key, JSON.stringify(value)); // Serialize array to JSON
+        } else {
+          localStorage.setItem(key, String(value));
+        }
       }
     },
 

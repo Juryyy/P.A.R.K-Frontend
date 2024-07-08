@@ -5,7 +5,7 @@
 <script setup lang="ts">
 import { onMounted, reactive } from 'vue';
 import { useUserStore } from 'src/stores/userStore';
-import { is, Loading } from 'quasar';
+import { Loading } from 'quasar';
 
 const state = reactive({
   isLoaded: false,
