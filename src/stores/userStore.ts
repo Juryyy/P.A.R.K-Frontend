@@ -96,12 +96,18 @@ export const useUserStore = defineStore('user', {
     },
 
     async getProfile(userId: number) {
-      try{
+      console.log(userId);
+      try {
         const response = await api.get(`/users/profile/${userId}`);
-        response.data.role = response.data.role.replace('SeniorSupervisor', 'Senior Supervisor');
-        response.data.role = response.data.role.replace('SeniorInvigilator', 'Senior Invigilator');
+        if (Array.isArray(response.data.role)) {
+          response.data.role = response.data.role.map((role: string) => {
+            return role.replace('SeniorSupervisor', 'Senior Supervisor')
+                        .replace('SeniorInvigilator', 'Senior Invigilator');
+          });
+        }
         this.selectedUser = response.data;
-      }catch(error){
+      } catch (error) {
+        console.log(error);
         Notify.create({
           message: 'Error loading profile',
           color: 'red',

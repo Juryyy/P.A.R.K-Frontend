@@ -22,19 +22,20 @@
                 {{ props.row.email }}
               </q-td>
               <q-td key="role">
-                {{ props.row.role }}
+                {{ props.row.role.join(', ') }}
                 <q-popup-edit v-model="props.row.role"
-                :disable="currentUserRole !== 'Office'">
+                :disable="currentUserRole.includes(RoleEnum.Office)">
                   <q-select
                     v-model="props.row.role"
                     :options="Roles"
+                    multiple
                     emit-value
                     map-options
                     dense
                     fill-input
                     use-input
                     hide-selected
-                    @update:modelValue="handleRoleChange(props.row, true)"
+                    @update:modelValue="handleRoleChange(props.row, props.row.role)"
                   />
                 </q-popup-edit>
               </q-td>
@@ -98,6 +99,7 @@
                     <q-select
                       v-model="newUser.role"
                       :options="Roles"
+                      multiple
                       emit-value
                       map-options
                       dense
@@ -123,133 +125,84 @@
     </div>
   </div>
 </template>
+
 <script setup lang="ts">
-import { useAdminStore } from 'src/stores/adminStore';
-import { computed, reactive, ref, Ref, watch} from 'vue';
+import { ref, reactive, computed, watch, nextTick } from 'vue';
 import { User, RoleEnum } from 'src/stores/db/types';
-import { router } from 'src/router/index';
 import { useUserStore } from 'src/stores/userStore';
-import { onBeforeRouteLeave } from 'vue-router';
+import { useAdminStore } from 'src/stores/adminStore';
+import { router } from 'src/router';
 
-const adminStore = useAdminStore();
 const userStore = useUserStore();
+const adminStore = useAdminStore();
 
-const users: User[] = userStore.users;
-const usersRef: Ref<User[]> = ref(users);
-const currentUserRole = userStore.getUserRole();
+const usersRef = ref<User[]>(userStore.users);
+const currentUserRole = computed(() => userStore.getUserRole());
 
-const columns = [
-  {
-    name: 'firstName',
-    required: true,
-    label: 'First name',
-    align: 'left',
-    field: 'firstName',
-    sortable: true,
-  },
-  {
-    name: 'lastName',
-    align: 'left',
-    label: 'Last name',
-    field: 'lastName',
-    sortable: true,
-  },
-  {
-    name: 'email',
-    align: 'left',
-    label: 'Email',
-    field: 'email',
-    sortable: true,
-  },
+const columns: any[] = [
+  { name: 'firstName', required: true, label: 'First name', align: 'left', field: 'firstName', sortable: true },
+  { name: 'lastName', align: 'left', label: 'Last name', field: 'lastName', sortable: true },
+  { name: 'email', align: 'left', label: 'Email', field: 'email', sortable: true },
   { name: 'role', align: 'left', label: 'Role', field: 'role', sortable: true },
-  {
-    name: 'Exams',
-    align: 'left',
-    label: 'Exams (S | I | E)',
-    field: 'Exams',
-    sortable: true,
-  },
-  { name: 'actions', align: 'left', label: 'Actions', field: 'actions' },
-] as {
-  name: string;
-  required: boolean;
-  label: string;
-  align: 'left';
-  field: string | ((row: User) => User);
-  sortable: boolean;
-}[];
-
-async function addUser() {
-  await adminStore.registerUser(
-    newUser.value.firstName,
-    newUser.value.lastName,
-    newUser.value.email,
-    newUser.value.role
-  );
-  state.newUser = false;
-  await userStore.getAllUsers();
-  usersRef.value = userStore.users;
-}
-
-async function deactivateUser(user: User) {
-  console.log('deactivate', user.id);
-}
-
-const editedItem = ref({} as User);
-const editedIndex = ref(-1);
-
-const editUser = async (item: User) => {
-  editedIndex.value = usersRef.value.indexOf(item);
-  editedItem.value = Object.assign({}, item);
-  editedItem.value.isRoleChanged = false;
-  await adminStore.updateUserRole(editedItem.value.id, editedItem.value.role);
-  handleRoleChange(editedItem.value, false);
-  usersRef.value[editedIndex.value] = editedItem.value;
-};
-
-const viewUser = (item: User) => {
-  router.push(`/user/${item.id}`);
-};
+  { name: 'Exams', align: 'left', label: 'Exams (S | I | E)', field: (row: User) => `${row._count.supervisedExams} | ${row._count.invigilatedExams} | ${row._count.examinedExams}`, sortable: true },
+  { name: 'actions', align: 'left', label: 'Actions', field: 'actions' }
+];
 
 const Roles = computed(() => {
-  return Object.values(RoleEnum).map((role) => {
-    return { label: role, value: role };
-  });
+  return Object.values(RoleEnum).map(role => ({ label: role, value: role }));
 });
 
+const viewUser = async (user: User) => {
+  await nextTick();
+  router.push(`/user/${user.id}`);
+};
+
 const state = reactive({
-  newUser: false,
-  passwordHidden: true,
+  newUser: false
 });
 
 const newUser = ref({
   firstName: '',
   lastName: '',
   email: '',
-  password: '',
-  role: RoleEnum.Invigilator,
+  role: [] as RoleEnum[]
 });
 
+async function addUser() {
+  await adminStore.registerUser(newUser.value.firstName, newUser.value.lastName, newUser.value.email, newUser.value.role);
+  state.newUser = false;
+  await userStore.getAllUsers();
+  usersRef.value = userStore.users;
+}
+
+async function editUser(item: User) {
+  const index = usersRef.value.indexOf(item);
+  const updatedUser = { ...item };
+  await adminStore.updateUserRole(updatedUser.id, updatedUser.role);
+  usersRef.value[index] = updatedUser;
+}
+
+async function deactivateUser(user: User) {
+  await adminStore.deactivateUser(user.id);
+  await userStore.getAllUsers();
+  usersRef.value = userStore.users;
+}
+
+const handleRoleChange = (user: User, newValue: RoleEnum[]) => {
+  const originalRoles = usersRef.value.find(u => u.id === user.id)?.role || [];
+  if (JSON.stringify(originalRoles) !== JSON.stringify(newValue)) {
+    user.isRoleChanged = true;
+  } else {
+    user.isRoleChanged = false;
+  }
+};
 
 watch(usersRef, (newUsers, oldUsers) => {
   newUsers.forEach((newUser, index) => {
-    if (newUser.role !== oldUsers[index].role) {
-      usersRef.value[index].isRoleChanged = true;
+    if (JSON.stringify(newUser.role) !== JSON.stringify(oldUsers[index].role)) {
+      newUser.isRoleChanged = true;
     }
   });
 }, { deep: true });
 
-const handleRoleChange = (user: User, change : boolean) => {
-  user.isRoleChanged = change;
-};
-
-onBeforeRouteLeave(() => {
-  watch(usersRef, (newUsers, oldUsers) => {
-    newUsers.forEach((newUser, index) => {
-      if (newUser.role !== oldUsers[index].role) {
-        usersRef.value[index].isRoleChanged = true;
-      }
-    });
-  }, { deep: true });
-});
 </script>

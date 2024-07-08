@@ -1,28 +1,30 @@
 <template>
   <q-page>
-    <UserInfo :user="user" :user-avatar="userAvatar" v-if="state.loaded" />
+    <UserInfo v-if="state.loaded && user" :user="user" :user-avatar="userAvatar" />
   </q-page>
 </template>
 
+
 <script setup lang="ts">
 import { useRoute } from 'vue-router';
-import { ref, onBeforeMount, onUnmounted, reactive } from 'vue';
+import { ref, onBeforeMount, onUnmounted, reactive, onMounted } from 'vue';
 import { useUserStore } from 'src/stores/userStore';
 import { Loading, Dialog } from 'quasar';
 import UserInfo from 'src/components/Users/UserInfo.vue';
+import { User } from 'src/stores/db/types';
 
 const userStore = useUserStore();
 
 const route = useRoute();
 const userId = ref(route.params.id);
-const user = ref(userStore.selectedUser);
-const userAvatar = ref(userStore.selectedUserAvatar);
+const user = ref<User | null>(null);
+const userAvatar = ref<string | null>(null);
 
 const state = reactive({
   loaded: false,
 });
 
-onBeforeMount(async () => {
+onMounted(async () => {
   try {
     if (isNaN(Number(userId.value))) {
       throw new Error('Invalid User ID');

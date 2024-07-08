@@ -44,7 +44,7 @@
                   <div v-for="response in filteredResponses(answer, [...role.filterRoles])" :key="response.id">
                     <div v-if="!response.assigned" class="text-h6 text-weight-bold name-wrapper">
                       {{ response.userName }}
-                      <q-btn v-if="!response.assigned && (isOverrideActive || response.response !== 'No')" @click="addToExam(exam.id, response.userId, response.userRole, isOverrideActive, response.dayOfExamsId, role.title)" icon="add" round color="primary" size="xs" />
+                      <q-btn v-if="!response.assigned && (isOverrideActive || response.response !== 'No')" @click="addToExam(exam.id, response.userId, isOverrideActive, response.dayOfExamsId, role.title)" icon="add" round color="primary" size="xs" />
                     </div>
                   </div>
                 </q-card-section>
@@ -58,7 +58,7 @@
 </template>
 
 <script setup lang="ts">
-import { dayResponse, Exam, RoleEnum } from 'src/stores/db/types';
+import { dayResponse, Exam } from 'src/stores/db/types';
 import { ref } from 'vue';
 import { formatTime } from 'src/helpers/formatTime';
 import { useExamStore } from 'src/stores/examStore';
@@ -87,11 +87,10 @@ const roleTitles = {
 
 type RoleTitleKey = keyof typeof roleTitles;
 
-const addToExam = async (examId: number, userId: number, role: string, override: boolean, dayId: number, position: string) => {
-  await examStore.addWorker(examId, userId, role, override, position);
+const addToExam = async (examId: number, userId: number, override: boolean, dayId: number, position: string) => {
+  await examStore.addWorker(examId, userId, override, position);
   await examDayStore.loadResponsesForExamDay(dayId);
   await examStore.getExam(examId);
-  console.log(examId, userId, role, override, dayId);
 };
 
 const removeFromExam = async (examId: number, userId: number, position: string) => {
@@ -105,7 +104,9 @@ const removeFromExam = async (examId: number, userId: number, position: string) 
 const answers: RoleTitleKey[] = ['Yes', 'AM', 'PM', 'No'];
 
 const filteredResponses = (answer: RoleTitleKey, filterRoles: string[]) => {
-  return props.responses.filter(response => response.response === answer && (filterRoles.length === 0 || filterRoles.includes(response.userRole)));
+  return props.responses.filter(
+    response => response.response === answer && (filterRoles.length === 0 || filterRoles.some(role => response.userRole.includes(role)))
+  );
 };
 
 const isOverrideActive = ref(false);

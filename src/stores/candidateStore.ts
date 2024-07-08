@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import type { Candidate } from '../components/models';
+import type { Candidate } from '../components/FileRead/models';
 import { api } from '../boot/axios';
 import { Notify } from 'quasar';
 

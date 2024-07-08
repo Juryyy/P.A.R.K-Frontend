@@ -11,9 +11,9 @@ export const useAdminStore = defineStore('admin', {
     locationsWithVenues: ref([] as Location[]),
   }),
   actions: {
-    async updateUserRole(id: number, role: string) {
+    async updateUserRole(id: number, role: string[]) {
       try {
-        role = removeSpaces(role.toString());
+        role = role.map((r) => removeSpaces(r));
         const response = await api.post('/office/updateUserRole', {
           id,
           role,
@@ -37,11 +37,11 @@ export const useAdminStore = defineStore('admin', {
       firstName: string,
       lastName: string,
       email: string,
-      role: RoleEnum
+      role: RoleEnum[]
     ) {
       try {
         // Backend does not accept spaces in role
-        const Srole = removeSpaces(role.toString());
+        const Srole = role.map((r) => r.toString());
         email = removeSpaces(email);
         firstName = removeSpaces(firstName);
         lastName = removeSpaces(lastName);
@@ -79,6 +79,10 @@ export const useAdminStore = defineStore('admin', {
           icon: 'report_problem',
         });
       }
+    },
+
+    async deactivateUser(id: number) {
+      // Deactivate user
     },
 
     async addLocation(location: string){

@@ -12,7 +12,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import * as ExcelJS from 'exceljs';
-import type { Candidate } from '../models';
+import type { Candidate } from './models';
 
 
 const file = ref<File | null>(null)
@@ -42,3 +42,4 @@ const uploadExcel = (event: Event) => {
   }
 };
 </script>
+./models

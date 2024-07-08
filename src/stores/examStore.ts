@@ -69,12 +69,11 @@ export const useExamStore = defineStore('exam', {
       }
     },
 
-  async addWorker(examId : number, userId: number, role: string, override: boolean, position: string) {
+  async addWorker(examId : number, userId: number, override: boolean, position: string) {
     try {
       await api.post('/exams/addWorker', {
         examId,
         userId,
-        role,
         override,
         position
       });
@@ -95,7 +94,6 @@ export const useExamStore = defineStore('exam', {
   },
 
   async removeWorker(examId : number, userId: number, position: string) {
-    console.log('examId', examId, 'userId', userId, 'position', position);
     try {
       await api.post('/exams/removeWorker', {
         examId,

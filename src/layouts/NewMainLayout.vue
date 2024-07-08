@@ -62,24 +62,26 @@
     <q-drawer show-if-above v-model="rightDrawerOpen" side="right" elevated>
       <q-scroll-area class="fit">
         <q-img
-          src="https://cdn.quasar.dev/img/material.png"
+          src="/background.jpg"
           style="height: 150px"
         >
-          <div class="bg-transparent absolute-center">
-            <q-avatar size="80px" class="q-mb-sm">
+          <div class="bg-transparent absolute-center q-pa-md drawer-avatar-box">
+            <q-avatar size="80px" class="q-mr-md">
               <img :src="userAvatar" alt="User Avatar" />
             </q-avatar>
-            <div class="text-weight-bold">
-              {{ user?.firstName }} {{ user?.lastName }}
-            </div>
             <div>
-              <q-badge
-                v-for="role in user?.role"
-                :key="role"
-                :color="getRoleColor(role as RoleEnum)"
-                class="q-mr-sm q-mb-sm"
-                :label="role"
-              />
+              <div class="text-weight-bold">
+                {{ user?.firstName }} {{ user?.lastName }}
+              </div>
+              <div>
+                <q-badge
+                  v-for="role in user?.role"
+                  :key="role"
+                  :color="getRoleColor(role as RoleEnum)"
+                  class="q-mr-sm q-mb-sm"
+                  :label="role"
+                />
+              </div>
             </div>
           </div>
         </q-img>
@@ -257,19 +259,19 @@ const showVenue = (gLink: string) => {
 function getRoleColor(role: RoleEnum): string {
   switch (role) {
     case RoleEnum.Office:
-      return 'primary';
+      return 'office';
     case RoleEnum.Supervisor:
-      return 'secondary';
+      return 'supervisor';
     case RoleEnum.SeniorSupervisor:
-      return 'accent';
+      return 's_supervisor';
     case RoleEnum.Invigilator:
-      return 'positive';
+      return 'invigilator';
     case RoleEnum.SeniorInvigilator:
-      return 'negative';
+      return 's_invigilator';
     case RoleEnum.Tech:
       return 'info';
     case RoleEnum.Examiner:
-      return 'warning';
+      return 'examiner';
     default:
       return 'grey';
   }
@@ -277,13 +279,16 @@ function getRoleColor(role: RoleEnum): string {
 </script>
 
 <style lang="scss" scoped>
-.card {
-  background-color: $primary;
+.drawer-avatar-box {
+  display: flex;
+  align-items: center;
+  text-align: left;
 }
-</style>
 
+.drawer-avatar-box .text-weight-bold {
+  margin-bottom: 4px;
+}
 
-<style lang="scss" scoped>
 .card {
   background-color: $primary;
 }
