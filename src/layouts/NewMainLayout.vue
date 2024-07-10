@@ -11,11 +11,19 @@
           @click="toggleLeftDrawer"
         />
         <q-toolbar-title> P.A.R.K Admin </q-toolbar-title>
-        <div v-if="!rightDrawerOpen">
+        <div v-if="!rightDrawerOpen" class="q-gutter-md row items-center">
           <q-avatar size="46px" class="q-pr-xl">
             <img :src="userAvatar" alt="User Avatar" />
           </q-avatar>
-          <b class="q-px-xs">{{ user?.firstName }} {{ user?.lastName }}</b>
+          <div class="user-info row items-center">
+            <q-icon
+            v-if="user?.isSenior"
+            color="red"
+            name="stars"
+            size="xs"
+          />
+            <b class="q-px-xs">{{ user?.firstName }} {{ user?.lastName }}</b>
+          </div>
         </div>
         <q-btn dense flat round icon="menu" @click="toggleRightDrawer" />
         <q-btn icon="logout" flat round @click="logout" />
@@ -72,10 +80,17 @@
             <div>
               <div class="text-weight-bold">
                 {{ user?.firstName }} {{ user?.lastName }}
+                <q-icon
+                v-if="user?.isSenior"
+                color="red"
+                name="stars"
+                class="q-mr-sm"
+                size="xs"
+              />
               </div>
               <div>
                 <q-badge
-                  v-for="role in user?.role"
+                  v-for="role in sortRoles(user?.role as RoleEnum[])"
                   :key="role"
                   :color="getRoleColor(role as RoleEnum)"
                   class="q-mr-sm q-mb-sm"
@@ -155,6 +170,9 @@ import { useAuthStore } from 'src/stores/authStore';
 import { router } from 'src/router/index';
 import { ExamWithVenueLink, RoleEnum } from 'src/stores/db/types';
 import { Loading } from 'quasar';
+import { getRoleColor } from 'src/helpers/RoleColor';
+import { sortRoles } from 'src/helpers/FormatRole';
+
 
 const userStore = useUserStore();
 const authStore = useAuthStore();
@@ -180,6 +198,8 @@ const exams: ExamWithVenueLink[] = userStore.usersExams;
 const usersExamsRef = ref(exams);
 const user = computed(() => userStore.user);
 const userAvatar = ref('');
+
+console.log(userStore.user.isSenior)
 
 const essentialLinks: EssentialLinkProps[] = [
   {
@@ -256,26 +276,6 @@ const showVenue = (gLink: string) => {
   window.open(gLink, '_blank');
 };
 
-function getRoleColor(role: RoleEnum): string {
-  switch (role) {
-    case RoleEnum.Office:
-      return 'office';
-    case RoleEnum.Supervisor:
-      return 'supervisor';
-    case RoleEnum.SeniorSupervisor:
-      return 's_supervisor';
-    case RoleEnum.Invigilator:
-      return 'invigilator';
-    case RoleEnum.SeniorInvigilator:
-      return 's_invigilator';
-    case RoleEnum.Tech:
-      return 'info';
-    case RoleEnum.Examiner:
-      return 'examiner';
-    default:
-      return 'grey';
-  }
-}
 </script>
 
 <style lang="scss" scoped>
@@ -291,5 +291,10 @@ function getRoleColor(role: RoleEnum): string {
 
 .card {
   background-color: $primary;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
 }
 </style>

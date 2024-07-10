@@ -14,7 +14,11 @@ const state = reactive({
 const userStore = useUserStore();
 
 onMounted(async () => {
+  console.log('mounted');
+  await userStore.fetchUserInfo();
+  //userStore.updateUserInfo(userStore.user);
   userStore.getUserInfo();
+  console.log(userStore.user);
   if(userStore.user.email !== null){
     Loading.show({
       message: 'Loading data...',

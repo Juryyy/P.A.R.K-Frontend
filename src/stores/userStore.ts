@@ -26,7 +26,6 @@ export const useUserStore = defineStore('user', {
       }
     },
 
-
     getUserInfo() {
       const user = {} as UserInfo;
       user.id = Number(localStorage.getItem('id'));
@@ -44,6 +43,10 @@ export const useUserStore = defineStore('user', {
       user.avatarUrl = localStorage.getItem('avatarUrl');
       user.activatedAccount = localStorage.getItem('activatedAccount') === 'true';
       user.deactivated = localStorage.getItem('deactivated') === 'true';
+      user.dateOfBirth = localStorage.getItem('dateOfBirth');
+      user.isSenior = localStorage.getItem('isSenior') === 'true';
+      user.phone = localStorage.getItem('phone');
+
       this.user = user;
       return this.user;
     },
@@ -99,12 +102,6 @@ export const useUserStore = defineStore('user', {
       console.log(userId);
       try {
         const response = await api.get(`/users/profile/${userId}`);
-        if (Array.isArray(response.data.role)) {
-          response.data.role = response.data.role.map((role: string) => {
-            return role.replace('SeniorSupervisor', 'Senior Supervisor')
-                        .replace('SeniorInvigilator', 'Senior Invigilator');
-          });
-        }
         this.selectedUser = response.data;
       } catch (error) {
         console.log(error);
@@ -158,6 +155,23 @@ export const useUserStore = defineStore('user', {
           color: 'negative',
           message: 'Error during getting users',
           position: 'bottom',
+          icon: 'report_problem',
+        });
+      }
+    },
+
+    async fetchUserInfo(){
+      try {
+        const response = await api.get('/users/userInfo');
+        console.log(response.data)
+        this.updateUserInfo(response.data);
+        this.user = response.data;
+      } catch (error) {
+        console.error('Error fetching user info:', error);
+        Notify.create({
+          color: 'negative',
+          message: 'Error fetching user info',
+          position: 'top',
           icon: 'report_problem',
         });
       }

@@ -11,6 +11,7 @@ export const useAuthStore = defineStore('auth', {
     email : '' as string,
   }),
   actions: {
+
     setUserInfo(userInfo: User) {
       this.user = userInfo;
       for (const [key, value] of Object.entries(userInfo)) {
@@ -80,19 +81,32 @@ export const useAuthStore = defineStore('auth', {
           });
           return;
         }
+
         const response = await api.delete('/auth/logout');
         if (response.status === 200) {
-          for (const [key] of Object.entries(user)) {
-            localStorage.removeItem(key);
-          }
+          // Explicitly remove known keys
+          const keysToRemove = [
+            'id', 'email', 'firstName', 'lastName', 'phone', 'drivingLicense', 'note',
+            'adminNote', 'role', 'avatarUrl', 'activatedAccount', 'deactivated', 'isSenior', 'dateOfBirth',
+          ];
+          keysToRemove.forEach(key => {
+            if (localStorage.getItem(key) !== null) {
+              localStorage.removeItem(key);
+            }
+          });
+          // Optionally, clear the entire localStorage if it is safe to do so
+          // localStorage.clear();
+
           this.user = undefined;
+          Notify.create({
+            color: 'positive',
+            message: 'Successfully logged out',
+            position: 'top',
+            icon: 'check_circle',
+          });
+        } else {
+          throw new Error('Logout failed');
         }
-        Notify.create({
-          color: 'positive',
-          message: 'Successfully logged out',
-          position: 'top',
-          icon: 'report_problem',
-        });
       } catch (error) {
         console.error('Error during logout:', error);
         Notify.create({

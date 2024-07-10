@@ -20,7 +20,7 @@ export interface User {
   invigilatedExams: Exam[];
   examinedExams: Exam[];
   responses: Response[];
-
+  isSenior: boolean;
   isRoleChanged?: boolean;
 }
 
@@ -29,6 +29,8 @@ export interface UserInfo {
   email: string | null;
   firstName: string | null;
   lastName: string | null;
+  phone: string | null;
+  dateOfBirth: string | null;
   drivingLicense: boolean | null;
   note: string | null;
   adminNote: string | null;
@@ -36,6 +38,7 @@ export interface UserInfo {
   avatarUrl: string | null;
   activatedAccount: boolean | null;
   deactivated: boolean | null;
+  isSenior: boolean | null;
 }
 
 export interface DayOfExams {
@@ -72,11 +75,14 @@ export interface ExamWithVenueLink extends Exam {
 export enum RoleEnum {
   Office = 'Office',
   Supervisor = 'Supervisor',
-  SeniorSupervisor = 'Senior Supervisor',
   Invigilator = 'Invigilator',
-  SeniorInvigilator = 'Senior Invigilator',
-  Tech = 'Tech',
+  Technician = 'Technician',
   Examiner = 'Examiner',
+}
+
+export interface ExtendedUser extends User {
+  originalRoles: RoleEnum[];
+  isRoleChanged: boolean;
 }
 
 export interface UserResponses {

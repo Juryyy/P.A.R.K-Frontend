@@ -12,19 +12,24 @@
         >
           <template v-slot:body="props">
             <q-tr :props="props">
-              <q-td key="firstName">
-                {{ props.row.firstName }}
-              </q-td>
-              <q-td key="lastName">
-                {{ props.row.lastName }}
-              </q-td>
-              <q-td key="email">
-                {{ props.row.email }}
-              </q-td>
+              <q-td key="firstName">{{ props.row.firstName }}</q-td>
+              <q-td key="lastName">{{ props.row.lastName }}</q-td>
+              <q-td key="email">{{ props.row.email }}</q-td>
               <q-td key="role">
-                {{ props.row.role.join(', ') }}
-                <q-popup-edit v-model="props.row.role"
-                :disable="currentUserRole.includes(RoleEnum.Office)">
+                <div>
+                  <q-chip
+                    v-for="role in sortRoles(props.row.role)"
+                    :key="role"
+                    :color="getRoleColor(role)"
+                    class="q-mr-sm q-mb-sm"
+                  >
+                    {{ formatRole(role) }}
+                  </q-chip>
+                </div>
+                <q-popup-edit
+                  v-model="props.row.role"
+                  :disable="!currentUserRole.includes(RoleEnum.Office)"
+                >
                   <q-select
                     v-model="props.row.role"
                     :options="Roles"
@@ -34,8 +39,8 @@
                     dense
                     fill-input
                     use-input
-                    hide-selected
-                    @update:modelValue="handleRoleChange(props.row, props.row.role)"
+                    use-chips
+                    @update:modelValue="handleRoleChange(props.row)"
                   />
                 </q-popup-edit>
               </q-td>
@@ -50,32 +55,38 @@
               </q-td>
               <q-td key="actions">
                 <q-btn-group>
-                  <q-btn v-if="currentUserRole === 'Office'"
+                  <q-btn
+                    v-if="currentUserRole.includes(RoleEnum.Office)"
                     @click="editUser(props.row)"
                     :color="props.row.isRoleChanged ? 'blue' : 'grey'"
                     icon="manage_accounts"
                     :disable="!props.row.isRoleChanged"
                   >
-                    <q-tooltip v-if="props.row.isRoleChanged" class="bg-blue" :delay="250" >Update users role</q-tooltip>
-                    <q-tooltip v-else class="bg-grey" :delay="250">No changes to users role</q-tooltip>
+                    <q-tooltip v-if="props.row.isRoleChanged" class="bg-blue" :delay="250">
+                      Update user's role
+                    </q-tooltip>
+                    <q-tooltip v-else class="bg-grey" :delay="250">
+                      No changes to user's role
+                    </q-tooltip>
                   </q-btn>
                   <q-btn
                     @click="viewUser(props.row)"
                     color="primary"
                     icon="person_search"
                   >
-                    <q-tooltip class="bg-primary" :delay="250"
-                      >View users profile</q-tooltip
-                    >
+                    <q-tooltip class="bg-primary" :delay="250">
+                      View user's profile
+                    </q-tooltip>
                   </q-btn>
-                  <q-btn v-if="currentUserRole === 'Office'"
+                  <q-btn
+                    v-if="currentUserRole.includes(RoleEnum.Office)"
                     @click="deactivateUser(props.row)"
                     color="red"
                     icon="person_off"
                   >
-                    <q-tooltip class="bg-red" :delay="250"
-                      >Deactivate user</q-tooltip
-                    >
+                    <q-tooltip class="bg-red" :delay="250">
+                      Deactivate user
+                    </q-tooltip>
                   </q-btn>
                 </q-btn-group>
               </q-td>
@@ -128,15 +139,42 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, watch, nextTick } from 'vue';
-import { User, RoleEnum } from 'src/stores/db/types';
+import { User, RoleEnum, ExtendedUser } from 'src/stores/db/types';
 import { useUserStore } from 'src/stores/userStore';
 import { useAdminStore } from 'src/stores/adminStore';
 import { router } from 'src/router';
+import _ from 'lodash';
+import { getRoleColor } from 'src/helpers/RoleColor';
+import { sortRoles } from 'src/helpers/FormatRole';
 
 const userStore = useUserStore();
 const adminStore = useAdminStore();
 
-const usersRef = ref<User[]>(userStore.users);
+const formatRole = (role: string): string => {
+  switch (role) {
+    case 'Office':
+      return 'Office';
+    case 'Supervisor':
+      return 'Supervisor';
+    case 'Invigilator':
+      return 'Invigilator';
+    case 'Technician':
+      return 'Technician';
+    case 'Examiner':
+      return 'Examiner';
+    default:
+      return role;
+  }
+};
+
+
+const usersRef = ref<ExtendedUser[]>(userStore.users.map(user => ({
+  ...user,
+  role: user.role,
+  isRoleChanged: false,
+  originalRoles: [...user.role]
+})));
+
 const currentUserRole = computed(() => userStore.getUserRole());
 
 const columns: any[] = [
@@ -144,15 +182,16 @@ const columns: any[] = [
   { name: 'lastName', align: 'left', label: 'Last name', field: 'lastName', sortable: true },
   { name: 'email', align: 'left', label: 'Email', field: 'email', sortable: true },
   { name: 'role', align: 'left', label: 'Role', field: 'role', sortable: true },
-  { name: 'Exams', align: 'left', label: 'Exams (S | I | E)', field: (row: User) => `${row._count.supervisedExams} | ${row._count.invigilatedExams} | ${row._count.examinedExams}`, sortable: true },
+  { name: 'Exams', align: 'left', label: 'Exams (S | I | E)', field: (row: ExtendedUser) => `${row._count.supervisedExams} | ${row._count.invigilatedExams} | ${row._count.examinedExams}`, sortable: true },
   { name: 'actions', align: 'left', label: 'Actions', field: 'actions' }
 ];
 
 const Roles = computed(() => {
-  return Object.values(RoleEnum).map(role => ({ label: role, value: role }));
+  return Object.entries(RoleEnum).map(([key, value]) => ({ label: value, value: key as RoleEnum }));
 });
 
-const viewUser = async (user: User) => {
+
+const viewUser = async (user: ExtendedUser) => {
   await nextTick();
   router.push(`/user/${user.id}`);
 };
@@ -172,37 +211,73 @@ async function addUser() {
   await adminStore.registerUser(newUser.value.firstName, newUser.value.lastName, newUser.value.email, newUser.value.role);
   state.newUser = false;
   await userStore.getAllUsers();
-  usersRef.value = userStore.users;
+  usersRef.value = userStore.users.map(user => ({
+    ...user,
+    role: user.role,
+    isRoleChanged: false,
+    originalRoles: [...user.role]
+  }));
 }
 
-async function editUser(item: User) {
+async function editUser(item: ExtendedUser) {
   const index = usersRef.value.indexOf(item);
   const updatedUser = { ...item };
   await adminStore.updateUserRole(updatedUser.id, updatedUser.role);
   usersRef.value[index] = updatedUser;
+  updatedUser.isRoleChanged = false;
+  updatedUser.originalRoles = [...updatedUser.role];
 }
 
-async function deactivateUser(user: User) {
+async function deactivateUser(user: ExtendedUser) {
   await adminStore.deactivateUser(user.id);
   await userStore.getAllUsers();
-  usersRef.value = userStore.users;
+  usersRef.value = userStore.users.map(user => ({
+    ...user,
+    role: user.role,
+    isRoleChanged: false,
+    originalRoles: [...user.role]
+  }));
 }
 
-const handleRoleChange = (user: User, newValue: RoleEnum[]) => {
-  const originalRoles = usersRef.value.find(u => u.id === user.id)?.role || [];
-  if (JSON.stringify(originalRoles) !== JSON.stringify(newValue)) {
-    user.isRoleChanged = true;
-  } else {
-    user.isRoleChanged = false;
-  }
+const handleRoleChange = (user: ExtendedUser) => {
+  user.isRoleChanged = !_.isEqual(user.originalRoles.sort(), user.role.sort());
 };
 
-watch(usersRef, (newUsers, oldUsers) => {
-  newUsers.forEach((newUser, index) => {
-    if (JSON.stringify(newUser.role) !== JSON.stringify(oldUsers[index].role)) {
-      newUser.isRoleChanged = true;
-    }
+watch(usersRef, (newUsers) => {
+  newUsers.forEach(newUser => {
+    newUser.isRoleChanged = !_.isEqual(sortRoles(newUser.originalRoles), sortRoles(newUser.role));
   });
 }, { deep: true });
-
 </script>
+
+<style lang="scss" scoped>
+.drawer-avatar-box {
+  display: flex;
+  align-items: center;
+  text-align: left;
+}
+
+.drawer-avatar-box .column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.drawer-avatar-box .row {
+  display: flex;
+  align-items: center;
+}
+
+.drawer-avatar-box .text-weight-bold {
+  margin-bottom: 4px;
+}
+
+.card {
+  background-color: $primary;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+}
+</style>

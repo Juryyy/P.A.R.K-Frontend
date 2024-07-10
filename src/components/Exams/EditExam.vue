@@ -73,8 +73,8 @@ const props = defineProps<{
 }>();
 
 const roles = {
-  supervisors: { title: 'Supervisor', filterRoles: ['Supervisor', 'SeniorSupervisor', 'Office'] },
-  invigilators: { title: 'Invigilator', filterRoles: ['Supervisor', 'SeniorSupervisor', 'Invigilator', 'Office'] },
+  supervisors: { title: 'Supervisor', filterRoles: ['Supervisor', 'Office'] },
+  invigilators: { title: 'Invigilator', filterRoles: ['Supervisor', 'Invigilator', 'Office'] },
   examiners: { title: 'Examiner', filterRoles: ['Examiner'] }
 } as const;
 
