@@ -5,7 +5,6 @@ import {
   createWebHashHistory,
   createWebHistory,
 } from 'vue-router';
-
 import routes from './routes';
 
 const createHistory = process.env.SERVER
@@ -22,6 +21,19 @@ export const router = createRouter({
   // quasar.conf.js -> build -> vueRouterMode
   // quasar.conf.js -> build -> publicPath
   history: createHistory(process.env.VUE_ROUTER_BASE),
+});
+
+// Global navigation guard to set document title
+router.beforeEach((to, from, next) => {
+  const nearestWithTitle = to.matched.slice().reverse().find(r => r.meta && r.meta.title);
+
+  if (nearestWithTitle) {
+    document.title = 'P.A.R.K. Admin | ' + nearestWithTitle.meta.title as string;
+  } else {
+    document.title = 'Default Title'; // Set a default title if no meta title is defined
+  }
+
+  next();
 });
 
 export default route(function (/* { store, ssrContext } */) {

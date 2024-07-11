@@ -1,5 +1,5 @@
 <template>
-  <router-view :key="$route.fullPath" v-if="state.isLoaded"/>
+  <router-view :key="$route.fullPath" v-if="state.isLoaded" />
 </template>
 
 <script setup lang="ts">
@@ -7,19 +7,16 @@ import { onMounted, reactive } from 'vue';
 import { useUserStore } from 'src/stores/userStore';
 import { Loading } from 'quasar';
 
+const userStore = useUserStore();
 const state = reactive({
   isLoaded: false,
 });
 
-const userStore = useUserStore();
-
 onMounted(async () => {
-  console.log('mounted');
-  await userStore.fetchUserInfo();
-  //userStore.updateUserInfo(userStore.user);
-  userStore.getUserInfo();
-  console.log(userStore.user);
-  if(userStore.user.email !== null){
+  if (userStore.user.email || localStorage.getItem('email')) {
+    await userStore.fetchUserInfo();
+    userStore.updateUserInfo(userStore.user);
+    userStore.getUserInfo();
     Loading.show({
       message: 'Loading data...',
       spinnerColor: 'amber',

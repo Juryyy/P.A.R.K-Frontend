@@ -13,33 +13,52 @@ const routes: RouteRecordRaw[] = [
         path: '',
         component: () => import('pages/IndexPage.vue'),
         name: 'Home',
+        meta: {
+          title: 'Home',
+        },
       },
       {
         path: 'availabilty-check',
         component: () => import('pages/AvailabilityCheck.vue'),
         name: 'AvailabiltyCheck',
+        meta: {
+          title: 'Availability',
+        },
       },
       {
         path: 'user/:id',
         component: () => import('pages/UserProfilePage.vue'),
         name: 'UserProfile',
+        props: true,
+        meta: {
+          title: 'Profile',
+        },
       },
       {
         path: 'users',
         component: () => import('pages/admin/UsersPage.vue'),
         name: 'Users',
+        meta: {
+          title: 'Users',
+        },
       },
       {
         path: 'import-candidates',
         component: () => import('pages/admin/CandidatesImport.vue'),
         name: 'ImportCandidates',
         beforeEnter: checkOffice,
+        meta: {
+          title: 'Import Candidates',
+        },
       },
       {
         path: 'exams',
         component: () => import('pages/admin/ExamsPage.vue'),
         name: 'Exams',
         beforeEnter: checkOffice,
+        meta: {
+          title: 'Exams',
+        },
       },
       {
         path: 'exams/:id',
@@ -47,18 +66,27 @@ const routes: RouteRecordRaw[] = [
         name: 'Exam',
         beforeEnter: checkOffice,
         props: true,
+        meta: {
+          title: 'Exam',
+        },
       },
       {
         path: 'create-availability',
         component: () => import('pages/admin/CreateAvailabilityPage.vue'),
         name: 'CreateAvailability',
         beforeEnter: checkOffice,
+        meta: {
+          title: 'Create Availability',
+        },
       },
       {
         path: 'admin-panel',
         component: () => import('pages/admin/AdminPanel.vue'),
         name: 'AdminPanel',
         beforeEnter: checkOffice,
+        meta: {
+          title: 'Admin Panel',
+        },
       },
     ],
   },
@@ -66,25 +94,41 @@ const routes: RouteRecordRaw[] = [
     path: '/login',
     component: () => import('pages/LoginPage.vue'),
     name: 'Login',
+    meta: {
+      title: 'Login',
+    },
   },
   {
     path: '/forgot-password',
     component: () => import('pages/ForgotPasswordPage.vue'),
     name: 'ForgotPassword',
+    meta: {
+      title: 'Forgot Password',
+    },
   },
   {
     path: '/verify',
     component: () => import('pages/VerifyPage.vue'),
     name: 'Verify',
+    meta: {
+      title: 'Verify',
+    },
   },
   {
     path: '/test',
     component: () => import('pages/TestPage.vue'),
     name: 'Test',
+    meta: {
+      title: 'Test',
+    },
   },
   {
     path: '/:catchAll(.*)*',
     component: () => import('pages/ErrorNotFound.vue'),
+    name: 'ErrorNotFound',
+    meta: {
+      title: 'Error',
+    },
   },
 ];
 
