@@ -1,58 +1,94 @@
 <template>
-  <q-card bordered class="q-ma-md" >
-    <q-card-section>
-      <div class="text-h5">{{ exam.location }}</div>
-      <div class="text-h6">Venue: {{ exam.venue }}</div>
-      <div>Type: {{ exam.type }}</div>
-      <div>Levels: {{ exam.levels.join(', ') }}</div>
-      <div>Start time: {{ formatTime(exam.startTime) }}</div>
-      <div>End time: {{ formatTime(exam.endTime) }}</div>
-      <div>
-        Note:
-        <span>
-          {{ exam.note }}
-        </span>
-      </div>
-      <q-separator />
-      <div v-for="(role, key) in roles" :key="key">
-        {{ role.title }}:
-        <div v-if="exam[key].length === 0">
-          No {{ key }} assigned
-        </div>
-        <div class="text-bold" v-else v-for="person in exam[key]" :key="person.id">
-          {{ person.firstName }} {{ person.lastName }}
-          <q-btn @click="removeFromExam(exam.id, person.id, role.title)" icon="remove" round color="negative" size="xs" />
-        </div>
-      </div>
-    </q-card-section>
-  </q-card>
+  <div class="container">
+    <q-card bordered class="q-ma-md top-card">
+      <q-card-section>
+        <div class="text-h4">{{ exam.type }}</div>
+        <div class="text-h5">{{ exam.location }} - {{ exam.venue }}</div>
+        <div class="text-bold">Levels: {{ exam.levels.join(', ') }}</div>
+        <div class="text-bold">Start time: {{ formatTime(exam.startTime) }}</div>
+        <div class="text-bold">End time: {{ formatTime(exam.endTime) }}</div>
+        <div class="text-bold">
+          Note:
+          <b
+            v-if="shouldShowMoreLink(exam.note)"
+            @click="showFullNoteDialog()"
+          >
+            {{ truncatedNote(exam.note) }}
+            <span class="more-link">...more</span>
+          </b>
+          <b v-else>
+            <b>{{ exam.note }}</b>
+          </b>
 
-  <div>
-    <q-toggle class="text-h6" v-model="isOverrideActive">
-      Switch to override responses
-    </q-toggle>
-    <div v-for="(role, key) in roles" :key="key">
-      <q-card bordered class="q-ma-md">
-        <div class="text-h5 text-bold q-ml-md q-mt-md text-center">{{ role.title }}</div>
-        <q-card-section>
-          <div class="responsive-columns">
-            <div v-for="answer in answers" :key="answer" class="responsive-column">
-              <q-card bordered class="q-ma-xs" :style="getAnswerStyle(answer)">
-                <div class="text-h5 q-ma-sm text-center">{{ roleTitles[answer] }}</div>
-                <q-separator class="q-mx-sm" />
-                <q-card-section>
-                  <div v-for="response in filteredResponses(answer, [...role.filterRoles])" :key="response.id">
-                    <div v-if="!response.assigned" class="text-h6 text-weight-bold name-wrapper">
-                      {{ response.userName }}
-                      <q-btn v-if="!response.assigned && (isOverrideActive || response.response !== 'No')" @click="addToExam(exam.id, response.userId, isOverrideActive, response.dayOfExamsId, role.title)" icon="add" round color="primary" size="xs" />
-                    </div>
-                  </div>
-                </q-card-section>
-              </q-card>
-            </div>
+          <q-dialog v-model="showNoteDialog">
+            <q-card class="note-dialog-card">
+              <q-card-section>
+                <div class="text-h6">Full Note</div>
+                <div class="note-content">{{ exam?.note }}</div>
+              </q-card-section>
+              <q-card-actions align="right">
+                <q-btn
+                  color="primary"
+                  label="Close"
+                  @click="showNoteDialog = false"
+                />
+              </q-card-actions>
+            </q-card>
+          </q-dialog>
+
+        </div>
+        <q-separator class="q-my-sm"  />
+        <div v-for="(role, key) in roles" :key="key">
+          {{ role.title }}:
+          <div v-if="exam[key].length === 0">
+            No {{ key }} assigned
           </div>
-        </q-card-section>
-      </q-card>
+          <div class="text-bold" v-else v-for="person in exam[key]" :key="person.id">
+            {{ person.firstName }} {{ person.lastName }}
+            <q-btn @click="removeFromExam(exam.id, person.id, role.title)" icon="remove" round color="negative" size="xs" />
+          </div>
+        </div>
+        <q-separator class="q-mt-sm" />
+
+        <q-uploader
+          class="q-mt-md"
+          flat
+          label="Upload schedule"
+          color="primary"
+          :url="examScheduleUrl"
+          auto-upload
+          no-thumbnails
+        />
+      </q-card-section>
+    </q-card>
+
+    <div class="override-section">
+      <q-toggle class="text-h6" v-model="isOverrideActive">
+        Switch to override responses
+      </q-toggle>
+      <div v-for="(role, key) in roles" :key="key">
+        <q-card bordered class="q-ma-md">
+          <div class="text-h5 text-bold q-ml-md q-mt-md text-center">{{ role.title }}</div>
+          <q-card-section>
+            <div class="responsive-columns">
+              <div v-for="answer in answers" :key="answer" class="responsive-column">
+                <q-card bordered class="q-ma-xs" :style="getAnswerStyle(answer)">
+                  <div class="text-h5 q-ma-sm text-center">{{ roleTitles[answer] }}</div>
+                  <q-separator class="q-mx-sm" />
+                  <q-card-section>
+                    <div v-for="response in filteredResponses(answer, [...role.filterRoles])" :key="response.id">
+                      <div v-if="!response.assigned" class="text-h6 text-weight-bold name-wrapper">
+                        {{ response.userName }}
+                        <q-btn v-if="!response.assigned && (isOverrideActive || response.response !== 'No')" @click="addToExam(exam.id, response.userId, isOverrideActive, response.dayOfExamsId, role.title)" icon="add" round color="primary" size="xs" />
+                      </div>
+                    </div>
+                  </q-card-section>
+                </q-card>
+              </div>
+            </div>
+          </q-card-section>
+        </q-card>
+      </div>
     </div>
   </div>
 </template>
@@ -72,6 +108,9 @@ const props = defineProps<{
   responses: dayResponse[];
 }>();
 
+const examScheduleUrl = `${process.env.VUE_APP_API_URL}/exams/schedule/${props.exam.id}`;
+const showNoteDialog = ref(false);
+
 const roles = {
   supervisors: { title: 'Supervisor', filterRoles: ['Supervisor', 'Office'] },
   invigilators: { title: 'Invigilator', filterRoles: ['Supervisor', 'Invigilator', 'Office'] },
@@ -87,6 +126,23 @@ const roleTitles = {
 
 type RoleTitleKey = keyof typeof roleTitles;
 
+const shouldShowMoreLink = (note: string | undefined) => {
+  const maxLength = 19;
+  return note && note.length > maxLength;
+};
+
+const showFullNoteDialog = () => {
+  showNoteDialog.value = true;
+};
+
+const truncatedNote = (note: string | undefined) => {
+  const maxLength = 19;
+  if (note && note.length > maxLength) {
+    return `${note.substring(0, maxLength)}`;
+  }
+  return note;
+};
+
 const addToExam = async (examId: number, userId: number, override: boolean, dayId: number, position: string) => {
   await examStore.addWorker(examId, userId, override, position);
   await examDayStore.loadResponsesForExamDay(dayId);
@@ -96,7 +152,6 @@ const addToExam = async (examId: number, userId: number, override: boolean, dayI
 const removeFromExam = async (examId: number, userId: number, position: string) => {
   await examStore.removeWorker(examId, userId, position);
   await examStore.getExam(examId);
-  //from responses[0] get dayId
   const dayId = props.responses[0].dayOfExamsId;
   await examDayStore.loadResponsesForExamDay(dayId);
 };
@@ -128,6 +183,20 @@ const getAnswerStyle = (answer: RoleTitleKey) => {
 </script>
 
 <style scoped>
+.container {
+  display: flex;
+  flex-direction: column;
+}
+
+.top-card {
+  flex: 1;
+  margin-bottom: 1rem;
+}
+
+.override-section {
+  flex: 2;
+}
+
 .responsive-columns {
   display: flex;
   flex-wrap: wrap;
@@ -145,6 +214,20 @@ const getAnswerStyle = (answer: RoleTitleKey) => {
 }
 
 @media (min-width: 600px) {
+  .container {
+    flex-direction: row;
+  }
+
+  .top-card {
+    max-width: 50%;
+    margin-right: 1rem;
+    margin-bottom: 0;
+  }
+
+  .override-section {
+    flex: 2;
+  }
+
   .responsive-column {
     flex: 1 1 calc(25% - 1rem);
   }

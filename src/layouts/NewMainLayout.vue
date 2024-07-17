@@ -133,7 +133,35 @@
                 Type: <b>{{ exam.type }}</b>
               </q-item-label>
               <q-item-label>
-                Note: <b>{{ exam.note }}</b>
+
+                Note:
+              <b
+                v-if="shouldShowMoreLink(exam.note)"
+                @click="showFullNoteDialog()"
+              >
+                {{ truncatedNote(exam.note) }}
+                <span class="more-link">...more</span>
+              </b>
+              <b v-else>
+                <b>{{ exam.note }}</b>
+              </b>
+
+              <q-dialog v-model="showNoteDialog">
+                <q-card class="note-dialog-card">
+                  <q-card-section>
+                    <div class="text-h6">Full Note</div>
+                    <div class="note-content">{{ exam?.note }}</div>
+                  </q-card-section>
+                  <q-card-actions align="right">
+                    <q-btn
+                      color="primary"
+                      label="Close"
+                      @click="showNoteDialog = false"
+                    />
+                  </q-card-actions>
+                </q-card>
+              </q-dialog>
+
               </q-item-label>
               <q-item-label class="absolute-top-right q-ma-sm">
                 <q-btn
@@ -194,12 +222,29 @@ const logout = async () => {
   router.push('/login');
 };
 
+
 const exams: ExamWithVenueLink[] = userStore.usersExams;
 const usersExamsRef = ref(exams);
 const user = computed(() => userStore.user);
 const userAvatar = ref('');
+const showNoteDialog = ref(false);
 
-console.log(userStore.user.isSenior)
+const shouldShowMoreLink = (note: string | undefined) => {
+  const maxLength = 19;
+  return note && note.length > maxLength;
+};
+
+const showFullNoteDialog = () => {
+  showNoteDialog.value = true;
+};
+
+const truncatedNote = (note: string | undefined) => {
+  const maxLength = 19;
+  if (note && note.length > maxLength) {
+    return `${note.substring(0, maxLength)}`;
+  }
+  return note;
+};
 
 const essentialLinks: EssentialLinkProps[] = [
   {
@@ -297,4 +342,5 @@ const showVenue = (gLink: string) => {
   display: flex;
   align-items: center;
 }
+
 </style>

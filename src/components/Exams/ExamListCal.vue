@@ -90,10 +90,10 @@
               @click="editExam(exam.id)"
             />
             <q-dialog v-model="showNoteDialog">
-              <q-card>
+              <q-card class="note-dialog-card">
                 <q-card-section>
                   <div class="text-h6">Full Note</div>
-                  <div>{{ exam?.note }}</div>
+                  <div class="note-content">{{ exam?.note }}</div>
                 </q-card-section>
                 <q-card-actions align="right">
                   <q-btn
@@ -432,4 +432,5 @@ const colorPick = (date: string) => {
     align-items: center;
   }
 }
+
 </style>
