@@ -1,41 +1,50 @@
-# Park frontend (p-a-r-k-front-end)
+# TODO:
 
-.
+# - [?] Posts
+- fix download buttons
+- filtering
+- search
+- pagination
 
-## Install the dependencies
-```bash
-yarn
-# or
-npm install
-```
-
-### Start the app in development mode (hot-code reloading, error reporting, etc.)
-```bash
-quasar dev
-```
+- todo upload file from post screen
 
 
-### Lint the files
-```bash
-yarn lint
-# or
-npm run lint
-```
+# - [?] Availability
+- comments ?
+- autolock
+
+- zrušit maybe
+- yes/no/am/pm
+- note z profilu
 
 
-### Format the files
-```bash
-yarn format
-# or
-npm run format
-```
+# - [?] Profile
+- edit profile
+- change password
+- deactivation/activation
+- 2FA modification
+- avatar upload
+
+- levels
+- multiple roles
+
+# - [?] Exams
+- [] exam creation
+- [] exam edit
+- [] exam delete
+- [] exam validation
+- [] exam candidates
+- [] exam schedule
+- [] exam files + upload
+
+# - [!] Candidates
+
+# - [?] Admin
 
 
 
-### Build the app for production
-```bash
-quasar build
-```
 
-### Customize the configuration
-See [Configuring quasar.config.js](https://v2.quasar.dev/quasar-cli-vite/quasar-config-js).
+
+# - [ ] Add a description of the project
+# - [ ] Add a list of the technologies used
+# - [ ] Add a list of the features

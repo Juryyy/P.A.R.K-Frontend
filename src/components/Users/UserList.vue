@@ -2,39 +2,82 @@
   <div id="q-app">
     <div class="q-pa-sm q-gutter-sm">
       <q-page>
+        <q-input
+          outlined
+          v-model="searchQuery"
+          placeholder="Search users..."
+          class="q-my-md"
+          debounce="300"
+          @input="filteredUsersRef"
+        />
         <q-table
           class="primary-header"
           flat
           bordered
           title="Users"
-          :rows="usersRef"
+          :rows="filteredUsersRef"
           :columns="columns"
         >
           <template v-slot:body="props">
             <q-tr :props="props">
-              <q-td key="firstName">
-                {{ props.row.firstName }}
-              </q-td>
-              <q-td key="lastName">
-                {{ props.row.lastName }}
-              </q-td>
-              <q-td key="email">
-                {{ props.row.email }}
-              </q-td>
+              <q-td key="firstName">{{ props.row.firstName }}</q-td>
+              <q-td key="lastName">{{ props.row.lastName }}</q-td>
+              <q-td key="email">{{ props.row.email }}</q-td>
               <q-td key="role">
-                {{ props.row.role }}
-                <q-popup-edit v-model="props.row.role"
-                :disable="currentUserRole !== 'Office'">
+                <div>
+                  <q-chip
+                    v-for="role in sortRoles(props.row.role)"
+                    :key="role"
+                    :color="getRoleColor(role)"
+                    class="q-mr-sm q-mb-sm"
+                  >
+                    {{ role }}
+                  </q-chip>
+                </div>
+                <q-popup-edit
+                  v-model="props.row.role"
+                  :disable="!currentUserRole.includes(RoleEnum.Office) && !currentUserRole.includes(RoleEnum.Developer)"
+                >
                   <q-select
                     v-model="props.row.role"
                     :options="Roles"
+                    multiple
                     emit-value
                     map-options
                     dense
                     fill-input
                     use-input
-                    hide-selected
-                    @update:modelValue="handleRoleChange(props.row, true)"
+                    use-chips
+                    @update:modelValue="handleRoleChange(props.row)"
+                  />
+                </q-popup-edit>
+              </q-td>
+              <q-td key="level">
+                <div>
+                  <q-chip
+                    v-for="level in sortLevels(props.row.level)"
+                    :key="level"
+                    :color="getLevelColor(level)"
+                    class="q-mr-sm q-mb-sm"
+                  >
+                    {{ level }}
+                  </q-chip>
+                </div>
+                <q-popup-edit
+                  v-model="props.row.level"
+                  :disable="!currentUserRole.includes(RoleEnum.Office) && !currentUserRole.includes(RoleEnum.Developer)"
+                >
+                  <q-select
+                    v-model="props.row.level"
+                    :options="Levels"
+                    multiple
+                    emit-value
+                    map-options
+                    dense
+                    fill-input
+                    use-input
+                    use-chips
+                    @update:modelValue="handleLevelChange(props.row)"
                   />
                 </q-popup-edit>
               </q-td>
@@ -49,32 +92,38 @@
               </q-td>
               <q-td key="actions">
                 <q-btn-group>
-                  <q-btn v-if="currentUserRole === 'Office'"
+                  <q-btn
+                    v-if="currentUserRole.includes(RoleEnum.Office) || currentUserRole.includes(RoleEnum.Developer)"
                     @click="editUser(props.row)"
-                    :color="props.row.isRoleChanged ? 'blue' : 'grey'"
+                    :color="props.row.isRoleChanged || props.row.isLevelChanged ? 'blue' : 'grey'"
                     icon="manage_accounts"
-                    :disable="!props.row.isRoleChanged"
+                    :disable="!(props.row.isRoleChanged || props.row.isLevelChanged)"
                   >
-                    <q-tooltip v-if="props.row.isRoleChanged" class="bg-blue" :delay="250" >Update users role</q-tooltip>
-                    <q-tooltip v-else class="bg-grey" :delay="250">No changes to users role</q-tooltip>
+                    <q-tooltip v-if="props.row.isRoleChanged || props.row.isLevelChanged" class="bg-blue" :delay="250">
+                      Update user's role/level
+                    </q-tooltip>
+                    <q-tooltip v-else class="bg-grey" :delay="250">
+                      No changes to user's role/level
+                    </q-tooltip>
                   </q-btn>
                   <q-btn
                     @click="viewUser(props.row)"
                     color="primary"
                     icon="person_search"
                   >
-                    <q-tooltip class="bg-primary" :delay="250"
-                      >View users profile</q-tooltip
-                    >
+                    <q-tooltip class="bg-primary" :delay="250">
+                      View user's profile
+                    </q-tooltip>
                   </q-btn>
-                  <q-btn v-if="currentUserRole === 'Office'"
+                  <q-btn
+                    v-if="currentUserRole.includes(RoleEnum.Office)"
                     @click="deactivateUser(props.row)"
                     color="red"
                     icon="person_off"
                   >
-                    <q-tooltip class="bg-red" :delay="250"
-                      >Deactivate user</q-tooltip
-                    >
+                    <q-tooltip class="bg-red" :delay="250">
+                      Deactivate user
+                    </q-tooltip>
                   </q-btn>
                 </q-btn-group>
               </q-td>
@@ -98,6 +147,18 @@
                     <q-select
                       v-model="newUser.role"
                       :options="Roles"
+                      multiple
+                      emit-value
+                      map-options
+                      dense
+                      fill-input
+                      use-input
+                      hide-selected
+                    />
+                    <q-select
+                      v-model="newUser.level"
+                      :options="Levels"
+                      multiple
                       emit-value
                       map-options
                       dense
@@ -123,124 +184,168 @@
     </div>
   </div>
 </template>
+
 <script setup lang="ts">
-import { useAdminStore } from 'src/stores/adminStore';
-import { computed, reactive, ref, Ref, watch} from 'vue';
-import { User, RoleEnum } from 'src/stores/db/types';
-import { router } from 'src/router/index';
+import { ref, reactive, computed, watch, nextTick } from 'vue';
+import { User, RoleEnum, LevelEnum, ExtendedUser } from 'src/stores/db/types';
 import { useUserStore } from 'src/stores/userStore';
+import { useAdminStore } from 'src/stores/adminStore';
+import { router } from 'src/router';
+import _ from 'lodash';
+import { getRoleColor, getLevelColor } from 'src/helpers/Color';
+import { sortRoles, sortLevels } from 'src/helpers/FormatRole';
 
-const adminStore = useAdminStore();
 const userStore = useUserStore();
+const adminStore = useAdminStore();
 
-const users: User[] = userStore.users;
-const usersRef: Ref<User[]> = ref(users);
-const currentUserRole = userStore.getUserRole();
+const usersRef = ref<ExtendedUser[]>(userStore.users.map(user => ({
+  ...user,
+  role: user.role || [],
+  level: user.level || [], // Ensure level is an array
+  isRoleChanged: false,
+  isLevelChanged: false,
+  originalRoles: [...(user.role || [])],
+  originalLevels: [...(user.level || [])] // Ensure originalLevels is an array
+})));
 
-console.log(currentUserRole)
+const searchQuery = ref('');
 
-const columns = [
-  {
-    name: 'firstName',
-    required: true,
-    label: 'First name',
-    align: 'left',
-    field: 'firstName',
-    sortable: true,
-  },
-  {
-    name: 'lastName',
-    align: 'left',
-    label: 'Last name',
-    field: 'lastName',
-    sortable: true,
-  },
-  {
-    name: 'email',
-    align: 'left',
-    label: 'Email',
-    field: 'email',
-    sortable: true,
-  },
-  { name: 'role', align: 'left', label: 'Role', field: 'role', sortable: true },
-  {
-    name: 'Exams',
-    align: 'left',
-    label: 'Exams (S | I | E)',
-    field: 'Exams',
-    sortable: true,
-  },
-  { name: 'actions', align: 'left', label: 'Actions', field: 'actions' },
-] as {
-  name: string;
-  required: boolean;
-  label: string;
-  align: 'left';
-  field: string | ((row: User) => User);
-  sortable: boolean;
-}[];
-
-async function addUser() {
-  await adminStore.registerUser(
-    newUser.value.firstName,
-    newUser.value.lastName,
-    newUser.value.email,
-    newUser.value.role
+const filteredUsersRef = computed(() => {
+  if (!searchQuery.value) {
+    return usersRef.value;
+  }
+  return usersRef.value.filter(user =>
+    user.firstName.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+    user.lastName.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+    user.email.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+    user.role.some(role => role.toLowerCase().includes(searchQuery.value.toLowerCase())) ||
+    user.level.some(level => level.toLowerCase().includes(searchQuery.value.toLowerCase()))
   );
-  state.newUser = false;
-  await userStore.getAllUsers();
-  usersRef.value = userStore.users;
-}
-
-async function deactivateUser(user: User) {
-  console.log('deactivate', user.id);
-}
-
-const editedItem = ref({} as User);
-const editedIndex = ref(-1);
-
-const editUser = async (item: User) => {
-  editedIndex.value = usersRef.value.indexOf(item);
-  editedItem.value = Object.assign({}, item);
-  editedItem.value.isRoleChanged = false;
-  await adminStore.updateUserRole(editedItem.value.id, editedItem.value.role);
-  handleRoleChange(editedItem.value, false);
-  usersRef.value[editedIndex.value] = editedItem.value;
-};
-
-const viewUser = (item: User) => {
-  router.push(`/users/${item.id}`);
-};
-
-const Roles = computed(() => {
-  return Object.values(RoleEnum).map((role) => {
-    return { label: role, value: role };
-  });
 });
 
+const currentUserRole = computed(() => userStore.getUserRole());
+
+const columns: any[] = [
+  { name: 'firstName', required: true, label: 'First name', align: 'left', field: 'firstName', sortable: true },
+  { name: 'lastName', align: 'left', label: 'Last name', field: 'lastName', sortable: true },
+  { name: 'email', align: 'left', label: 'Email', field: 'email', sortable: true },
+  { name: 'role', align: 'left', label: 'Role', field: 'role', sortable: true },
+  { name: 'level', align: 'left', label: 'Levels', field: 'level', sortable: true },
+  { name: 'Exams', align: 'left', label: 'Exams (S | I | E)', field: (row: ExtendedUser) => `${row._count.supervisedExams} | ${row._count.invigilatedExams} | ${row._count.examinedExams}`, sortable: true },
+  { name: 'actions', align: 'left', label: 'Actions', field: 'actions' }
+];
+
+const Roles = computed(() => {
+  return Object.entries(RoleEnum).map(([key, value]) => ({ label: value, value: key as RoleEnum }));
+});
+
+const Levels = computed(() => {
+  return Object.entries(LevelEnum).map(([key, value]) => ({ label: value, value: key as LevelEnum }));
+});
+
+const viewUser = async (user: ExtendedUser) => {
+  await nextTick();
+  router.push(`/user/${user.id}`);
+};
+
 const state = reactive({
-  newUser: false,
-  passwordHidden: true,
+  newUser: false
 });
 
 const newUser = ref({
   firstName: '',
   lastName: '',
   email: '',
-  password: '',
-  role: RoleEnum.Invigilator,
+  role: [] as RoleEnum[],
+  level: [] as LevelEnum[] // Ensure level is initialized as an array
 });
 
+async function addUser() {
+  await adminStore.registerUser(newUser.value.firstName, newUser.value.lastName, newUser.value.email, newUser.value.role);
+  state.newUser = false;
+  await userStore.getAllUsers();
+  usersRef.value = userStore.users.map(user => ({
+    ...user,
+    role: user.role || [],
+    level: user.level || [], // Ensure level is an array
+    isRoleChanged: false,
+    isLevelChanged: false,
+    originalRoles: [...(user.role || [])],
+    originalLevels: [...(user.level || [])] // Ensure originalLevels is an array
+  }));
+}
 
-watch(usersRef, (newUsers, oldUsers) => {
-  newUsers.forEach((newUser, index) => {
-    if (newUser.role !== oldUsers[index].role) {
-      usersRef.value[index].isRoleChanged = true;
-    }
+async function editUser(item: ExtendedUser) {
+  const index = usersRef.value.indexOf(item);
+  const updatedUser = { ...item };
+  await adminStore.updateUserRole(updatedUser.id, updatedUser.role);
+  await adminStore.updateUserLevel(updatedUser.id, updatedUser.level);
+  usersRef.value[index] = updatedUser;
+  updatedUser.isRoleChanged = false;
+  updatedUser.isLevelChanged = false;
+  updatedUser.originalRoles = [...(updatedUser.role || [])];
+  updatedUser.originalLevels = [...(updatedUser.level || [])];
+}
+
+async function deactivateUser(user: ExtendedUser) {
+  await adminStore.deactivateUser(user.id);
+  await userStore.getAllUsers();
+  usersRef.value = userStore.users.map(user => ({
+    ...user,
+    role: user.role || [],
+    level: user.level || [], // Ensure level is an array
+    isRoleChanged: false,
+    isLevelChanged: false,
+    originalRoles: [...(user.role || [])],
+    originalLevels: [...(user.level || [])] // Ensure originalLevels is an array
+  }));
+}
+
+const handleRoleChange = (user: ExtendedUser) => {
+  user.isRoleChanged = !_.isEqual(user.originalRoles.sort(), user.role.sort());
+};
+
+const handleLevelChange = (user: ExtendedUser) => {
+  user.isLevelChanged = !_.isEqual(user.originalLevels.sort(), user.level.sort());
+};
+
+watch(usersRef, (newUsers) => {
+  newUsers.forEach(newUser => {
+    newUser.isRoleChanged = !_.isEqual(sortRoles(newUser.originalRoles), sortRoles(newUser.role));
+    newUser.isLevelChanged = !_.isEqual(sortLevels(newUser.originalLevels), sortLevels(newUser.level));
   });
 }, { deep: true });
-
-const handleRoleChange = (user: User, change : boolean) => {
-  user.isRoleChanged = change;
-};
 </script>
+
+
+<style lang="scss" scoped>
+.drawer-avatar-box {
+  display: flex;
+  align-items: center;
+  text-align: left;
+}
+
+.drawer-avatar-box .column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.drawer-avatar-box .row {
+  display: flex;
+  align-items: center;
+}
+
+.drawer-avatar-box .text-weight-bold {
+  margin-bottom: 4px;
+}
+
+.card {
+  background-color: $primary;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+}
+</style>

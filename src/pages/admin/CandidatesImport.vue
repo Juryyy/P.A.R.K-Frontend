@@ -15,8 +15,8 @@
 </template>
 
 <script setup lang="ts">
-import FileReadCsv from 'src/components/FileReadCsv.vue';
-import CandidatesTable from 'src/components/CandidatesTable.vue';
+import FileReadCsv from 'src/components/FileRead/FileReadCsv.vue';
+import CandidatesTable from 'src/components/FileRead/CandidatesTable.vue';
 import { useCandidateStore } from 'src/stores/candidateStore';
 
 const candidateStore = useCandidateStore();

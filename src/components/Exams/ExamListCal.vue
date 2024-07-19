@@ -54,7 +54,7 @@
                 v-for="supervisor in exam.supervisors"
                 :key="supervisor.id"
               >
-                {{ supervisor.firstName }} {{ supervisor.lastName }}
+                <b>{{ supervisor.firstName }} {{ supervisor.lastName }}</b>
               </div>
             </div>
 
@@ -75,7 +75,10 @@
 
             <div>
               Examiners:
-              <div v-for="examiner in exam.examiners" :key="examiner.id">
+              <div v-if="exam.examiners.length === 0">
+                No examiners assigned
+              </div>
+              <div v-else v-for="examiner in exam.examiners" :key="examiner.id">
                 {{ examiner.firstName }} {{ examiner.lastName }}
               </div>
             </div>
@@ -87,10 +90,10 @@
               @click="editExam(exam.id)"
             />
             <q-dialog v-model="showNoteDialog">
-              <q-card>
+              <q-card class="note-dialog-card">
                 <q-card-section>
                   <div class="text-h6">Full Note</div>
-                  <div>{{ exam?.note }}</div>
+                  <div class="note-content">{{ exam?.note }}</div>
                 </q-card-section>
                 <q-card-actions align="right">
                   <q-btn
@@ -202,6 +205,9 @@ import { useExamStore } from 'src/stores/examStore';
 import { useAdminStore } from 'src/stores/adminStore';
 import { Loading, Notify } from 'quasar';
 import { DayOfExams, Exam, LevelEnum, examTypeEnum, Location, Venue} from 'src/stores/db/types';
+import { router } from 'src/router/index';
+import { formatTime } from 'src/helpers/formatTime';
+import { nextTick } from 'vue';
 
 const examDayStore = useExamDayStore();
 const examStore = useExamStore();
@@ -307,9 +313,8 @@ const getExamDayId = (examId: number) => {
 };
 
 const editExam = async (examId: number) => {
-  const getExamDay = getExamDayId(examId);
-  if (getExamDay) await examDayStore.loadResponsesForExamDay(getExamDay);
-  console.log('Edit exam with id:', examId, 'and exam day id:', getExamDay);
+  await nextTick();
+  router.push(`/exams/${examId}`);
 };
 
 const highlightDays = (date: string) => {
@@ -326,7 +331,6 @@ const highlightDays = (date: string) => {
   });
 };
 
-// Use computed to track changes in examsRef
 const filteredExams = computed(() => {
   if (state.selectedDate) {
     const [day, month, year] = state.selectedDate.split('.');
@@ -352,13 +356,6 @@ const filteredExams = computed(() => {
     return [];
   }
 });
-
-const formatTime = (datetime: Date) => {
-  const date = new Date(datetime);
-  const hours = date.getHours().toString().padStart(2, '0');
-  const minutes = date.getMinutes().toString().padStart(2, '0');
-  return `${hours}:${minutes}`;
-};
 
 const showNoteDialog = ref(false);
 
@@ -435,4 +432,5 @@ const colorPick = (date: string) => {
     align-items: center;
   }
 }
+
 </style>

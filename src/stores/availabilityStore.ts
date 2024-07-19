@@ -41,19 +41,5 @@ export const useAvailabilityStore = defineStore('availability', {
         });
       }
     },
-
-    async loadResponsesForExamDay() {
-      try {
-        const response = await api.get('/responses/responses');
-        this.userResponses = response.data;
-      } catch (error) {
-        Notify.create({
-          color: 'negative',
-          message: 'Error during getting invigilators days',
-          position: 'bottom',
-          icon: 'report_problem',
-        });
-      }
-    },
   },
 });

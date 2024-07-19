@@ -6,11 +6,14 @@ export interface User {
   phone: string | null;
   drivingLicense: boolean;
   note: string | null;
+  noteLonger: string | null;
   adminNote: string | null;
-  role: RoleEnum;
+  role: RoleEnum[];
+  level: LevelEnum[];
   avatarUrl: string | null;
   activatedAccount: boolean;
   deactivated: boolean;
+  dateOfBirth: string | null;
   _count: {
     supervisedExams: number;
     invigilatedExams: number;
@@ -20,7 +23,7 @@ export interface User {
   invigilatedExams: Exam[];
   examinedExams: Exam[];
   responses: Response[];
-
+  isSenior: boolean;
   isRoleChanged?: boolean;
 }
 
@@ -29,13 +32,17 @@ export interface UserInfo {
   email: string | null;
   firstName: string | null;
   lastName: string | null;
+  phone: string | null;
+  dateOfBirth: string | null;
   drivingLicense: boolean | null;
   note: string | null;
   adminNote: string | null;
-  role: string | null;
+  role: string[] | null;
+  level: string[] | null;
   avatarUrl: string | null;
   activatedAccount: boolean | null;
   deactivated: boolean | null;
+  isSenior: boolean | null;
 }
 
 export interface DayOfExams {
@@ -65,14 +72,23 @@ export interface Exam {
   candidates: string[];
 }
 
+export interface ExamWithVenueLink extends Exam {
+  venueLink: string;
+}
+
 export enum RoleEnum {
   Office = 'Office',
   Supervisor = 'Supervisor',
-  SeniorSupervisor = 'Senior Supervisor',
   Invigilator = 'Invigilator',
-  SeniorInvigilator = 'Senior Invigilator',
-  Tech = 'Tech',
+  Developer  = 'Developer',
   Examiner = 'Examiner',
+}
+
+export interface ExtendedUser extends User {
+  originalRoles: RoleEnum[];
+  isRoleChanged: boolean;
+  originalLevels: LevelEnum[];
+  isLevelChanged: boolean;
 }
 
 export interface UserResponses {
@@ -100,6 +116,16 @@ export interface UserResponsesWithType {
   examiners: boolean;
 }
 
+export interface dayResponse {
+  dayOfExamsId: number;
+  id : number;
+  response : string;
+  userName : string;
+  userRole : string[];
+  assigned: boolean;
+  userId: number;
+}
+
 export enum LevelEnum {
   A1 = 'A1',
   A2 = 'A2',
@@ -122,6 +148,7 @@ export interface Venue {
   id: number;
   name: string;
   locationId: number;
+  gLink: string;
 }
 
 export interface Location {
@@ -129,3 +156,24 @@ export interface Location {
   name: string;
   venues: Venue[];
 }
+
+export interface Post {
+  id?: number;
+  title: string;
+  content: string;
+  authorId?: number;
+  author?: User;
+  createdAt?: Date;
+  updatedAt?: Date;
+  taggedRoles?: RoleEnum[],
+  users?: User[],
+  driveLink: DriveLink[];
+}
+
+export interface DriveLink{
+  id?: number;
+  link: string;
+  name: string;
+  postId?: number;
+}
+

@@ -2,11 +2,12 @@ import { defineStore } from 'pinia';
 import { api } from '../boot/axios';
 import { Notify } from 'quasar';
 import { ref } from 'vue';
+import { dayResponse } from './db/types';
 
 export const useExamDayStore = defineStore('examDay', {
   state: () => ({
     upcomingExamDays: ref([]),
-    responsesForExamDay: ref([]),
+    responsesForExamDay: ref<dayResponse[]>([]),
   }),
   actions: {
     async loadExamDays() {
@@ -83,5 +84,24 @@ export const useExamDayStore = defineStore('examDay', {
         });
       }
     },
+
+    async changeLock(id: number) {
+      try {
+        await api.put(`/examDays/changeLock/${id}`);
+        Notify.create({
+          color: 'positive',
+          message: 'Lock changed',
+          position: 'bottom',
+          icon: 'check',
+        });
+      } catch (error) {
+        Notify.create({
+          color: 'negative',
+          message: 'Error during changing lock',
+          position: 'bottom',
+          icon: 'report_problem',
+        });
+      }
+    }
   },
 });

@@ -1,21 +1,23 @@
 <template>
+
   <q-tabs
     v-model="tab"
     class="q-mb-md"
     align="justify"
-    active-color="amber"
-    indicator-color="amber"
+    active-color="primary"
+    indicator-color="primary"
   >
     <q-tab name="locations" label="Locations" />
+    <q-tab name="users" label="Users" />
   </q-tabs>
   <q-tab-panels v-model="tab">
     <q-tab-panel name="locations" v-if=loaded class="cards-container">
       <LocationsVenues/>
     </q-tab-panel>
+    <q-tab-panel name="users" v-if=loaded>
+      <UserList/>
+    </q-tab-panel>
   </q-tab-panels>
-
-
-
 
 </template>
 <script setup lang="ts">
@@ -46,5 +48,12 @@ onBeforeMount(async () => {
 <style lang="scss" scoped>
 .cards-container {
   display: flex;
+  flex-wrap: wrap;
+}
+
+@media screen and (max-width: 600px) {
+  .cards-container {
+    flex-direction: column;
+  }
 }
 </style>

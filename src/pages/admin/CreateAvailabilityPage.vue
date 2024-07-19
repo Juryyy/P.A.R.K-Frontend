@@ -8,7 +8,7 @@
 import { useExamDayStore } from 'src/stores/examDayStore';
 import { onMounted, reactive } from 'vue';
 import { Loading } from 'quasar';
-import CreateAvailability from 'src/components/CreateAvailability.vue';
+import CreateAvailability from 'src/components/Availability/CreateAvailability.vue';
 
 const examDayStore = useExamDayStore();
 

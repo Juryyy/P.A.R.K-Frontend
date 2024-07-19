@@ -7,24 +7,54 @@ import { useUserStore } from './userStore';
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     user: undefined as User | undefined,
+    verification : false as boolean,
+    email : '' as string,
   }),
   actions: {
+
     setUserInfo(userInfo: User) {
       this.user = userInfo;
       for (const [key, value] of Object.entries(userInfo)) {
-        //encode the value to a string
-        localStorage.setItem(key, value);
+        if (key === 'role' && Array.isArray(value)) {
+          localStorage.setItem(key, JSON.stringify(value)); // Serialize array to JSON
+        } else {
+          localStorage.setItem(key, String(value));
+        }
       }
     },
 
-    async login(email: string, password: string) {
+    async verifyUser(email : string, code : string){ {
       try {
-        const response = await api.post('/auth/login', { email, password });
+        const response = await api.post('/auth/verify', { email, code });
         const userInfo = response.data as User;
         this.setUserInfo(userInfo);
         Notify.create({
           color: 'positive',
-          message: 'Login successful',
+          message: 'Verification successful',
+          position: 'top',
+          icon: 'check',
+        });
+      } catch (error) {
+        console.error('Error during verification:', error);
+        Notify.create({
+          color: 'negative',
+          message: 'Error during verification',
+          position: 'top',
+          icon: 'report_problem',
+          });
+        }
+      }
+    },
+    async login(email: string, password: string) {
+      try {
+        const response = await api.post('/auth/login', { email, password });
+        if(response.status === 200){
+          this.verification = true;
+          this.email = email;
+        }
+        Notify.create({
+          color: 'positive',
+          message: '2FA code sent to your email',
           position: 'top',
           icon: 'check',
         });
@@ -51,19 +81,32 @@ export const useAuthStore = defineStore('auth', {
           });
           return;
         }
+
         const response = await api.delete('/auth/logout');
         if (response.status === 200) {
-          for (const [key] of Object.entries(user)) {
-            localStorage.removeItem(key);
-          }
+          // Explicitly remove known keys
+          const keysToRemove = [
+            'id', 'email', 'firstName', 'lastName', 'phone', 'drivingLicense', 'note',
+            'adminNote', 'role', 'avatarUrl', 'activatedAccount', 'deactivated', 'isSenior', 'dateOfBirth',
+          ];
+          keysToRemove.forEach(key => {
+            if (localStorage.getItem(key) !== null) {
+              localStorage.removeItem(key);
+            }
+          });
+          // Optionally, clear the entire localStorage if it is safe to do so
+          // localStorage.clear();
+
           this.user = undefined;
+          Notify.create({
+            color: 'positive',
+            message: 'Successfully logged out',
+            position: 'top',
+            icon: 'check_circle',
+          });
+        } else {
+          throw new Error('Logout failed');
         }
-        Notify.create({
-          color: 'positive',
-          message: 'Successfully logged out',
-          position: 'top',
-          icon: 'report_problem',
-        });
       } catch (error) {
         console.error('Error during logout:', error);
         Notify.create({

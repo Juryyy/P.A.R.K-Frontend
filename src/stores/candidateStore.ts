@@ -1,33 +1,47 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import type { Candidate } from '../components/models';
+import type { Candidate } from '../components/FileRead/models';
+import { api } from '../boot/axios';
+import { Notify } from 'quasar';
 
-export const useCandidateStore = defineStore('candidateImportStore', () => {
-  const candidates = ref<Candidate[]>([]);
-  const isProcessing = ref<boolean>(false);
-  const isImported = ref<boolean>(false);
 
-  function setCandidates(csvData: Candidate[]) {
-    candidates.value = csvData;
-  }
+export const useCandidateStore = defineStore('candidateImportStore', {
+  state: () => ({
+    candidates: ref<Candidate[]>([]),
+    isProcessing: ref<boolean>(false),
+    isImported: ref<boolean>(false)
+  }),
 
-  function removeCandidate(candidate: Candidate) {
-    const index = candidates.value.indexOf(candidate);
-    if (index > -1) {
-      candidates.value.splice(index, 1);
+  actions: {
+    setCandidates(csvData: Candidate[]) {
+      this.candidates = csvData;
+    },
+
+    removeCandidate(candidate: Candidate) {
+      const index = this.candidates.indexOf(candidate);
+      if (index > -1) {
+        this.candidates.splice(index, 1);
+      }
+    },
+
+    async uploadCandidates(){
+      try{
+        this.isProcessing = true;
+        const response = await api.post('/candidates/create', this.candidates);
+        Notify.create({
+          color: 'positive',
+          message: response.data.success,
+          position: 'bottom',
+          icon: 'check',
+        });
+      }catch(error){
+        Notify.create({
+          color: 'negative',
+          message: 'Error during uploading candidates',
+          position: 'bottom',
+          icon: 'report_problem',
+        });
     }
+  },
   }
-
-  function setIsImported() {
-    isImported.value = true;
-  }
-
-  return {
-    setCandidates,
-    candidates,
-    isProcessing,
-    removeCandidate,
-    isImported,
-    setIsImported,
-  };
 });

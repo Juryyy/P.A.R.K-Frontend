@@ -3,6 +3,7 @@ import axios, { AxiosInstance } from 'axios';
 import { useAuthStore } from 'src/stores/authStore';
 import { router } from 'src/router/index';
 import { Loading } from 'quasar';
+import config from 'src/config';
 
 declare module '@vue/runtime-core' {
   interface ComponentCustomProperties {
@@ -17,7 +18,7 @@ declare module '@vue/runtime-core' {
 // good idea to move this instance creation inside of the
 // "export default () => {}" function below (which runs individually
 // for each client)
-const api = axios.create({ baseURL: 'http://localhost:4000', withCredentials: true });
+const api = axios.create({ baseURL: config.backendUrl, withCredentials: true });
 
 api.interceptors.response.use(undefined, async error => {
   if (error.config && error.response && error.response.status === 401) {

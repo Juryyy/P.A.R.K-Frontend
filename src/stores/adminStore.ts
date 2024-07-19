@@ -3,7 +3,7 @@ import { api } from '../boot/axios';
 import { ref } from 'vue';
 import { Notify } from 'quasar';
 import { RoleEnum } from './db/types';
-import { removeSpaces } from '../functions/RemoveSpaces';
+import { removeSpaces } from '../helpers/RemoveSpaces';
 import { Location } from 'src/stores/db/types';
 
 export const useAdminStore = defineStore('admin', {
@@ -11,9 +11,9 @@ export const useAdminStore = defineStore('admin', {
     locationsWithVenues: ref([] as Location[]),
   }),
   actions: {
-    async updateUserRole(id: number, role: string) {
+    async updateUserRole(id: number, role: string[]) {
       try {
-        role = removeSpaces(role.toString());
+        role = role.map((r) => removeSpaces(r));
         const response = await api.post('/office/updateUserRole', {
           id,
           role,
@@ -37,11 +37,11 @@ export const useAdminStore = defineStore('admin', {
       firstName: string,
       lastName: string,
       email: string,
-      role: RoleEnum
+      role: RoleEnum[]
     ) {
       try {
         // Backend does not accept spaces in role
-        const Srole = removeSpaces(role.toString());
+        const Srole = role.map((r) => r.toString());
         email = removeSpaces(email);
         firstName = removeSpaces(firstName);
         lastName = removeSpaces(lastName);
@@ -70,7 +70,6 @@ export const useAdminStore = defineStore('admin', {
     async getLocationsWithVenues(){
       try {
         const response = await api.get('/office/locationsWithVenues');
-        console.log(response.data);
         this.locationsWithVenues = response.data as Location[];
       } catch (error) {
         Notify.create({
@@ -80,6 +79,10 @@ export const useAdminStore = defineStore('admin', {
           icon: 'report_problem',
         });
       }
+    },
+
+    async deactivateUser(id: number) {
+      // Deactivate user
     },
 
     async addLocation(location: string){
@@ -104,11 +107,12 @@ export const useAdminStore = defineStore('admin', {
       }
     },
 
-    async addVenue(location: number, venue: string){
+    async addVenue(location: number, venue: string, link: string){
       try {
         const response = await api.post('/office/addVenue', {
           location,
-          venue
+          venue,
+          link
         });
         Notify.create({
           color: 'positive',
@@ -125,6 +129,50 @@ export const useAdminStore = defineStore('admin', {
           icon: 'report_problem',
         });
       }
+    },
+
+    async removeLocation(location: number){
+      try {
+        const response = await api.delete(`/office/deleteLocation/${location}`);
+        Notify.create({
+          color: 'positive',
+          message: response.data.success,
+          position: 'bottom',
+          icon: 'check',
+        });
+      }
+      catch (error) {
+        Notify.create({
+          color: 'negative',
+          message: 'Error during deleting location',
+          position: 'bottom',
+          icon: 'report_problem',
+        });
+      }
+    },
+
+    async removeVenue(venue: number){
+      try {
+        const response = await api.delete(`/office/deleteVenue/${venue}`);
+        Notify.create({
+          color: 'positive',
+          message: response.data.success,
+          position: 'bottom',
+          icon: 'check',
+        });
+      }
+      catch (error) {
+        Notify.create({
+          color: 'negative',
+          message: 'Error during deleting venue',
+          position: 'bottom',
+          icon: 'report_problem',
+        });
+      }
+    },
+
+    async updateUserLevel(id: number, level: string[]) {
+      console.log('updateUserLevel');
     }
 
   },
