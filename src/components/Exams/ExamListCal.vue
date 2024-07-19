@@ -206,7 +206,7 @@ import { useAdminStore } from 'src/stores/adminStore';
 import { Loading, Notify } from 'quasar';
 import { DayOfExams, Exam, LevelEnum, examTypeEnum, Location, Venue} from 'src/stores/db/types';
 import { router } from 'src/router/index';
-import { formatTime } from 'src/helpers/formatTime';
+import { formatTime } from 'src/helpers/FormatTime';
 import { nextTick } from 'vue';
 
 const examDayStore = useExamDayStore();

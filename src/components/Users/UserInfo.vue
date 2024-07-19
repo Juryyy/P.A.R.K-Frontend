@@ -8,73 +8,83 @@
           <div v-else class="text-h6 text-weight-bold">No avatar available</div>
         </q-avatar>
         <div class="q-mt-md q-pr-xl">
-          <q-input
-            v-model="editableUser.firstName"
-            label="First Name"
-            class="q-my-sm"
-            :disable="!isCurrentUser"
-          />
-          <q-input
-            v-model="editableUser.lastName"
-            label="Last Name"
-            class="q-my-sm"
-            :disable="!isCurrentUser"
-          />
-          <q-input
-            v-model="editableUser.email"
-            label="Email"
-            class="q-my-sm"
-            :disable="!isCurrentUser"
-          />
-          <q-input
-            v-model="editableUser.dateOfBirth"
-            label="Date of Birth"
-            class="q-my-sm"
-            :disable="!isCurrentUser"
-            type="date"
-          />
-          <q-input
-            v-model="editableUser.phone"
-            label="Phone"
-            class="q-my-sm"
-            :disable="!isCurrentUser"
-          />
-          <q-toggle
-            v-model="editableUser.drivingLicense"
-            label="Driving License"
-            class="q-my-sm"
-            :disable="!isCurrentUser"
-          />
-          <q-input
-            v-model="editableUser.note"
-            label="Note - short info about availability"
-            class="q-my-sm"
-            :disable="!isCurrentUser"
-          />
-          <q-input
-            v-model="editableUser.noteLonger"
-            label="Detailed Note"
-            class="q-my-sm"
-            :disable="!isCurrentUser"
-          />
+          <template v-if="isCurrentUser">
+            <q-input
+              v-model="editableUser.firstName"
+              label="First Name"
+              class="q-my-sm"
+              :input-style="{ fontWeight: 'bold' }"
+            />
+            <q-input
+              v-model="editableUser.lastName"
+              label="Last Name"
+              class="q-my-sm"
+              :input-style="{ fontWeight: 'bold' }"
+            />
+            <q-input
+              v-model="editableUser.email"
+              label="Email"
+              class="q-my-sm"
+              :input-style="{ fontWeight: 'bold' }"
+            />
+            <q-input
+              v-model="dateOfBirthFormatted"
+              label="Date of Birth"
+              class="q-my-sm"
+              type="date"
+              :input-style="{ fontWeight: 'bold' }"
+            />
+            <q-input
+              v-model="editableUser.phone"
+              label="Phone"
+              class="q-my-sm"
+              :input-style="{ fontWeight: 'bold' }"
+            />
+            <q-checkbox
+              v-model="editableUser.drivingLicense"
+              label="Driving License"
+              class="q-my-sm"
+            />
+            <q-input
+              v-model="editableUser.note"
+              label="Note - short info about availability"
+              class="q-my-sm"
+              :input-style="{ fontWeight: 'bold' }"
+            />
+            <q-input
+              v-model="editableUser.noteLonger"
+              label="Detailed Note"
+              class="q-my-sm"
+              :input-style="{ fontWeight: 'bold' }"
+            />
+          </template>
+          <template v-else>
+            <div class="q-my-sm">First Name: <b> {{ editableUser.firstName }}</b></div>
+            <div class="q-my-sm">Last Name: <b> {{ editableUser.lastName }}</b></div>
+            <div class="q-my-sm">Email: <b> {{ editableUser.email }}</b></div>
+            <div v-if="editableUser.dateOfBirth" class="q-my-sm">Date of Birth: <b> {{ formatDateString(editableUser.dateOfBirth) }}</b></div>
+            <div class="q-my-sm">Phone: <b> {{ editableUser.phone ? '' : '--- --- ---'}}</b></div>
+            <div class="q-my-sm">Driving License: <b> <q-checkbox v-model=editableUser.drivingLicense disable/></b></div>
+            <div class="q-my-sm">Note: <b> {{ editableUser.note }}</b></div>
+            <div class="q-my-sm">Detailed Note: <b> {{ editableUser.noteLonger }}</b></div>
+          </template>
           <div class="q-my-sm">
             <label class="text-body1"><b>Roles:</b></label>
             <div>
-            <q-chip
-              v-for="role in editableUser.role"
-              :key="role"
-              class="q-mr-sm"
-              :color="getRoleColor(role)"
-            >
-              {{ role }}
-            </q-chip>
-          </div>
+              <q-chip
+                v-for="role in editableUser.role"
+                :key="role"
+                class="q-mr-sm"
+                :color="getRoleColor(role)"
+              >
+                {{ role }}
+              </q-chip>
+            </div>
           </div>
           <div class="q-my-sm" v-if="editableUser.level">
             <label class="text-body1"><b>Levels:</b></label>
             <div>
               <q-chip
-
                 v-for="level in editableUser.level"
                 :key="level"
                 class="q-mr-sm"
@@ -100,7 +110,7 @@
           </q-item-label>
         </div>
       </q-card-section>
-      <q-card-actions align="right">
+      <q-card-actions v-if=isCurrentUser align="right">
         <q-btn :disable="!hasChanges || !isCurrentUser" :color="hasChanges && isCurrentUser ? 'primary' : 'grey'" @click="updateProfile">Update Profile</q-btn>
       </q-card-actions>
     </q-card>
@@ -114,6 +124,7 @@ import { RoleEnum, User } from 'src/stores/db/types';
 import { defineProps } from 'vue';
 import { useUserStore } from 'src/stores/userStore';
 import { getRoleColor, getLevelColor } from 'src/helpers/Color';
+import { formatTime, formatDateString, formatBirthdayString} from '../../helpers/FormatTime';
 
 const props = defineProps<{
   user: User | null;
@@ -144,6 +155,19 @@ const updateProfile = () => {
     // Here, you would call the actual update API or method to update the user profile
   }
 };
+
+const dateOfBirthFormatted = computed({
+  get() {
+    return editableUser.value?.dateOfBirth
+      ? new Date(editableUser.value.dateOfBirth).toISOString().split('T')[0]
+      : '';
+  },
+  set(value) {
+    if (editableUser.value) {
+      editableUser.value.dateOfBirth = value ? new Date(value).toISOString() : null;
+    }
+  },
+});
 </script>
 
 <style lang="scss" scoped>

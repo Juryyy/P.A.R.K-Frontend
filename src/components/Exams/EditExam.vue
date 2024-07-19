@@ -96,7 +96,7 @@
 <script setup lang="ts">
 import { dayResponse, Exam } from 'src/stores/db/types';
 import { ref } from 'vue';
-import { formatTime } from 'src/helpers/formatTime';
+import { formatTime } from 'src/helpers/FormatTime';
 import { useExamStore } from 'src/stores/examStore';
 import { useExamDayStore } from 'src/stores/examDayStore';
 
