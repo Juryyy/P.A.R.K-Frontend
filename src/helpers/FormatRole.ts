@@ -1,4 +1,4 @@
-import { RoleEnum } from '../stores/db/types';
+import { RoleEnum, LevelEnum } from '../stores/db/types';
 
 export const formatRole = (role: RoleEnum): string => {
   switch (role) {
@@ -8,8 +8,8 @@ export const formatRole = (role: RoleEnum): string => {
       return 'Supervisor';
     case RoleEnum.Invigilator:
       return 'Invigilator';
-    case RoleEnum.Technician:
-      return 'Tech';
+    case RoleEnum.Developer:
+      return 'Developer';
     case RoleEnum.Examiner:
       return 'Examiner';
     default:
@@ -17,13 +17,16 @@ export const formatRole = (role: RoleEnum): string => {
   }
 };
 
+export function sortLevels(levels: LevelEnum[]): LevelEnum[] {
+  return levels.sort();
+}
 
 const roleOrder: { [key in RoleEnum]: number } = {
   [RoleEnum.Office]: 1,
   [RoleEnum.Supervisor]: 2,
   [RoleEnum.Examiner]: 3,
   [RoleEnum.Invigilator]: 4,
-  [RoleEnum.Technician]: 5
+  [RoleEnum.Developer]: 5
 };
 
 export const sortRoles = (roles: RoleEnum[]): RoleEnum[] => {

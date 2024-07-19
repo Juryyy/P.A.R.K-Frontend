@@ -12,16 +12,16 @@
         />
         <q-toolbar-title> P.A.R.K Admin </q-toolbar-title>
         <div v-if="!rightDrawerOpen" class="q-gutter-md row items-center">
-          <q-avatar size="46px" class="q-pr-xl">
+          <q-avatar size="46px" class="q-pr-xl clickable-avatar" @click="viewUser(user)">
             <img :src="userAvatar" alt="User Avatar" />
           </q-avatar>
           <div class="user-info row items-center">
             <q-icon
-            v-if="user?.isSenior"
-            color="red"
-            name="stars"
-            size="xs"
-          />
+              v-if="user?.isSenior"
+              color="red"
+              name="stars"
+              size="xs"
+            />
             <b class="q-px-xs">{{ user?.firstName }} {{ user?.lastName }}</b>
           </div>
         </div>
@@ -53,9 +53,9 @@
           <q-separator
             color="primary"
             spaced="8px"
-            v-if="user?.role?.includes('Office')"
+            v-if="user?.role?.includes('Office') || user?.role?.includes('Developer')"
           />
-          <q-list v-if="user?.role?.includes('Office')">
+          <q-list v-if="user?.role?.includes('Office') || user?.role?.includes('Developer')">
             <essential-link
               v-for="link in adminEssentialLinks"
               :key="link.title"
@@ -69,24 +69,21 @@
     </div>
     <q-drawer show-if-above v-model="rightDrawerOpen" side="right" elevated>
       <q-scroll-area class="fit">
-        <q-img
-          src="/background.jpg"
-          style="height: 150px"
-        >
+        <q-img src="/background.jpg" style="height: 150px">
           <div class="bg-transparent absolute-center q-pa-md drawer-avatar-box">
-            <q-avatar size="80px" class="q-mr-md">
+            <q-avatar size="80px" class="q-mr-md clickable-avatar" @click="viewUser(user)">
               <img :src="userAvatar" alt="User Avatar" />
             </q-avatar>
             <div>
               <div class="text-weight-bold">
                 {{ user?.firstName }} {{ user?.lastName }}
                 <q-icon
-                v-if="user?.isSenior"
-                color="red"
-                name="stars"
-                class="q-mr-sm"
-                size="xs"
-              />
+                  v-if="user?.isSenior"
+                  color="red"
+                  name="stars"
+                  class="q-mr-sm"
+                  size="xs"
+                />
               </div>
               <div>
                 <q-badge
@@ -102,50 +99,29 @@
         </q-img>
 
         <q-card-section class="q-pa-md">
-          <q-card
-            class="card q-mb-sm"
-            bordered
-            v-for="exam in usersExamsRef"
-            :key="exam.id"
-          >
+          <q-card class="card q-mb-sm" bordered v-for="exam in usersExamsRef" :key="exam.id">
             <q-card-section>
-              <q-item-label>
-                Location: <b>{{ exam.location }}</b>
-              </q-item-label>
-
-              <q-item-label>
-                Venue: <b>{{ exam.venue }}</b>
-              </q-item-label>
-              <q-item-label>
-                Date: <b>{{ formatDate(exam.startTime) }} </b>
-              </q-item-label>
+              <q-item-label>Location: <b>{{ exam.location }}</b></q-item-label>
+              <q-item-label>Venue: <b>{{ exam.venue }}</b></q-item-label>
+              <q-item-label>Date: <b>{{ formatDate(exam.startTime) }} </b></q-item-label>
               <q-item-label>
                 Time:
                 <b>
-                  {{
-                    formatTime(exam.startTime) +
-                    ' - ' +
-                    formatTime(exam.endTime)
-                  }}
+                  {{ formatTime(exam.startTime) + ' - ' + formatTime(exam.endTime) }}
+                </b>
+              </q-item-label>
+              <q-item-label>Type: <b>{{ exam.type }}</b></q-item-label>
+              <q-item-label>
+                Note:
+                <b v-if="shouldShowMoreLink(exam.note)" @click="showFullNoteDialog()">
+                  {{ truncatedNote(exam.note) }}
+                  <span class="more-link">...more</span>
+                </b>
+                <b v-else>
+                  <b>{{ exam.note }}</b>
                 </b>
               </q-item-label>
               <q-item-label>
-                Type: <b>{{ exam.type }}</b>
-              </q-item-label>
-              <q-item-label>
-
-                Note:
-              <b
-                v-if="shouldShowMoreLink(exam.note)"
-                @click="showFullNoteDialog()"
-              >
-                {{ truncatedNote(exam.note) }}
-                <span class="more-link">...more</span>
-              </b>
-              <b v-else>
-                <b>{{ exam.note }}</b>
-              </b>
-
               <q-dialog v-model="showNoteDialog">
                 <q-card class="note-dialog-card">
                   <q-card-section>
@@ -153,15 +129,10 @@
                     <div class="note-content">{{ exam?.note }}</div>
                   </q-card-section>
                   <q-card-actions align="right">
-                    <q-btn
-                      color="primary"
-                      label="Close"
-                      @click="showNoteDialog = false"
-                    />
+                    <q-btn color="primary" label="Close" @click="showNoteDialog = false" />
                   </q-card-actions>
                 </q-card>
               </q-dialog>
-
               </q-item-label>
               <q-item-label class="absolute-top-right q-ma-sm">
                 <q-btn
@@ -169,14 +140,10 @@
                   color="secondary"
                   label="View"
                   @click="() => {
-                    router.push(`/exams/${exam.id}`)
-                }"
+                    router.push(`/exams/${exam.id}`);
+                  }"
                 />
-                <q-btn
-                  color="secondary"
-                  icon="map"
-                  @click="showVenue(exam.venueLink)"
-                />
+                <q-btn color="secondary" icon="map" @click="showVenue(exam.venueLink)" />
               </q-item-label>
             </q-card-section>
           </q-card>
@@ -191,16 +158,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeMount, ref } from 'vue';
+import { computed, onBeforeMount, ref, nextTick } from 'vue';
 import EssentialLink, { EssentialLinkProps } from 'components/Auth_nav/EssentialLink.vue';
 import { useUserStore } from 'src/stores/userStore';
 import { useAuthStore } from 'src/stores/authStore';
 import { router } from 'src/router/index';
 import { ExamWithVenueLink, RoleEnum } from 'src/stores/db/types';
 import { Loading } from 'quasar';
-import { getRoleColor } from 'src/helpers/RoleColor';
+import { getRoleColor } from 'src/helpers/Color';
 import { sortRoles } from 'src/helpers/FormatRole';
-
 
 const userStore = useUserStore();
 const authStore = useAuthStore();
@@ -221,7 +187,6 @@ const logout = async () => {
   await authStore.logout();
   router.push('/login');
 };
-
 
 const exams: ExamWithVenueLink[] = userStore.usersExams;
 const usersExamsRef = ref(exams);
@@ -321,6 +286,10 @@ const showVenue = (gLink: string) => {
   window.open(gLink, '_blank');
 };
 
+const viewUser = async (user: any) => {
+  await nextTick();
+  router.push(`/user/${user.id}`);
+};
 </script>
 
 <style lang="scss" scoped>
@@ -343,4 +312,7 @@ const showVenue = (gLink: string) => {
   align-items: center;
 }
 
+.clickable-avatar {
+  cursor: pointer;
+}
 </style>

@@ -6,11 +6,14 @@ export interface User {
   phone: string | null;
   drivingLicense: boolean;
   note: string | null;
+  noteLonger: string | null;
   adminNote: string | null;
   role: RoleEnum[];
+  level: LevelEnum[];
   avatarUrl: string | null;
   activatedAccount: boolean;
   deactivated: boolean;
+  dateOfBirth: string | null;
   _count: {
     supervisedExams: number;
     invigilatedExams: number;
@@ -35,6 +38,7 @@ export interface UserInfo {
   note: string | null;
   adminNote: string | null;
   role: string[] | null;
+  level: string[] | null;
   avatarUrl: string | null;
   activatedAccount: boolean | null;
   deactivated: boolean | null;
@@ -76,13 +80,15 @@ export enum RoleEnum {
   Office = 'Office',
   Supervisor = 'Supervisor',
   Invigilator = 'Invigilator',
-  Technician = 'Technician',
+  Developer  = 'Developer',
   Examiner = 'Examiner',
 }
 
 export interface ExtendedUser extends User {
   originalRoles: RoleEnum[];
   isRoleChanged: boolean;
+  originalLevels: LevelEnum[];
+  isLevelChanged: boolean;
 }
 
 export interface UserResponses {

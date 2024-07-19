@@ -169,6 +169,10 @@ export const useAdminStore = defineStore('admin', {
           icon: 'report_problem',
         });
       }
+    },
+
+    async updateUserLevel(id: number, level: string[]) {
+      console.log('updateUserLevel');
     }
 
   },

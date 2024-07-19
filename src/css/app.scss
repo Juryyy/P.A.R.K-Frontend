@@ -10,6 +10,14 @@ body::-webkit-scrollbar {
   height: 10px;
 }
 
+.q-tab-panels{
+  background-color: $bg-light;
+}
+
+.q-tab{
+  background-color: $tabs-bg-color;
+}
+
 body::-webkit-scrollbar-thumb {
   background: linear-gradient(to bottom right, $primary 0%, $primary 100%);
   border-radius: 5px;

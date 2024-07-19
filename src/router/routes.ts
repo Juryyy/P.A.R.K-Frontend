@@ -151,7 +151,7 @@ function checkOffice(
   next: NavigationGuardNext
 ) {
   const user = useUserStore().getUserInfo();
-  if (!user.role?.includes('Office')){
+  if (!user.role?.includes('Office') && !user.role?.includes('Developer')) {
     Notify.create('You are not authorized to access this page');
     next('/');
   } else {

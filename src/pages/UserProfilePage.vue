@@ -1,6 +1,23 @@
 <template>
   <q-page>
-    <UserInfo v-if="state.loaded && user" :user="user" :user-avatar="userAvatar" />
+    <q-tabs
+      v-model="tab"
+      class="q-mb-md"
+      align="justify"
+      active-color="primary"
+      indicator-color="primary"
+    >
+      <q-tab name="User" label="User" />
+      <q-tab name="Exams" label="Exams" />
+    </q-tabs>
+    <q-tab-panels v-model="tab">
+      <q-tab-panel name="User" v-if="state.loaded">
+        <UserInfo v-if="state.loaded && user" :user="user" :user-avatar="userAvatar" />
+      </q-tab-panel>
+      <q-tab-panel name="Exams" v-if="state.loaded">
+        <UserExams v-if="state.loaded && user" :user="user" />
+      </q-tab-panel>
+    </q-tab-panels>
   </q-page>
 </template>
 
@@ -13,6 +30,7 @@ import { Loading, Dialog } from 'quasar';
 import UserInfo from 'src/components/Users/UserInfo.vue';
 import { User } from 'src/stores/db/types';
 
+const tab = ref('User');
 const userStore = useUserStore();
 
 const route = useRoute();

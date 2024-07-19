@@ -1,6 +1,8 @@
 <template>
   <q-page v-if="loaded">
-    <EditExam :exam="examStore.selectedExam" :responses="examDayStore.responsesForExamDay" />
+    <template v-if="examStore.selectedExam">
+      <EditExam :exam="examStore.selectedExam" :responses="examDayStore.responsesForExamDay" />
+    </template>
   </q-page>
 </template>
 <script setup lang="ts">
