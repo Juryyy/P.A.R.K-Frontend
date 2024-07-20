@@ -2,6 +2,7 @@ import { RouteRecordRaw } from 'vue-router';
 import { NavigationGuardNext, RouteLocationNormalized } from 'vue-router';
 import { useUserStore } from 'src/stores/userStore';
 import { Notify } from 'quasar';
+import { useExamStore } from 'src/stores/examStore';
 
 const routes: RouteRecordRaw[] = [
   {
@@ -42,6 +43,9 @@ const routes: RouteRecordRaw[] = [
           title: 'Users',
         },
       },
+      {
+        path: '/admin',
+        children: [
       {
         path: 'import-candidates',
         component: () => import('pages/admin/CandidatesImport.vue'),
@@ -88,6 +92,8 @@ const routes: RouteRecordRaw[] = [
           title: 'Admin Panel',
         },
       },
+    ],
+    },
     ],
   },
   {
@@ -151,11 +157,43 @@ function checkOffice(
   next: NavigationGuardNext
 ) {
   const user = useUserStore().getUserInfo();
-  if (!user.role?.includes('Office') && !user.role?.includes('Developer')) {
+  if (user.role?.includes('Office') || user.role?.includes('Developer')) {
+    next();
+  } else {
+    next(false); // Indicate that this check did not grant access
+  }
+}
+
+function checkOfficeTrue(): boolean {
+  const user = useUserStore().getUserInfo();
+  return (user.role && (user.role.includes('Office') || user.role.includes('Developer'))) ?? false;
+}
+
+function checkIfAssigned(): boolean {
+  const user = useUserStore().getUserInfo();
+  const exam = useExamStore().selectedExam;
+
+  if (!exam) {
+    return false;
+  }
+
+  return exam.supervisors.some(supervisor => supervisor.id === user.id) ||
+    exam.invigilators.some(invigilator => invigilator.id === user.id) ||
+    exam.examiners.some(examiner => examiner.id === user.id);
+}
+
+function examCheck(
+  to: RouteLocationNormalized,
+  from: RouteLocationNormalized,
+  next: NavigationGuardNext
+) {
+  if (checkOfficeTrue()) {
+    next();
+  } else if (checkIfAssigned()) {
+    next();
+  } else {
     Notify.create('You are not authorized to access this page');
     next('/');
-  } else {
-    next();
   }
 }
 

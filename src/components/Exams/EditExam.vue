@@ -77,9 +77,14 @@
                   <q-separator class="q-mx-sm" />
                   <q-card-section>
                     <div v-for="response in filteredResponses(answer, [...role.filterRoles])" :key="response.id">
-                      <div v-if="!response.assigned" class="text-h6 text-weight-bold name-wrapper">
-                        {{ response.userName }}
+                      <div v-if="!response.assigned" class="name-wrapper border">
+                        <div class="text-h6 text-weight-bold" >
+                          <span class="clickable-name q-pr-xs" @click="goToUserProfile(response.userId)">
+                          {{ response.userName }}
+                        </span>
                         <q-btn v-if="!response.assigned && (isOverrideActive || response.response !== 'No')" @click="addToExam(exam.id, response.userId, isOverrideActive, response.dayOfExamsId, role.title)" icon="add" round color="primary" size="xs" />
+                        </div>
+                        {{ response.userNote }}
                       </div>
                     </div>
                   </q-card-section>
@@ -99,9 +104,11 @@ import { ref } from 'vue';
 import { formatTime } from 'src/helpers/FormatTime';
 import { useExamStore } from 'src/stores/examStore';
 import { useExamDayStore } from 'src/stores/examDayStore';
+import { useRouter } from 'vue-router';
 
 const examStore = useExamStore();
 const examDayStore = useExamDayStore();
+const router = useRouter();
 
 const props = defineProps<{
   exam: Exam;
@@ -159,9 +166,14 @@ const removeFromExam = async (examId: number, userId: number, position: string) 
 const answers: RoleTitleKey[] = ['Yes', 'AM', 'PM', 'No'];
 
 const filteredResponses = (answer: RoleTitleKey, filterRoles: string[]) => {
-  return props.responses.filter(
-    response => response.response === answer && (filterRoles.length === 0 || filterRoles.some(role => response.userRole.includes(role)))
-  );
+  return props.responses.filter(response => {
+    if (filterRoles.includes('Examiner')) {
+      // Check if user level matches any of the exam levels
+      const isValidLevel = response.userLevel.some(level => props.exam.levels.includes(level));
+      if (!isValidLevel) return false;
+    }
+    return response.response === answer && (filterRoles.length === 0 || filterRoles.some(role => response.userRole.includes(role)));
+  });
 };
 
 const isOverrideActive = ref(false);
@@ -179,6 +191,10 @@ const getAnswerStyle = (answer: RoleTitleKey) => {
     default:
       return {};
   }
+};
+
+const goToUserProfile = (userId: number) => {
+  router.push(`/user/${userId}`);
 };
 </script>
 
@@ -231,5 +247,16 @@ const getAnswerStyle = (answer: RoleTitleKey) => {
   .responsive-column {
     flex: 1 1 calc(25% - 1rem);
   }
+}
+
+.border {
+  border: 1px solid #cacaca;
+  border-radius: 5px;
+  margin: 0.5rem;
+  padding: 0.5rem;
+}
+
+.clickable-name {
+  cursor: pointer;
 }
 </style>

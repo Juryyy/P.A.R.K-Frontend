@@ -13,18 +13,18 @@ export interface User {
   avatarUrl: string | null;
   activatedAccount: boolean;
   deactivated: boolean;
-  dateOfBirth: string | null;
+  dateOfBirth: string;
+  responses: Response[];
+  isSenior: boolean;
+
+  supervisedExams: Exam[];
+  invigilatedExams: Exam[];
+  examinedExams: Exam[];
   _count: {
     supervisedExams: number;
     invigilatedExams: number;
     examinedExams: number;
   };
-  supervisedExams: Exam[];
-  invigilatedExams: Exam[];
-  examinedExams: Exam[];
-  responses: Response[];
-  isSenior: boolean;
-  isRoleChanged?: boolean;
 }
 
 export interface UserInfo {
@@ -36,6 +36,7 @@ export interface UserInfo {
   dateOfBirth: string | null;
   drivingLicense: boolean | null;
   note: string | null;
+  noteLonger: string | null;
   adminNote: string | null;
   role: string[] | null;
   level: string[] | null;
@@ -89,6 +90,8 @@ export interface ExtendedUser extends User {
   isRoleChanged: boolean;
   originalLevels: LevelEnum[];
   isLevelChanged: boolean;
+  isSeniorChanged: boolean;
+  originalIsSenior: boolean;
 }
 
 export interface UserResponses {
@@ -124,6 +127,8 @@ export interface dayResponse {
   userRole : string[];
   assigned: boolean;
   userId: number;
+  userNote?: string | null;
+  userLevel: LevelEnum[];
 }
 
 export enum LevelEnum {

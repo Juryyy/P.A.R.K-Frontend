@@ -2,21 +2,21 @@
   <q-page>
     <q-tabs
       v-model="tab"
-      class="q-mb-md"
       align="justify"
-      active-color="primary"
-      indicator-color="primary"
+      active-color="secondary"
+      indicator-color="secondary"
     >
       <q-tab name="User" label="User" />
-      <q-tab name="Exams" label="Exams" />
+      <q-tab v-if="currentUser?.id?.toString() === userId" name="Password" label="Password Reset" />
+      <!--<q-tab name="Exams" label="Exams" />-->
     </q-tabs>
     <q-tab-panels v-model="tab">
       <q-tab-panel name="User" v-if="state.loaded">
         <UserInfo v-if="state.loaded && user" :user="user" :user-avatar="userAvatar" />
       </q-tab-panel>
-      <q-tab-panel name="Exams" v-if="state.loaded">
+      <!--<q-tab-panel name="Exams" v-if="state.loaded">
         <UserExams v-if="state.loaded && user" :user="user" />
-      </q-tab-panel>
+      </q-tab-panel>-->
     </q-tab-panels>
   </q-page>
 </template>
@@ -37,6 +37,7 @@ const route = useRoute();
 const userId = ref(route.params.id);
 const user = ref<User | null>(null);
 const userAvatar = ref<string | null>(null);
+const currentUser = userStore.user;
 
 const state = reactive({
   loaded: false,

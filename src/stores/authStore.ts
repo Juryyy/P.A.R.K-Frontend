@@ -35,7 +35,6 @@ export const useAuthStore = defineStore('auth', {
           icon: 'check',
         });
       } catch (error) {
-        console.error('Error during verification:', error);
         Notify.create({
           color: 'negative',
           message: 'Error during verification',
@@ -59,7 +58,6 @@ export const useAuthStore = defineStore('auth', {
           icon: 'check',
         });
       } catch (error) {
-        console.error('Error during login:', error);
         Notify.create({
           color: 'negative',
           message: 'Error during login',
@@ -108,7 +106,6 @@ export const useAuthStore = defineStore('auth', {
           throw new Error('Logout failed');
         }
       } catch (error) {
-        console.error('Error during logout:', error);
         Notify.create({
           color: 'negative',
           message: 'Error during logout',
@@ -138,7 +135,6 @@ export const useAuthStore = defineStore('auth', {
           icon: 'check',
         });
       } catch (error) {
-        console.error('Error during registration:', error);
         Notify.create({
           color: 'negative',
           message: 'Error during registration',
@@ -147,5 +143,44 @@ export const useAuthStore = defineStore('auth', {
         });
       }
     },
+
+    async resetPassword(email: string) {
+      try {
+        await api.post('/auth/password-reset', { email });
+        Notify.create({
+          color: 'positive',
+          message: 'Password reset email sent',
+          position: 'top',
+          icon: 'check',
+        });
+      } catch (error) {
+        Notify.create({
+          color: 'negative',
+          message: 'Error during password reset',
+          position: 'top',
+          icon: 'report_problem',
+        });
+      }
+    },
+
+    async updatePassword(oldPassword: string, newPassword: string) {
+      try {
+        await api.post('/auth/updatePassword', { oldPassword, newPassword });
+        Notify.create({
+          color: 'positive',
+          message: 'Password updated',
+          position: 'top',
+          icon: 'check',
+        });
+      } catch (error) {
+          Notify.create({
+          color: 'negative',
+          message: 'Error during password update',
+          position: 'top',
+          icon: 'report_problem',
+        });
+      }
+    }
+
   },
 });

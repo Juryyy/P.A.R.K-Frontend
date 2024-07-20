@@ -1,6 +1,6 @@
 <template>
   <q-card class="absolute-center">
-    <q-form v-if="!isCodeVerification">
+    <q-form v-if="!isCodeVerification && !isForgotPassword">
       <q-input
         filled
         v-model="state.email"
@@ -26,15 +26,14 @@
           />
         </template>
       </q-input>
-      <q-card-actions align="right">
+      <q-card-actions class="actions-container">
         <q-btn
           flat
           label="Forgot password?"
           color="primary"
-          to="/forgot-password"
+          @click="isForgotPassword = true"
         />
         <q-btn
-          class="q-mt-md"
           color="primary"
           label="Login"
           type="submit"
@@ -49,7 +48,7 @@
       </q-card-actions>
     </q-form>
 
-    <q-form v-else>
+    <q-form v-else-if="isCodeVerification">
       <h4 class="text-h6">Enter the code sent to your email</h4>
       <div class="code-inputs">
         <input
@@ -63,13 +62,53 @@
           class="code-input"
         />
       </div>
-      <q-card-actions align="right">
+      <q-card-actions class="actions-container">
         <q-btn
-          class="q-mt-md"
+          flat
+          align="left"
+          icon="arrow_back"
+          label="Back"
+          color="primary"
+          @click="clear()"
+        />
+        <q-btn
           color="primary"
           label="Submit"
           type="submit"
           @click="validate"
+          :loading="loading"
+          :disable="loading"
+        >
+          <template v-slot:loading>
+            <q-spinner size="20px" />
+          </template>
+        </q-btn>
+      </q-card-actions>
+    </q-form>
+
+    <q-form v-else>
+      <h4 class="text-h6">Reset Password</h4>
+      <q-input
+        filled
+        v-model="state.email"
+        label="Email"
+        lazy-rules
+        :rules="[(val) => !!val || 'Email is required']"
+        autocomplete="email"
+      />
+      <q-card-actions class="actions-container">
+        <q-btn
+        flat
+        icon="arrow_back"
+        label="Back"
+        color="primary"
+        @click="clear()"
+      />
+        <q-btn
+          color="primary"
+          label="Reset Password"
+          type="submit"
+          @click="resetPassword"
           :loading="loading"
           :disable="loading"
         >
@@ -100,6 +139,7 @@ const state = reactive({
 });
 
 const isCodeVerification = ref(false);
+const isForgotPassword = ref(false);
 const loading = ref(false);
 const code = ref(['', '', '', '', '', '']);
 
@@ -132,6 +172,16 @@ const validate = async (event: Event) => {
   }
 };
 
+const resetPassword = async (event: Event) => {
+  event.preventDefault();
+  loading.value = true;
+  try {
+    await authStore.resetPassword(state.email);
+  } finally {
+    loading.value = false;
+  }
+};
+
 const handlePaste = (event: ClipboardEvent) => {
   const paste = event.clipboardData?.getData('text') || '';
   code.value = paste.split('').slice(0, 6);
@@ -142,6 +192,15 @@ const handleInput = (index: number) => {
     const nextInput = document.querySelectorAll<HTMLInputElement>('.code-input')[index + 1];
     nextInput?.focus();
   }
+};
+
+const clear = () => {
+  isCodeVerification.value = false;
+  isForgotPassword.value = false;
+  state.email = '';
+  state.password = '';
+  state.code = '';
+  code.value = ['', '', '', '', '', ''];
 };
 </script>
 
@@ -168,5 +227,16 @@ const handleInput = (index: number) => {
   text-align: center;
   border: 1px solid #ccc;
   border-radius: 4px;
+}
+
+.actions-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+}
+
+.actions-container q-btn {
+  margin-top: 0 !important;
 }
 </style>

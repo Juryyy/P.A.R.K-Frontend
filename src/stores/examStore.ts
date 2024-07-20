@@ -28,8 +28,7 @@ export const useExamStore = defineStore('exam', {
 
     async createExam({ venue, location, type, levels, startTime, endTime, note, dayOfExamsId }: { venue: string, location: string, type: string, levels: string[], startTime: string, endTime: string, note: string, dayOfExamsId: number }){
       try {
-        console.log('venue', venue, 'location', location, 'type', type, 'levels', levels, 'startTime', startTime, 'endTime', endTime, 'note', note, 'dayOfExamsId', dayOfExamsId);
-        await api.post('/exams/createExam',{
+          await api.post('/exams/createExam',{
           venue,
           location,
           type,
@@ -58,6 +57,7 @@ export const useExamStore = defineStore('exam', {
     async getExam(id: number) {
       try {
         const response = await api.get(`/exams/${id}`);
+        console.log(response.data);
         this.selectedExam = response.data;
       } catch (error) {
         Notify.create({

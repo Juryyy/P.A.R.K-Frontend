@@ -60,7 +60,7 @@
               v-for="link in adminEssentialLinks"
               :key="link.title"
               :title="link.title"
-              :link="link.link"
+              :link="`/admin/${link.link}`"
               :icon="link.icon"
             />
           </q-list>
@@ -232,22 +232,22 @@ const essentialLinks: EssentialLinkProps[] = [
 const adminEssentialLinks: EssentialLinkProps[] = [
   {
     title: 'Import Candidates',
-    link: '/import-candidates',
+    link: 'import-candidates',
     icon: 'cloud_upload',
   },
   {
     title: 'Create Availability',
-    link: '/create-availability',
+    link: 'create-availability',
     icon: 'event_note',
   },
   {
     title: 'Exams',
-    link: '/exams',
+    link: 'exams',
     icon: 'assignment',
   },
   {
     title: 'Admin Panel',
-    link: '/admin-panel',
+    link: 'admin-panel',
     icon: 'admin_panel_settings',
   },
 ];

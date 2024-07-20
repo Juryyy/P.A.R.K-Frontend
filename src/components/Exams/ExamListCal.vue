@@ -314,7 +314,7 @@ const getExamDayId = (examId: number) => {
 
 const editExam = async (examId: number) => {
   await nextTick();
-  router.push(`/exams/${examId}`);
+  router.push(`/admin/exams/${examId}`);
 };
 
 const highlightDays = (date: string) => {

@@ -69,7 +69,7 @@ export const useUserStore = defineStore('user', {
           message: 'Error getting users exams',
           color: 'red',
           icon: 'report_problem',
-          position: 'top',
+          position: 'bottom',
         });
       }
     },
@@ -93,23 +93,21 @@ export const useUserStore = defineStore('user', {
           message: 'Error loading avatar',
           color: 'red',
           icon: 'report_problem',
-          position: 'top',
+          position: 'bottom',
         });
       }
     },
 
     async getProfile(userId: number) {
-      console.log(userId);
       try {
         const response = await api.get(`/users/profile/${userId}`);
         this.selectedUser = response.data;
       } catch (error) {
-        console.log(error);
         Notify.create({
           message: 'Error loading profile',
           color: 'red',
           icon: 'report_problem',
-          position: 'top',
+          position: 'bottom',
         });
       }
     },
@@ -133,7 +131,7 @@ export const useUserStore = defineStore('user', {
           message: 'Error loading avatar',
           color: 'red',
           icon: 'report_problem',
-          position: 'top',
+          position: 'bottom',
         });
       }
     },
@@ -149,6 +147,7 @@ export const useUserStore = defineStore('user', {
         //    user.role = 'Senior Invigilator';
         //  }
         //});
+        console.log(response.data);
         this.users = response.data;
       } catch (error) {
         Notify.create({
@@ -163,19 +162,47 @@ export const useUserStore = defineStore('user', {
     async fetchUserInfo(){
       try {
         const response = await api.get('/users/userInfo');
-        console.log(response.data)
         this.updateUserInfo(response.data);
         this.user = response.data;
       } catch (error) {
-        console.error('Error fetching user info:', error);
         Notify.create({
           color: 'negative',
           message: 'Error fetching user info',
-          position: 'top',
+          position: 'bottom',
           icon: 'report_problem',
         });
       }
     },
+
+    async updateProfile(id: number, email: string, firstName: string, lastName: string, dateOfBirth : string, note : string | null, noteLonger : string | null, drivingLicense : boolean, phone : string | null) {
+      try {
+      await api.put('/users/update', {
+        id,
+        email,
+        firstName,
+        lastName,
+        dateOfBirth,
+        note,
+        noteLonger,
+        drivingLicense,
+        phone,
+      });
+      Notify.create({
+        color: 'positive',
+        message: 'Profile updated',
+        position: 'bottom',
+        icon: 'check',
+      });
+      }
+      catch (error) {
+        Notify.create({
+          color: 'negative',
+          message: 'Error updating user',
+          position: 'bottom',
+          icon: 'report_problem',
+        });
+      }
+   },
 
     clearSelectedUserInfo() {
       this.selectedUser = undefined;

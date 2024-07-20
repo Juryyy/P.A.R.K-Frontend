@@ -27,7 +27,6 @@ export const useExamDayStore = defineStore('examDay', {
     async loadResponsesForExamDay(id: number) {
       try {
         const response = await api.get(`/responses/responsesExamDay/${id}`);
-        console.log(response.data);
         this.responsesForExamDay = response.data;
       } catch (error) {
         Notify.create({

@@ -172,8 +172,47 @@ export const useAdminStore = defineStore('admin', {
     },
 
     async updateUserLevel(id: number, level: string[]) {
-      console.log('updateUserLevel');
-    }
+      try {
+        const response = await api.post('/office/updateUserLevel', {
+          id,
+          level,
+        });
+        Notify.create({
+          color: 'positive',
+          message: response.data.success,
+          position: 'bottom',
+          icon: 'check',
+        });
+      } catch (error) {
+        Notify.create({
+          color: 'negative',
+          message: 'Error during updating user level',
+          position: 'bottom',
+          icon: 'report_problem',
+        });
+      }
+    },
 
+    async updateUserIsSenior(id: number, isSenior: boolean) {
+      try {
+        const response = await api.post('/office/updateUserSenior', {
+          id,
+          isSenior,
+        });
+        Notify.create({
+          color: 'positive',
+          message: response.data.success,
+          position: 'bottom',
+          icon: 'check',
+        });
+      } catch (error) {
+        Notify.create({
+          color: 'negative',
+          message: 'Error during updating user seniority',
+          position: 'bottom',
+          icon: 'report_problem',
+        });
+      }
+    },
   },
 });
