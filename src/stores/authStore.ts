@@ -31,14 +31,14 @@ export const useAuthStore = defineStore('auth', {
         Notify.create({
           color: 'positive',
           message: 'Verification successful',
-          position: 'top',
+          position: 'bottom',
           icon: 'check',
         });
       } catch (error) {
         Notify.create({
           color: 'negative',
           message: 'Error during verification',
-          position: 'top',
+          position: 'bottom',
           icon: 'report_problem',
           });
         }
@@ -54,14 +54,14 @@ export const useAuthStore = defineStore('auth', {
         Notify.create({
           color: 'positive',
           message: '2FA code sent to your email',
-          position: 'top',
+          position: 'bottom',
           icon: 'check',
         });
       } catch (error) {
         Notify.create({
           color: 'negative',
           message: 'Error during login',
-          position: 'top',
+          position: 'bottom',
           icon: 'report_problem',
         });
       }
@@ -74,7 +74,7 @@ export const useAuthStore = defineStore('auth', {
           Notify.create({
             color: 'negative',
             message: 'Error during logout',
-            position: 'top',
+            position: 'bottom',
             icon: 'report_problem',
           });
           return;
@@ -99,7 +99,7 @@ export const useAuthStore = defineStore('auth', {
           Notify.create({
             color: 'positive',
             message: 'Successfully logged out',
-            position: 'top',
+            position: 'bottom',
             icon: 'check_circle',
           });
         } else {
@@ -109,7 +109,7 @@ export const useAuthStore = defineStore('auth', {
         Notify.create({
           color: 'negative',
           message: 'Error during logout',
-          position: 'top',
+          position: 'bottom',
           icon: 'report_problem',
         });
       }
@@ -131,14 +131,14 @@ export const useAuthStore = defineStore('auth', {
         Notify.create({
           color: 'positive',
           message: 'User registered',
-          position: 'top',
+          position: 'bottom',
           icon: 'check',
         });
       } catch (error) {
         Notify.create({
           color: 'negative',
           message: 'Error during registration',
-          position: 'top',
+          position: 'bottom',
           icon: 'report_problem',
         });
       }
@@ -150,14 +150,14 @@ export const useAuthStore = defineStore('auth', {
         Notify.create({
           color: 'positive',
           message: 'Password reset email sent',
-          position: 'top',
+          position: 'bottom',
           icon: 'check',
         });
       } catch (error) {
         Notify.create({
           color: 'negative',
           message: 'Error during password reset',
-          position: 'top',
+          position: 'bottom',
           icon: 'report_problem',
         });
       }
@@ -169,14 +169,14 @@ export const useAuthStore = defineStore('auth', {
         Notify.create({
           color: 'positive',
           message: 'Password updated',
-          position: 'top',
+          position: 'bottom',
           icon: 'check',
         });
       } catch (error) {
           Notify.create({
           color: 'negative',
           message: 'Error during password update',
-          position: 'top',
+          position: 'bottom',
           icon: 'report_problem',
         });
       }
