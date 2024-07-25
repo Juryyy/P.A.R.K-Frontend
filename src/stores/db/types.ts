@@ -71,6 +71,7 @@ export interface Exam {
   invigilators: User[];
   examiners: User[];
   candidates: string[];
+  files: File[];
 }
 
 export interface ExamWithVenueLink extends Exam {

@@ -147,7 +147,6 @@ export const useUserStore = defineStore('user', {
         //    user.role = 'Senior Invigilator';
         //  }
         //});
-        console.log(response.data);
         this.users = response.data;
       } catch (error) {
         Notify.create({

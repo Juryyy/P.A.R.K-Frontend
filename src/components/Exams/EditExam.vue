@@ -50,15 +50,33 @@
         </div>
         <q-separator class="q-mt-sm" />
 
-        <q-uploader
-          class="q-mt-md"
-          flat
-          label="Upload schedule"
-          color="primary"
-          :url="examScheduleUrl"
-          auto-upload
-          no-thumbnails
-        />
+        <div v-if="exam.files && exam.files.length === 0">
+          <q-file
+            class="q-mt-md"
+            flat
+            label="Select schedule file"
+            color="primary"
+            v-model="selectedFile"
+            @change="onFileChange"
+            :clearable="true"
+          />
+          <q-btn
+            v-if="selectedFile"
+            class="q-mt-md"
+            color="primary"
+            label="Upload File"
+            @click="uploadFile"
+          />
+        </div>
+        <div v-else>
+          <q-btn
+            class="q-mt-md"
+            color="primary"
+            :label="exam.files[0].name"
+            @click="exam.files && exam.files.length > 0 ? downloadFile(exam.files[0].id ?? 0, exam.files[0].name) : null"
+            :loading="exam.files[0].id !== undefined ? loadingFiles[exam.files[0].id] : false"
+          />
+        </div>
       </q-card-section>
     </q-card>
 
@@ -100,7 +118,7 @@
 
 <script setup lang="ts">
 import { dayResponse, Exam } from 'src/stores/db/types';
-import { ref } from 'vue';
+import { ref, reactive } from 'vue';
 import { formatTime } from 'src/helpers/FormatTime';
 import { useExamStore } from 'src/stores/examStore';
 import { useExamDayStore } from 'src/stores/examDayStore';
@@ -115,7 +133,8 @@ const props = defineProps<{
   responses: dayResponse[];
 }>();
 
-const examScheduleUrl = `${process.env.VUE_APP_API_URL}/exams/schedule/${props.exam.id}`;
+const selectedFile = ref<File | null>(null);
+const loadingFiles = reactive<{ [key: number]: boolean }>({});
 const showNoteDialog = ref(false);
 
 const roles = {
@@ -163,12 +182,33 @@ const removeFromExam = async (examId: number, userId: number, position: string) 
   await examDayStore.loadResponsesForExamDay(dayId);
 };
 
+const onFileChange = (file: File | null) => {
+  if (file) {
+    selectedFile.value = file;
+  }
+};
+
+const uploadFile = async () => {
+  if (selectedFile.value) {
+    await examStore.uploadExamSchedule(selectedFile.value, props.exam.id);
+    selectedFile.value = null;
+  }
+};
+
+const downloadFile = async (fileId: number, fileName: string) => {
+  loadingFiles[fileId] = true;
+  try {
+    await examStore.downloadExamSchedule(fileId, fileName);
+  } finally {
+    loadingFiles[fileId] = false;
+  }
+};
+
 const answers: RoleTitleKey[] = ['Yes', 'AM', 'PM', 'No'];
 
 const filteredResponses = (answer: RoleTitleKey, filterRoles: string[]) => {
   return props.responses.filter(response => {
     if (filterRoles.includes('Examiner')) {
-      // Check if user level matches any of the exam levels
       const isValidLevel = response.userLevel.some(level => props.exam.levels.includes(level));
       if (!isValidLevel) return false;
     }

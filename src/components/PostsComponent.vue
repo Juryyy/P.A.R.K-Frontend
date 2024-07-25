@@ -1,11 +1,11 @@
 <template>
   <div>
     <q-btn
-    class="q-mt-md"
-    color="primary"
-    label="Add Post"
-    @click="show = true"
-    v-if="user?.role?.includes('Office') || user?.role?.includes('Developer')"
+      class="q-mt-md"
+      color="primary"
+      label="Add Post"
+      @click="show = true"
+      v-if="user?.role?.includes('Office') || user?.role?.includes('Developer')"
     />
     <q-card class="q-my-md post-card" v-for="post in postsRef" :key="post.id" style="border: 6px solid #CBE09D;">
       <q-card-section>
@@ -16,7 +16,7 @@
               <q-badge v-else color="warning" clickable :label="formatDate(post.updatedAt)" />
             </q-item-label>
             <q-item-label class="text-right">
-              <q-badge color="orange"  v-if="post.author">{{ post.author.firstName }} {{ post.author.lastName }}</q-badge>
+              <q-badge color="orange" v-if="post.author">{{ post.author.firstName }} {{ post.author.lastName }}</q-badge>
             </q-item-label>
             <q-item-label class="text-center text-h5">{{ post.title }}</q-item-label>
             <q-item-label class="text-left">
@@ -27,7 +27,7 @@
         <q-item>
           <q-item-section>
             <q-item-label class="q-mb-md content-label">{{ post.content }}</q-item-label>
-            <q-separator />
+            <q-separator v-if="post.files && post.files.length" />
             <div v-if="post.files && post.files.length" class="align-left">
               <div class="q-mt-xs">
                 <q-btn
@@ -35,6 +35,7 @@
                   :key="file.id"
                   color="orange"
                   :label="file.name"
+                  :loading="file.id !== undefined ? loadingFiles[file.id] : false"
                   @click="() => file.id !== undefined && downloadFile(file.id, file.name)"
                   class="q-ma-sm file-button"
                   rounded
@@ -121,7 +122,6 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
-
   </div>
 </template>
 
@@ -136,10 +136,12 @@ const postStore = usePostStore();
 const userStore = useUserStore();
 
 const user = userStore.user;
-
-const { users } : { users: User[] } = useUserStore();
-
+const { users } = useUserStore();
 const posts = postStore.posts;
+
+const postsRef = ref(posts);
+const usersRef = ref<User[]>(users);
+const loadingFiles = reactive<{ [key: number]: boolean }>({});
 
 onBeforeMount(async () => {
   roles.value = Object.values(RoleEnum);
@@ -147,9 +149,6 @@ onBeforeMount(async () => {
   console.log(usersRef.value);
   console.log(postStore.posts);
 });
-
-const postsRef = ref(posts);
-const usersRef = ref<User[]>(users);
 
 const newPost = reactive<Post>({
   title: '',
@@ -160,7 +159,6 @@ const newPost = reactive<Post>({
 
 const selectedFiles = ref<File[]>([]);
 const show = ref(false);
-
 const roles = ref<RoleEnum[]>([]);
 
 const onFileChange = (event: Event) => {
@@ -204,8 +202,13 @@ const save = async () => {
   }
 };
 
-const downloadFile = (fileId: number, fileName: string) => {
-  window.location.href = `/files/download/${fileId}`;
+const downloadFile = async (fileId: number, fileName: string) => {
+  loadingFiles[fileId] = true;
+  try {
+    await postStore.downloadFile(fileId, fileName);
+  } finally {
+    loadingFiles[fileId] = false;
+  }
 };
 
 const formatDate = (date: Date | undefined) => {

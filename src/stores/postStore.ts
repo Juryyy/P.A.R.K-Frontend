@@ -3,11 +3,10 @@ import { api } from '../boot/axios';
 import { Notify } from 'quasar';
 import { ref } from 'vue';
 import { Post, RoleEnum } from 'src/stores/db/types';
-import { removeSpaces } from '../helpers/RemoveSpaces';
 
 export const usePostStore = defineStore('post', {
   state: () => ({
-    posts : ref<Post[]>([]),
+    posts: ref<Post[]>([]),
     newPost: ref<Post>(),
   }),
   actions: {
@@ -34,10 +33,9 @@ export const usePostStore = defineStore('post', {
       }
     },
 
-    async getPosts(){
+    async getPosts() {
       try {
         const response = await api.get('/posts/posts');
-        console.log(response.data);
         this.posts = response.data;
       } catch (error) {
         Notify.create({
@@ -47,6 +45,41 @@ export const usePostStore = defineStore('post', {
           icon: 'report_problem',
         });
       }
-    }
-  }
-})
+    },
+
+    async downloadFile(fileId: number, fileName: string) {
+      try {
+        const response = await api.get(
+          `/onedrive/files/post/download/${fileId}`,
+          {
+            responseType: 'blob', // Important to specify blob response type
+          }
+        );
+
+        const blob = new Blob([response.data], { type: 'application/octet-stream' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+
+        Notify.create({
+          color: 'positive',
+          message: 'File downloaded',
+          position: 'bottom',
+          icon: 'check',
+        });
+      } catch (error) {
+        Notify.create({
+          color: 'negative',
+          message: 'Error downloading file',
+          position: 'bottom',
+          icon: 'report_problem',
+        });
+      }
+    },
+  },
+});

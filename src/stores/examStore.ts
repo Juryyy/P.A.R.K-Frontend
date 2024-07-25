@@ -69,52 +69,111 @@ export const useExamStore = defineStore('exam', {
       }
     },
 
-  async addWorker(examId : number, userId: number, override: boolean, position: string) {
-    try {
-      await api.post('/exams/addWorker', {
-        examId,
-        userId,
-        override,
-        position
-      });
-      Notify.create({
-        color: 'positive',
-        message: 'Worker added',
-        position: 'bottom',
-        icon: 'check',
-      });
-    } catch (error) {
-      Notify.create({
-        color: 'negative',
-        message: 'Error during adding worker',
-        position: 'bottom',
-        icon: 'report_problem',
-      });
+    async addWorker(examId : number, userId: number, override: boolean, position: string) {
+      try {
+        await api.post('/exams/addWorker', {
+          examId,
+          userId,
+          override,
+          position
+        });
+        Notify.create({
+          color: 'positive',
+          message: 'Worker added',
+          position: 'bottom',
+          icon: 'check',
+        });
+      } catch (error) {
+        Notify.create({
+          color: 'negative',
+          message: 'Error during adding worker',
+          position: 'bottom',
+          icon: 'report_problem',
+        });
+      }
+    },
+
+    async removeWorker(examId : number, userId: number, position: string) {
+      try {
+        await api.post('/exams/removeWorker', {
+          examId,
+          userId,
+          position
+        });
+        Notify.create({
+          color: 'positive',
+          message: 'Worker removed',
+          position: 'bottom',
+          icon: 'check',
+        });
+      } catch (error) {
+        Notify.create({
+          color: 'negative',
+          message: 'Error during removing worker',
+          position: 'bottom',
+          icon: 'report_problem',
+        });
+      }
+    },
+
+    async uploadExamSchedule(file: File, examId: number) {
+      try {
+        const formData = new FormData();
+        formData.append('files', file);
+        formData.append('examId', examId.toString());
+
+        await api.post('/exams/uploadExamSchedule', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        });
+
+        Notify.create({
+          color: 'positive',
+          message: 'File uploaded successfully',
+          position: 'bottom',
+          icon: 'check',
+        });
+      } catch (error) {
+        Notify.create({
+          color: 'negative',
+          message: 'Error during file upload',
+          position: 'bottom',
+          icon: 'report_problem',
+        });
+      }
+    },
+
+    async downloadExamSchedule(examId: number, fileName: string) {
+      try {
+        const response = await api.get(`/onedrive/files/exam/download/${examId}`, {
+          responseType: 'blob',
+        });
+
+        const blob = new Blob([response.data], { type: 'application/octet-stream' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+
+        Notify.create({
+          color: 'positive',
+          message: 'File downloaded',
+          position: 'bottom',
+          icon: 'check',
+        });
+      } catch (error) {
+        Notify.create({
+          color: 'negative',
+          message: 'Error during file download',
+          position: 'bottom',
+          icon: 'report_problem',
+        });
+      }
     }
   },
-
-  async removeWorker(examId : number, userId: number, position: string) {
-    try {
-      await api.post('/exams/removeWorker', {
-        examId,
-        userId,
-        position
-      });
-      Notify.create({
-        color: 'positive',
-        message: 'Worker removed',
-        position: 'bottom',
-        icon: 'check',
-      });
-    } catch (error) {
-      Notify.create({
-        color: 'negative',
-        message: 'Error during removing worker',
-        position: 'bottom',
-        icon: 'report_problem',
-      });
-    }
-  }
-},
 });
-
