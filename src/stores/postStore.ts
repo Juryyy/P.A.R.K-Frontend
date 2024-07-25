@@ -11,14 +11,12 @@ export const usePostStore = defineStore('post', {
     newPost: ref<Post>(),
   }),
   actions: {
-    async addPost(post: Post) {
+    async addPost(formData: FormData) {
       try {
-        await api.post('/posts/create', {
-          title: post.title,
-          content: post.content,
-          roles: post.taggedRoles?.map((role) => removeSpaces(role)),
-          driveLink: post.driveLink,
-          users: post.users
+        await api.post('/posts/create', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
         });
         Notify.create({
           color: 'positive',
@@ -39,6 +37,7 @@ export const usePostStore = defineStore('post', {
     async getPosts(){
       try {
         const response = await api.get('/posts/posts');
+        console.log(response.data);
         this.posts = response.data;
       } catch (error) {
         Notify.create({

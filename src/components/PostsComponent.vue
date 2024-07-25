@@ -1,23 +1,46 @@
 <template>
   <div>
-    <q-card class="q-ma-md" v-for="post in postsRef" :key="post.id">
-      <q-card-section style="border: 6px solid #CBE09D;">
+    <q-btn
+    class="q-mt-md"
+    color="primary"
+    label="Add Post"
+    @click="show = true"
+    v-if="user?.role?.includes('Office') || user?.role?.includes('Developer')"
+    />
+    <q-card class="q-my-md post-card" v-for="post in postsRef" :key="post.id" style="border: 6px solid #CBE09D;">
+      <q-card-section>
         <q-item>
-          <q-item-section >
-            <q-item-label class="text-center">{{ post.title }}</q-item-label>
-            <q-item-label class="text-right" >
-              <q-badge class="q-ml-xs" color="secondary" v-for="role in post.taggedRoles" :key="role" :label="role" />
+          <q-item-section>
+            <q-item-label class="text-right">
+              <q-badge v-if="datesMatch(post.createdAt, post.updatedAt)" color="primary" clickable :label="formatDate(post.createdAt)" />
+              <q-badge v-else color="warning" clickable :label="formatDate(post.updatedAt)" />
             </q-item-label>
-            <q-item-label class="text-right" >
-              <q-badge v-if="datesMatch(post.createdAt, post.updatedAt)" color="primary" clickable :label="post.createdAt ? new Date(post.createdAt).toLocaleDateString('en-US') : ''" />
-              <q-badge v-else color="warning" clickable :label="post.updatedAt ? new Date(post.updatedAt).toLocaleDateString('en-US') : ''" />
+            <q-item-label class="text-right">
+              <q-badge color="orange"  v-if="post.author">{{ post.author.firstName }} {{ post.author.lastName }}</q-badge>
             </q-item-label>
-            <q-item-label>
-            <div v-html="post.content" class="q-item-label" caption></div>
+            <q-item-label class="text-center text-h5">{{ post.title }}</q-item-label>
+            <q-item-label class="text-left">
+              <q-chip class="q-mr-xs" size="12px" color="secondary" v-for="role in post.taggedRoles" :key="role" :label="role" />
             </q-item-label>
-            <q-item-label v-for="link in post.driveLink" :key="link.link">
-              <q-btn color="secondary" :label="link.name" type="a" :href="link.link" target="_blank" download />
-            </q-item-label>
+          </q-item-section>
+        </q-item>
+        <q-item>
+          <q-item-section>
+            <q-item-label class="q-mb-md content-label">{{ post.content }}</q-item-label>
+            <q-separator />
+            <div v-if="post.files && post.files.length" class="align-left">
+              <div class="q-mt-xs">
+                <q-btn
+                  v-for="file in post.files"
+                  :key="file.id"
+                  color="orange"
+                  :label="file.name"
+                  @click="() => file.id !== undefined && downloadFile(file.id, file.name)"
+                  class="q-ma-sm file-button"
+                  rounded
+                />
+              </div>
+            </div>
           </q-item-section>
         </q-item>
       </q-card-section>
@@ -74,31 +97,21 @@
             input-debounce="300"
             @filter="filter"
           />
-
-          <q-input v-model="linkName" label="Link/File Name" />
-          <q-input v-model="link" label="Link/File URL" @keypress.enter="addLink" />
-          <q-btn
-            class="q-mt-md"
-            color="primary"
-            label="Add Link"
-            @click="addLink"
+          <q-file
+            type="file"
+            label="Upload Files"
+            v-model="selectedFiles"
+            multiple
+            @change="onFileChange"
           />
-
-          <div v-if="newPost.driveLink.length > 0">
-            <q-item-label class="q-mt-md"> Links: </q-item-label>
-            <q-item v-for="(link, index) in newPost.driveLink" :key="index">
-              <q-item-section>
-                <q-item-label>{{ link.name }} : {{ link.link}}</q-item-label>
-              </q-item-section>
-              <q-item-section side>
-                <q-btn
-                  flat
-                  color="red"
-                  icon="delete"
-                  @click="removeLink(index)"
-                />
-              </q-item-section>
-            </q-item>
+          <div v-if="selectedFiles.length > 0" class="q-mt-md">
+            <q-chip
+              v-for="(file, index) in selectedFiles"
+              :key="index"
+              :label="file.name"
+              removable
+              @remove="removeFile(index)"
+            />
           </div>
         </q-card-section>
 
@@ -109,12 +122,6 @@
       </q-card>
     </q-dialog>
 
-    <q-btn
-      class="q-mt-md"
-      color="primary"
-      label="Add Post"
-      @click="show = true"
-    />
   </div>
 </template>
 
@@ -122,12 +129,13 @@
 import { ref, reactive, onBeforeMount, computed } from 'vue';
 import { usePostStore } from 'src/stores/postStore';
 import { useUserStore } from 'src/stores/userStore';
-import { Post, RoleEnum, User, DriveLink } from 'src/stores/db/types';
+import { Post, RoleEnum, User } from 'src/stores/db/types';
 import { Loading } from 'quasar';
-import config from 'src/config';
 
 const postStore = usePostStore();
 const userStore = useUserStore();
+
+const user = userStore.user;
 
 const { users } : { users: User[] } = useUserStore();
 
@@ -148,15 +156,23 @@ const newPost = reactive<Post>({
   content: '',
   taggedRoles: [],
   users: [],
-  driveLink: [],
 });
 
-const linkName = ref('');
-const link = ref('');
-
+const selectedFiles = ref<File[]>([]);
 const show = ref(false);
 
 const roles = ref<RoleEnum[]>([]);
+
+const onFileChange = (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  if (target.files) {
+    selectedFiles.value = Array.from(target.files);
+  }
+};
+
+const removeFile = (index: number) => {
+  selectedFiles.value.splice(index, 1);
+};
 
 const save = async () => {
   Loading.show({
@@ -165,12 +181,35 @@ const save = async () => {
     messageColor: 'amber',
     backgroundColor: 'black',
   });
-  console.log(newPost);
-  await postStore.addPost(newPost);
-  show.value = false;
-  await postStore.getPosts();
-  postsRef.value = postStore.posts;
-  Loading.hide();
+
+  const formData = new FormData();
+  formData.append('title', newPost.title);
+  formData.append('content', newPost.content);
+  formData.append('roles', JSON.stringify(newPost.taggedRoles));
+  formData.append('users', JSON.stringify(newPost.users));
+
+  selectedFiles.value.forEach((file, index) => {
+    formData.append('files', file, file.name);
+  });
+
+  try {
+    await postStore.addPost(formData);
+    show.value = false;
+    await postStore.getPosts();
+    postsRef.value = postStore.posts;
+  } catch (error) {
+    console.error(error);
+  } finally {
+    Loading.hide();
+  }
+};
+
+const downloadFile = (fileId: number, fileName: string) => {
+  window.location.href = `/files/download/${fileId}`;
+};
+
+const formatDate = (date: Date | undefined) => {
+  return date ? new Date(date).toLocaleDateString('en-US') : '';
 };
 
 const userOptions = computed(() => {
@@ -202,14 +241,6 @@ const filter = (value: string, update: UpdateFunction) => {
   filterFn(value, update);
 };
 
-const addLink = () => {
-  if (link.value.trim() !== '' && linkName.value.trim() !== '') {
-    newPost.driveLink.push({ name: linkName.value.trim(), link: link.value.trim() });
-    link.value = '';
-    linkName.value = '';
-  }
-};
-
 const datesMatch = (date1: Date | undefined, date2: Date | undefined) => {
   if (!date1 || !date2) {
     return false;
@@ -218,19 +249,39 @@ const datesMatch = (date1: Date | undefined, date2: Date | undefined) => {
   const d2 = new Date(date2);
   return d1.getFullYear() === d2.getFullYear() && d1.getMonth() === d2.getMonth() && d1.getDate() === d2.getDate();
 };
-
-const removeLink = (index: number) => {
-  newPost.driveLink.splice(index, 1);
-};
 </script>
+
 <style scoped>
-.badge-container {
-  position: relative;
+.q-card-section {
+  padding: 16px;
 }
 
-.top-right-badge {
-  position: absolute;
-  top: 0;
-  right: 0;
+.file-button {
+  display: block;
+  width: 100%;
+  text-align: left;
+}
+
+.align-left {
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.post-card {
+  width: 80%;
+  max-width: 550px;
+}
+
+@media (min-width: 600px) {
+  .post-card {
+    width: 600px;
+  }
+}
+
+.content-label {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 </style>

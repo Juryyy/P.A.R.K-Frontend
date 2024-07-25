@@ -167,18 +167,27 @@ export interface Post {
   title: string;
   content: string;
   authorId?: number;
-  author?: User;
+  author?: Author;
   createdAt?: Date;
   updatedAt?: Date;
   taggedRoles?: RoleEnum[],
   users?: User[],
-  driveLink: DriveLink[];
+  files?: File[],
 }
 
-export interface DriveLink{
+export interface File{
   id?: number;
-  link: string;
   name: string;
   postId?: number;
+  createdAt?: Date;
+  authorId?: number;
+  author?: User;
+  post?: Post;
+}
+
+interface Author{
+  id: number;
+  firstName: string;
+  lastName: string;
 }
 

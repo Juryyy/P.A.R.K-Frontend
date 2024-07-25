@@ -34,9 +34,10 @@
                 </div>
                 <q-popup-edit
                   v-model="props.row.role"
-                  :disable="!currentUserRole.includes(RoleEnum.Office) && !currentUserRole.includes(RoleEnum.Developer)"
+                  :disable="!canEditSenior"
                 >
                   <q-select
+                    label="Roles"
                     v-model="props.row.role"
                     :options="Roles"
                     multiple
@@ -62,9 +63,10 @@
                 </div>
                 <q-popup-edit
                   v-model="props.row.level"
-                  :disable="!currentUserRole.includes(RoleEnum.Office) && !currentUserRole.includes(RoleEnum.Developer)"
+                  :disable="!canEditSenior"
                 >
                   <q-select
+                    label="Levels"
                     v-model="props.row.level"
                     :options="Levels"
                     multiple
@@ -79,13 +81,18 @@
                 </q-popup-edit>
               </q-td>
               <q-td key="isSenior">
-                <q-icon
+                <q-icon v-if="canEditSenior"
                   :color="props.row.isSenior ? 'red' : 'grey'"
                   name="stars"
                   class="q-mr-sm"
                   size="md"
-                  :class="{ clickable: currentUserRole.includes(RoleEnum.Office) || currentUserRole.includes(RoleEnum.Developer) }"
-                  @click="currentUserRole.includes(RoleEnum.Office) || currentUserRole.includes(RoleEnum.Developer) ? () => toggleIsSenior(props.row) : null"
+                  @click="toggleIsSenior(props.row)"
+                />
+                <q-icon v-else
+                  :color="props.row.isSenior ? 'red' : 'grey'"
+                  name="stars"
+                  class="q-mr-sm"
+                  size="md"
                 />
               </q-td>
               <q-td key="Exams">
@@ -100,7 +107,7 @@
               <q-td key="actions">
                 <q-btn-group>
                   <q-btn
-                    v-if="currentUserRole.includes(RoleEnum.Office) || currentUserRole.includes(RoleEnum.Developer)"
+                    v-if="canEditSenior"
                     @click="editUser(props.row)"
                     :color="props.row.isRoleChanged || props.row.isLevelChanged || props.row.isSeniorChanged ? 'blue' : 'grey'"
                     icon="manage_accounts"
@@ -193,17 +200,16 @@ import { sortRoles, sortLevels } from 'src/helpers/FormatRole';
 const userStore = useUserStore();
 const adminStore = useAdminStore();
 
-// Initialize usersRef with levels and roles set to empty arrays if undefined
 const usersRef = ref<ExtendedUser[]>(userStore.users.map(user => ({
   ...user,
   role: user.role || [],
-  level: user.level || [], // Ensure level is an array
+  level: user.level || [],
   isSenior: user.isSenior || false,
   isRoleChanged: false,
   isLevelChanged: false,
   isSeniorChanged: false,
   originalRoles: [...(user.role || [])],
-  originalLevels: [...(user.level || [])], // Ensure originalLevels is an array
+  originalLevels: [...(user.level || [])],
   originalIsSenior: user.isSenior || false,
 })));
 
@@ -230,6 +236,11 @@ const filteredUsersRef = computed(() => {
 const filteredUsersCount = computed(() => filteredUsersRef.value.length);
 
 const currentUserRole = computed(() => userStore.getUserRole());
+
+const canEditSenior = computed(() => {
+  const roles = currentUserRole.value;
+  return roles.includes(RoleEnum.Office) || roles.includes(RoleEnum.Developer);
+});
 
 const columns: any[] = [
   { name: 'firstName', required: true, label: 'First name', align: 'left', field: 'firstName', sortable: true },
@@ -264,7 +275,7 @@ const newUser = ref({
   lastName: '',
   email: '',
   role: [] as RoleEnum[],
-  level: [] as LevelEnum[], // Ensure level is initialized as an array
+  level: [] as LevelEnum[],
   isSenior: false
 });
 
@@ -276,13 +287,13 @@ async function addUser() {
   usersRef.value = userStore.users.map(user => ({
     ...user,
     role: user.role || [],
-    level: user.level || [], // Ensure level is an array
+    level: user.level || [],
     isSenior: user.isSenior || false,
     isRoleChanged: false,
     isLevelChanged: false,
     isSeniorChanged: false,
     originalRoles: [...(user.role || [])],
-    originalLevels: [...(user.level || [])], // Ensure originalLevels is an array
+    originalLevels: [...(user.level || [])],
     originalIsSenior: user.isSenior || false,
   }));
 }
@@ -314,13 +325,13 @@ async function deactivateUser(user: ExtendedUser) {
   usersRef.value = userStore.users.map(user => ({
     ...user,
     role: user.role || [],
-    level: user.level || [], // Ensure level is an array
+    level: user.level || [],
     isSenior: user.isSenior || false,
     isRoleChanged: false,
     isLevelChanged: false,
     isSeniorChanged: false,
     originalRoles: [...(user.role || [])],
-    originalLevels: [...(user.level || [])], // Ensure originalLevels is an array
+    originalLevels: [...(user.level || [])],
     originalIsSenior: user.isSenior || false,
   }));
 }
@@ -338,6 +349,7 @@ const handleIsSeniorChange = (user: ExtendedUser) => {
 };
 
 const toggleIsSenior = (user: ExtendedUser) => {
+  console.log('toggleIsSenior');
   user.isSenior = !user.isSenior;
   handleIsSeniorChange(user);
 };
@@ -350,35 +362,3 @@ watch(usersRef, (newUsers) => {
   });
 }, { deep: true });
 </script>
-
-<style lang="scss" scoped>
-.drawer-avatar-box {
-  display: flex;
-  align-items: center;
-  text-align: left;
-}
-
-.drawer-avatar-box .column {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.drawer-avatar-box .row {
-  display: flex;
-  align-items: center;
-}
-
-.drawer-avatar-box .text-weight-bold {
-  margin-bottom: 4px;
-}
-
-.card {
-  background-color: $primary;
-}
-
-.user-info {
-  display: flex;
-  align-items: center;
-}
-</style>
