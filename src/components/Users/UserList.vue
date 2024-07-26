@@ -153,11 +153,26 @@
             <q-dialog v-model="state.newUser" persistent>
               <q-card>
                 <q-card-section>
-                  <q-form>
+                  <q-form ref="newUserForm" @submit.prevent="submitForm">
                     <b>Create new user</b>
-                    <q-input v-model="newUser.firstName" label="First name" />
-                    <q-input v-model="newUser.lastName" label="Last name" />
-                    <q-input v-model="newUser.email" label="Email" />
+                    <q-input
+                      v-model="newUser.firstName"
+                      :rules="[(val) => !!val || 'First name is required']"
+                      label="First name"
+                      lazy-rules
+                    />
+                    <q-input
+                      v-model="newUser.lastName"
+                      :rules="[(val) => !!val || 'Last name is required']"
+                      label="Last name"
+                      lazy-rules
+                    />
+                    <q-input
+                      v-model="newUser.email"
+                      :rules="[(val) => !!val || 'Email is required']"
+                      label="Email"
+                      lazy-rules
+                    />
                     <q-select
                       v-model="newUser.role"
                       :options="Roles"
@@ -167,6 +182,8 @@
                       fill-input
                       label="Roles"
                       use-chips
+                      :rules="[(val) => !!val.length || 'At least one role is required']"
+                      lazy-rules
                     />
                   </q-form>
                   <q-card-actions align="right">
@@ -175,7 +192,7 @@
                       label="Cancel"
                       @click="state.newUser = false"
                     />
-                    <q-btn color="primary" @click="addUser" label="Add user" />
+                    <q-btn color="primary" label="Add user" @click="submitForm" />
                   </q-card-actions>
                 </q-card-section>
               </q-card>
@@ -279,6 +296,8 @@ const newUser = ref({
   isSenior: false
 });
 
+const newUserForm = ref(null);
+
 async function addUser() {
   await adminStore.registerUser(newUser.value.firstName, newUser.value.lastName, newUser.value.email, newUser.value.role);
   newUser.value = { firstName: '', lastName: '', email: '', role: [], level: [], isSenior: false };
@@ -349,7 +368,6 @@ const handleIsSeniorChange = (user: ExtendedUser) => {
 };
 
 const toggleIsSenior = (user: ExtendedUser) => {
-  console.log('toggleIsSenior');
   user.isSenior = !user.isSenior;
   handleIsSeniorChange(user);
 };
@@ -361,4 +379,16 @@ watch(usersRef, (newUsers) => {
     newUser.isSeniorChanged = newUser.originalIsSenior !== newUser.isSenior;
   });
 }, { deep: true });
+
+function submitForm() {
+  const form = newUserForm.value as any;
+  form.validate().then((valid: boolean) => {
+    if (valid) {
+      addUser();
+    }
+  }).catch((errors: any) => {
+    console.log(errors);
+  });
+}
 </script>
+

@@ -41,15 +41,11 @@ export const useAdminStore = defineStore('admin', {
     ) {
       try {
         // Backend does not accept spaces in role
-        const Srole = role.map((r) => r.toString());
-        email = removeSpaces(email);
-        firstName = removeSpaces(firstName);
-        lastName = removeSpaces(lastName);
         const response = await api.post('/office/registerUser', {
           firstName,
           lastName,
           email,
-          Srole,
+          role,
         });
         Notify.create({
           color: 'positive',
@@ -57,10 +53,15 @@ export const useAdminStore = defineStore('admin', {
           position: 'bottom',
           icon: 'check',
         });
-      } catch (error) {
+      } catch (error : any) {
+        console.error(error);
+        let errorMessage = 'Error during registration';
+        if (error.response && error.response.data && error.response.data.error) {
+          errorMessage = error.response.data.error;
+        }
         Notify.create({
           color: 'negative',
-          message: 'Error during registering user',
+          message: errorMessage,
           position: 'bottom',
           icon: 'report_problem',
         });

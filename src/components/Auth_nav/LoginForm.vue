@@ -144,11 +144,14 @@ const loading = ref(false);
 const code = ref(['', '', '', '', '', '']);
 
 const login = async (event: Event) => {
+  if (!state.email || !state.password) {
+    return;
+  }
   event.preventDefault();
   loading.value = true;
   try {
     await authStore.login(state.email, state.password);
-    if (authStore.verification) {
+    if (authStore.verification === true ) {
       isCodeVerification.value = true;
     }
   } finally {
@@ -173,12 +176,19 @@ const validate = async (event: Event) => {
 };
 
 const resetPassword = async (event: Event) => {
+  if (!state.email) {
+    return;
+  }
   event.preventDefault();
   loading.value = true;
   try {
     await authStore.resetPassword(state.email);
   } finally {
     loading.value = false;
+    const mail = state.email;
+    clear();
+    state.email = mail;
+    isForgotPassword.value = false;
   }
 };
 
