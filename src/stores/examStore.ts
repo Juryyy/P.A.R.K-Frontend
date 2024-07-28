@@ -3,6 +3,7 @@ import { api } from '../boot/axios';
 import { Notify } from 'quasar';
 import { ref } from 'vue';
 import { Exam, RoleEnum } from './db/types';
+import { update } from 'lodash';
 
 export const useExamStore = defineStore('exam', {
   state: () => ({
@@ -63,6 +64,25 @@ export const useExamStore = defineStore('exam', {
         Notify.create({
           color: 'negative',
           message: 'Error during getting exam',
+          position: 'bottom',
+          icon: 'report_problem',
+        });
+      }
+    },
+
+    async updateExam(exam: Exam) {
+      try {
+        await api.put('/exams/updateExam', {exam});
+        Notify.create({
+          color: 'positive',
+          message: 'Exam updated',
+          position: 'bottom',
+          icon: 'check',
+        });
+      } catch (error) {
+        Notify.create({
+          color: 'negative',
+          message: 'Error during updating exam',
           position: 'bottom',
           icon: 'report_problem',
         });

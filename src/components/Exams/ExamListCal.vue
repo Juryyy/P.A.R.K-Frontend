@@ -27,8 +27,8 @@
             <div class="text-h6">Venue: {{ exam.venue }} </div>
             <div>Type: {{ exam.type }}</div>
             <div>Levels: {{ exam.levels.join(', ') }}</div>
-            <div>Start time: {{ formatTime(exam.startTime) }}</div>
-            <div>End time: {{ formatTime(exam.endTime) }}</div>
+            <div>Start time: {{ formatTimeString(exam.startTime) }}</div>
+            <div>End time: {{ formatTimeString(exam.endTime) }}</div>
             <div>
               Note:
               <span
@@ -153,33 +153,16 @@
                   use-chips
                 />
 
-                <q-input v-model="inputExam.startTime" label="Start time">
-                  <template v-slot:append>
-                    <q-icon name="access_time" class="cursor-pointer">
-                      <q-popup-proxy
-                        transition-show="scale"
-                        transition-hide="scale"
-                      >
-                        <q-time v-model="inputExam.startTime" />
-                      </q-popup-proxy>
-                    </q-icon>
-                  </template>
-                </q-input>
+                <q-input v-model="inputExam.startTime"
+                label="Start time"
+                type="time"
+                />
 
-                <q-input v-model="inputExam.endTime" label="End time">
-                  <template v-slot:append>
-                    <q-icon name="access_time" class="cursor-pointer">
-                      <q-popup-proxy
-                        transition-show="scale"
-                        transition-hide="scale"
-                      >
-                        <q-time v-model="inputExam.endTime" />
-                      </q-popup-proxy>
-                    </q-icon>
-                  </template>
-                </q-input>
-
-                <q-input v-model="inputExam.note" label="Note" />
+                <q-input v-model="inputExam.endTime"
+                label="End time"
+                type="time"
+                />
+                <q-input v-model="inputExam.note" label="Note" type="textarea" />
               </q-form>
             </q-card-section>
             <q-card-actions align="right">
@@ -198,15 +181,16 @@
     <div v-else class="text-h4 flex-center">Choose date</div>
   </q-page>
 </template>
+
 <script setup lang="ts">
 import { ref, reactive, computed } from 'vue';
 import { useExamDayStore } from 'src/stores/examDayStore';
 import { useExamStore } from 'src/stores/examStore';
 import { useAdminStore } from 'src/stores/adminStore';
 import { Loading, Notify } from 'quasar';
-import { DayOfExams, Exam, LevelEnum, examTypeEnum, Location, Venue} from 'src/stores/db/types';
+import { DayOfExams, Exam, LevelEnum, ExamTypeEnum, Location, Venue } from 'src/stores/db/types';
 import { router } from 'src/router/index';
-import { formatTime } from 'src/helpers/FormatTime';
+import { formatTimeString } from 'src/helpers/FormatTime';
 import { nextTick } from 'vue';
 
 const examDayStore = useExamDayStore();
@@ -217,7 +201,7 @@ const examDays: DayOfExams[] = examDayStore.upcomingExamDays;
 const exams: Exam[] = examStore.upcomingExams;
 
 const levelOptions = Object.values(LevelEnum);
-const examTypes = Object.values(examTypeEnum);
+const examTypes = Object.values(ExamTypeEnum);
 
 const inputExam = reactive({
   location: '',
@@ -229,20 +213,22 @@ const inputExam = reactive({
   note: '',
 });
 
+const showNoteDialog = ref(false);
+
 const examsRef = ref(exams);
 const currentDate = new Date();
 
 const examVenues = ref(['']);
 const examLocations = ref(['']);
 
-examLocations.value = adminStore.locationsWithVenues.map((location : Location) => location.name);
+examLocations.value = adminStore.locationsWithVenues.map((location: Location) => location.name);
 const updateExamVenues = () => {
   inputExam.venue = '';
   const selectedLoc: Location | undefined = adminStore.locationsWithVenues.find(
     (location: Location) => location.name === inputExam.location
   );
 
-  if (selectedLoc){
+  if (selectedLoc) {
     examVenues.value = selectedLoc.venues.map((venue: Venue) => venue.name);
   }
 };
@@ -250,9 +236,7 @@ const updateExamVenues = () => {
 const state = reactive({
   show: false,
   selectedExamDay: undefined as DayOfExams | undefined,
-  selectedDate: `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1)
-    .toString()
-    .padStart(2, '0')}-${currentDate.getDate().toString().padStart(2, '0')}`,
+  selectedDate: `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}-${currentDate.getDate().toString().padStart(2, '0')}`,
   years: false,
   showAddExam: false,
 });
@@ -261,8 +245,7 @@ const addExam = async () => {
   const selectedDate = state.selectedDate;
 
   if (selectedDate) {
-    const [day, month, year] = selectedDate.split('.');
-    const qDate = new Date(`${year}-${month}-${day}`);
+    const qDate = new Date(selectedDate);
 
     const matchingExamDay = examDays.find((examDay) => {
       const examDayDate = new Date(examDay.date);
@@ -286,7 +269,7 @@ const addExam = async () => {
       });
       await examStore.loadUpcomingExams();
       examsRef.value = examStore.upcomingExams;
-      state.showAddExam = false
+      state.showAddExam = false;
       Loading.hide();
     } else {
       Notify.create({
@@ -318,46 +301,63 @@ const editExam = async (examId: number) => {
 };
 
 const highlightDays = (date: string) => {
+  const normalizedDate = date.replace(/\//g, '-'); // Normalize the date format
   return examDays.some((examDay) => {
-    const [day, month, year] = date.split('-');
-    const qDate = new Date(`${year}-${month}-${day}`);
-    const examStartDate = new Date(examDay.date);
-
+    const [year, month, day] = normalizedDate.split('-').map(Number);
+    const qDate = new Date(Date.UTC(year, month - 1, day));
+    const examStartDate = new Date(Date.UTC(
+      new Date(examDay.date).getUTCFullYear(),
+      new Date(examDay.date).getUTCMonth(),
+      new Date(examDay.date).getUTCDate()
+    ));
     return (
-      qDate.getDate() === examStartDate.getDate() &&
-      qDate.getMonth() === examStartDate.getMonth() &&
-      qDate.getFullYear() === examStartDate.getFullYear()
+      qDate.toISOString().split('T')[0] === examStartDate.toISOString().split('T')[0]
     );
   });
 };
 
+const colorPick = (date: string) => {
+  const normalizedDate = date.replace(/\//g, '-'); // Normalize the date format
+  const [year, month, day] = normalizedDate.split('-').map(Number);
+  const formattedDate = new Date(Date.UTC(year, month - 1, day)).toISOString().split('T')[0];
+
+
+  // Check if any exams exist on the highlighted date
+  const examsForDate = examsRef.value.filter((exam) => {
+    const examStartDate = new Date(exam.startTime).toISOString().split('T')[0];
+    return examStartDate === formattedDate;
+  });
+
+  const examExists = examsForDate.length > 0;
+
+  // Check if all exams for the date are completed
+  const allExamsCompleted = examExists && examsForDate.every((exam) => exam.isPrepared);
+
+  const isHighlighted = highlightDays(formattedDate);
+
+  if (isHighlighted) {
+    if (allExamsCompleted) {
+      return 'blue';
+    } else {
+      return examExists ? 'orange' : 'red';
+    }
+  }
+
+  return 'green';
+};
+
+
 const filteredExams = computed(() => {
   if (state.selectedDate) {
-    const [day, month, year] = state.selectedDate.split('.');
-    const qDate = new Date(`${year}-${month}-${day}`);
-
-    const response = examsRef.value.filter((exam) => {
-      if (qDate instanceof Date) {
-        const examStartDate = new Date(exam.startTime);
-
-        // Compare day, month, and year
-        const isSameDay = qDate.getDate() === examStartDate.getDate();
-        const isSameMonth = qDate.getMonth() === examStartDate.getMonth();
-        const isSameYear = qDate.getFullYear() === examStartDate.getFullYear();
-
-        return isSameDay && isSameMonth && isSameYear;
-      } else {
-        return false;
-      }
+    return examsRef.value.filter((exam) => {
+      const examStartDate = new Date(exam.startTime).toISOString().split('T')[0];
+      return examStartDate === state.selectedDate;
     });
-
-    return response;
   } else {
     return [];
   }
 });
 
-const showNoteDialog = ref(false);
 
 const truncatedNote = (note: string | undefined) => {
   const maxLength = 25;
@@ -377,27 +377,8 @@ const showFullNoteDialog = () => {
   showNoteDialog.value = true;
 };
 
-const colorPick = (date: string) => {
-  const qDate = new Date(date);
-
-  // Check if an exam exists on the highlighted date
-  const examExists = examsRef.value.some((exam) => {
-    const examStartDate = new Date(exam.startTime);
-
-    return (
-      qDate.getDate() === examStartDate.getDate() &&
-      qDate.getMonth() === examStartDate.getMonth() &&
-      qDate.getFullYear() === examStartDate.getFullYear()
-    );
-  });
-
-  if (highlightDays(date)) {
-    return examExists ? 'blue' : 'red';
-  }
-
-  return 'white';
-};
 </script>
+
 <style lang="scss" scoped>
 .full-width {
   width: 100%;
@@ -432,5 +413,4 @@ const colorPick = (date: string) => {
     align-items: center;
   }
 }
-
 </style>

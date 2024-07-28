@@ -1,5 +1,5 @@
 <template>
-  <q-page class="card-container">
+  <div class="card-container">
     <q-card bordered class="custom-card" v-if="editableUser">
       <h3 v-if="editableUser.deactivated" class="text-red">This account has been deactivated!</h3>
       <q-card-section class="q-pr-md">
@@ -48,6 +48,7 @@
               v-model="editableUser.noteLonger"
               label="Detailed Note"
               :input-style="{ fontWeight: 'bold' }"
+              type="textarea"
             />
           </template>
           <template v-else>
@@ -114,7 +115,7 @@
       </q-card-actions>
     </q-card>
     <div v-else>No user information available.</div>
-  </q-page>
+  </div>
 </template>
 
 <script setup lang="ts">

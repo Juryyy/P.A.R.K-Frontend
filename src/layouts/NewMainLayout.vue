@@ -99,15 +99,20 @@
         </q-img>
 
         <q-card-section class="q-pa-md">
-          <q-card class="card q-mb-sm" bordered v-for="exam in usersExamsRef" :key="exam.id">
+         <q-card
+          :class="exam.isPrepared ? 'isPrepared' : 'isNotPrepared'"
+          bordered
+          v-for="exam in usersExamsRef"
+          :key="exam.id"
+          >
             <q-card-section>
               <q-item-label>Location: <b>{{ exam.location }}</b></q-item-label>
               <q-item-label>Venue: <b>{{ exam.venue }}</b></q-item-label>
-              <q-item-label>Date: <b>{{ formatDate(exam.startTime) }} </b></q-item-label>
+              <q-item-label>Date: <b>{{ formatDateString(exam.startTime) }} </b></q-item-label>
               <q-item-label>
                 Time:
                 <b>
-                  {{ formatTime(exam.startTime) + ' - ' + formatTime(exam.endTime) }}
+                  {{ formatTimeString(exam.startTime) + ' - ' + formatTimeString(exam.endTime) }}
                 </b>
               </q-item-label>
               <q-item-label>Type: <b>{{ exam.type }}</b></q-item-label>
@@ -167,6 +172,7 @@ import { ExamWithVenueLink, RoleEnum } from 'src/stores/db/types';
 import { Loading } from 'quasar';
 import { getRoleColor } from 'src/helpers/Color';
 import { sortRoles } from 'src/helpers/FormatRole';
+import { formatDateString, formatTimeString } from 'src/helpers/FormatTime';
 
 const userStore = useUserStore();
 const authStore = useAuthStore();
@@ -314,5 +320,13 @@ const viewUser = async (user: any) => {
 
 .clickable-avatar {
   cursor: pointer;
+}
+
+.isPrepared {
+  background-color: $primary;
+}
+
+.isNotPrepared {
+  background-color: $primary-light;
 }
 </style>

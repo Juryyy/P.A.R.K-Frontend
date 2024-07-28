@@ -1,25 +1,80 @@
 <template>
   <div class="container">
-    <q-card bordered class="q-ma-md top-card">
+    <q-card bordered class="q-ma-md top-card" v-if="editableExam">
       <q-card-section>
-        <div class="text-h4">{{ exam.type }}</div>
-        <div class="text-h5">{{ exam.location }} - {{ exam.venue }}</div>
-        <div class="text-bold">Levels: {{ exam.levels.join(', ') }}</div>
-        <div class="text-bold">Start time: {{ formatTime(exam.startTime) }}</div>
-        <div class="text-bold">End time: {{ formatTime(exam.endTime) }}</div>
-        <div class="text-bold">
-          Note:
-          <b
-            v-if="shouldShowMoreLink(exam.note)"
-            @click="showFullNoteDialog()"
-          >
-            {{ truncatedNote(exam.note) }}
-            <span class="more-link">...more</span>
-          </b>
-          <b v-else>
-            <b>{{ exam.note }}</b>
-          </b>
-
+        <div v-if="editmode">
+          <q-select
+            v-model="editableExam.type"
+            label="Type"
+            :options="examTypes"
+            transition-show="scale"
+            transition-hide="scale"
+          />
+          <q-select
+            v-model="editableExam.location"
+            label="Location"
+            :options="examLocations"
+            transition-show="scale"
+            transition-hide="scale"
+            @update:model-value="updateExamVenues"
+          />
+          <q-select
+            v-model="editableExam.venue"
+            label="Venue"
+            :options="examVenues"
+            transition-show="scale"
+            transition-hide="scale"
+            :rules="[ (val) => !!val || 'Venue is required' ]"
+          />
+          <q-select
+            v-model="editableExam.levels"
+            label="Levels"
+            :options="levelOptions"
+            transition-show="scale"
+            transition-hide="scale"
+            multiple
+            counter
+            use-chips
+          />
+          <q-input
+            v-model="editableExam.startTime"
+            label="Start Time"
+            type="time"
+          />
+          <q-input
+            v-model="editableExam.endTime"
+            label="End Time"
+            type="time"
+          />
+          <q-input
+            v-model="editableExam.note"
+            label="Note"
+            type="textarea"
+          />
+        </div>
+        <div v-else>
+          <div class="text-h5">{{ exam.type }}</div>
+          <div class="text-h5">{{ exam.location }} - {{ exam.venue }}</div>
+          <div class="text-bold">Levels: {{ exam.levels.join(', ') }}</div>
+          <div class="text-bold">
+            Start time: {{ formatTimeString(exam.startTime) }}
+          </div>
+          <div class="text-bold">
+            End time: {{ formatTimeString(exam.endTime) }}
+          </div>
+          <div class="text-bold">
+            Note:
+            <b
+              v-if="shouldShowMoreLink(exam.note)"
+              @click="showFullNoteDialog()"
+            >
+              {{ truncatedNote(exam.note) }}
+              <span class="more-link">...more</span>
+            </b>
+            <b v-else>
+              <b>{{ exam.note }}</b>
+            </b>
+          </div>
           <q-dialog v-model="showNoteDialog">
             <q-card class="note-dialog-card">
               <q-card-section>
@@ -35,48 +90,109 @@
               </q-card-actions>
             </q-card>
           </q-dialog>
-
         </div>
-        <q-separator class="q-my-sm"  />
+        <q-btn
+        v-if="!editmode"
+        color="primary"
+        icon="edit"
+        @click="editmode = !editmode"
+        round
+        class="right"
+        />
+        <q-btn
+          v-if="editmode"
+          color="primary"
+          icon="save"
+          @click="saveChanges()"
+          round
+          class="right"
+        />
+        <q-separator class="q-my-sm" />
         <div v-for="(role, key) in roles" :key="key">
           {{ role.title }}:
-          <div v-if="exam[key].length === 0">
-            No {{ key }} assigned
-          </div>
-          <div class="text-bold" v-else v-for="person in exam[key]" :key="person.id">
+          <div v-if="exam[key].length === 0">No {{ key }} assigned</div>
+          <div
+            class="text-bold"
+            v-else
+            v-for="person in exam[key]"
+            :key="person.id"
+          >
             {{ person.firstName }} {{ person.lastName }}
-            <q-btn @click="removeFromExam(exam.id, person.id, role.title)" icon="remove" round color="negative" size="xs" />
+            <q-btn
+              @click="removeFromExam(exam.id, person.id, role.title)"
+              icon="remove"
+              round
+              color="negative"
+              size="xs"
+            />
           </div>
         </div>
         <q-separator class="q-mt-sm" />
 
-        <div v-if="exam.files && exam.files.length === 0">
+        <div>
           <q-file
             class="q-mt-md"
             flat
-            label="Select schedule file"
+            multiple
+            label="Select schedule files"
             color="primary"
-            v-model="selectedFile"
+            v-model="selectedFiles"
             @change="onFileChange"
             :clearable="true"
           />
           <q-btn
-            v-if="selectedFile"
-            class="q-mt-md"
+            v-if="selectedFiles.length"
+            class="q-mt-md float-right"
             color="primary"
-            label="Upload File"
-            @click="uploadFile"
+            label="Upload Files"
+            @click="uploadFiles"
           />
         </div>
-        <div v-else>
-          <q-btn
-            class="q-mt-md"
-            color="primary"
-            :label="exam.files[0].name"
-            @click="exam.files && exam.files.length > 0 ? downloadFile(exam.files[0].id ?? 0, exam.files[0].name) : null"
-            :loading="exam.files[0].id !== undefined ? loadingFiles[exam.files[0].id] : false"
-          />
+        <p class="text-h6 q-mt-sm">Files:</p>
+        <div v-if="exam.files && exam.files.length > 0">
+          <div v-for="file in exam.files" :key="file.id" class="q-mt-sm">
+            <q-btn
+              color="secondary"
+              :label="file.name"
+              @click="downloadFile(file.id ?? 0, file.name)"
+              :loading="file.id !== undefined ? loadingFiles[file.id] : false"
+              unelevated
+              outline
+            >
+              <template v-slot:loading>
+                <q-spinner size="20px" />
+              </template>
+            </q-btn>
+            <q-btn
+              color="negative"
+              icon="delete"
+              @click="deleteFile(file.id || 0, file.name)"
+              class="q-ma-sm"
+            />
+          </div>
         </div>
+        <q-separator class="q-my-sm" />
+        <q-btn
+          color="blue"
+          label="Prepare exam"
+          @click="prepareExam()"
+          class="q-ma-sm"
+          rounded
+        />
+        <q-btn
+          color="primary"
+          label="Complete exam"
+          @click="complete()"
+          class="q-ma-sm"
+          rounded
+        />
+        <q-btn
+          color="negative"
+          label="Delete Exam"
+          @click="deleteExam()"
+          class="q-ma-sm"
+          rounded
+        />
       </q-card-section>
     </q-card>
 
@@ -86,21 +202,62 @@
       </q-toggle>
       <div v-for="(role, key) in roles" :key="key">
         <q-card bordered class="q-ma-md">
-          <div class="text-h5 text-bold q-ml-md q-mt-md text-center">{{ role.title }}</div>
+          <div class="text-h5 text-bold q-ml-md q-mt-md text-center">
+            {{ role.title }}
+          </div>
           <q-card-section>
             <div class="responsive-columns">
-              <div v-for="answer in answers" :key="answer" class="responsive-column">
-                <q-card bordered class="q-ma-xs" :style="getAnswerStyle(answer)">
-                  <div class="text-h5 q-ma-sm text-center">{{ roleTitles[answer] }}</div>
+              <div
+                v-for="answer in answers"
+                :key="answer"
+                class="responsive-column"
+              >
+                <q-card
+                  bordered
+                  class="q-ma-xs"
+                  :style="getAnswerStyle(answer)"
+                >
+                  <div class="text-h5 q-ma-sm text-center">
+                    {{ roleTitles[answer] }}
+                  </div>
                   <q-separator class="q-mx-sm" />
                   <q-card-section>
-                    <div v-for="response in filteredResponses(answer, [...role.filterRoles])" :key="response.id">
-                      <div v-if="!response.assigned" class="name-wrapper border">
-                        <div class="text-h6 text-weight-bold" >
-                          <span class="clickable-name q-pr-xs" @click="goToUserProfile(response.userId)">
-                          {{ response.userName }}
-                        </span>
-                        <q-btn v-if="!response.assigned && (isOverrideActive || response.response !== 'No')" @click="addToExam(exam.id, response.userId, isOverrideActive, response.dayOfExamsId, role.title)" icon="add" round color="primary" size="xs" />
+                    <div
+                      v-for="response in filteredResponses(answer, [
+                        ...role.filterRoles,
+                      ])"
+                      :key="response.id"
+                    >
+                      <div
+                        v-if="!response.assigned"
+                        class="name-wrapper border"
+                      >
+                        <div class="text-h6 text-weight-bold">
+                          <span
+                            class="clickable-name q-pr-xs"
+                            @click="goToUserProfile(response.userId)"
+                          >
+                            {{ response.userName }}
+                          </span>
+                          <q-btn
+                            v-if="
+                              !response.assigned &&
+                              (isOverrideActive || response.response !== 'No')
+                            "
+                            @click="
+                              addToExam(
+                                exam.id,
+                                response.userId,
+                                isOverrideActive,
+                                response.dayOfExamsId,
+                                role.title
+                              )
+                            "
+                            icon="add"
+                            round
+                            color="primary"
+                            size="xs"
+                          />
                         </div>
                         {{ response.userNote }}
                       </div>
@@ -117,15 +274,18 @@
 </template>
 
 <script setup lang="ts">
-import { dayResponse, Exam } from 'src/stores/db/types';
-import { ref, reactive } from 'vue';
-import { formatTime } from 'src/helpers/FormatTime';
+import { dayResponse, Exam, Location, Venue, ExamTypeEnum, LevelEnum } from 'src/stores/db/types';
+import { ref, reactive} from 'vue';
+import { formatTimeString } from 'src/helpers/FormatTime';
 import { useExamStore } from 'src/stores/examStore';
 import { useExamDayStore } from 'src/stores/examDayStore';
 import { useRouter } from 'vue-router';
+import { useAdminStore } from 'src/stores/adminStore';
+import { Dialog } from 'quasar';
 
 const examStore = useExamStore();
 const examDayStore = useExamDayStore();
+const adminStore = useAdminStore();
 const router = useRouter();
 
 const props = defineProps<{
@@ -133,21 +293,61 @@ const props = defineProps<{
   responses: dayResponse[];
 }>();
 
-const selectedFile = ref<File | null>(null);
+let editableExam = ref<Exam | null>(props.exam ? { ...props.exam } : null);
+
+const examTypes = Object.values(ExamTypeEnum);
+const levelOptions = Object.values(LevelEnum);
+const examLocations = ref(['']);
+const examVenues = ref(['']);
+
+examLocations.value = adminStore.locationsWithVenues.map((location: Location) => location.name);
+const updateExamVenues = () => {
+  if(editableExam.value){
+    editableExam.value.venue = '';
+
+    const selectedLoc: Location | undefined = editableExam.value ? adminStore.locationsWithVenues.find(
+        (location: Location) => editableExam.value && location.name === editableExam.value.location
+      ) : undefined;
+
+    if (selectedLoc){
+      examVenues.value = selectedLoc.venues.map((venue: Venue) => venue.name);
+    }
+  }
+  else return;
+};
+
+const initializeEditableExam = () => {
+  if (props.exam) {
+    const formattedExam = {
+      ...props.exam,
+      startTime: formatTimeString(props.exam.startTime),
+      endTime: formatTimeString(props.exam.endTime)
+    };
+    editableExam.value = formattedExam;
+  }
+};
+
+initializeEditableExam();
+
+const selectedFiles = ref<File[]>([]);
 const loadingFiles = reactive<{ [key: number]: boolean }>({});
 const showNoteDialog = ref(false);
+const editmode = ref(false);
 
 const roles = {
   supervisors: { title: 'Supervisor', filterRoles: ['Supervisor', 'Office'] },
-  invigilators: { title: 'Invigilator', filterRoles: ['Supervisor', 'Invigilator', 'Office'] },
-  examiners: { title: 'Examiner', filterRoles: ['Examiner'] }
+  invigilators: {
+    title: 'Invigilator',
+    filterRoles: ['Supervisor', 'Invigilator', 'Office'],
+  },
+  examiners: { title: 'Examiner', filterRoles: ['Examiner'] },
 } as const;
 
 const roleTitles = {
   Yes: 'Confirmed',
   AM: 'Morning',
   PM: 'Afternoon',
-  No: 'Declined'
+  No: 'Declined',
 } as const;
 
 type RoleTitleKey = keyof typeof roleTitles;
@@ -169,33 +369,49 @@ const truncatedNote = (note: string | undefined) => {
   return note;
 };
 
-const addToExam = async (examId: number, userId: number, override: boolean, dayId: number, position: string) => {
+const addToExam = async (
+  examId: number,
+  userId: number,
+  override: boolean,
+  dayId: number,
+  position: string
+) => {
   await examStore.addWorker(examId, userId, override, position);
   await examDayStore.loadResponsesForExamDay(dayId);
   await examStore.getExam(examId);
 };
 
-const removeFromExam = async (examId: number, userId: number, position: string) => {
+const removeFromExam = async (
+  examId: number,
+  userId: number,
+  position: string
+) => {
   await examStore.removeWorker(examId, userId, position);
   await examStore.getExam(examId);
   const dayId = props.responses[0].dayOfExamsId;
   await examDayStore.loadResponsesForExamDay(dayId);
 };
 
-const onFileChange = (file: File | null) => {
-  if (file) {
-    selectedFile.value = file;
+const onFileChange = (files: File[]) => {
+  if (files && files.length > 0) {
+    selectedFiles.value = files;
   }
 };
 
-const uploadFile = async () => {
-  if (selectedFile.value) {
-    await examStore.uploadExamSchedule(selectedFile.value, props.exam.id);
-    selectedFile.value = null;
+const uploadFiles = async () => {
+  if (selectedFiles.value.length > 0) {
+    for (const file of selectedFiles.value) {
+      await examStore.uploadExamSchedule(file, props.exam.id);
+    }
+    selectedFiles.value = [];
   }
 };
 
 const downloadFile = async (fileId: number, fileName: string) => {
+  if (fileId === undefined) {
+    console.error('Invalid fileId: cannot be undefined');
+    return;
+  }
   loadingFiles[fileId] = true;
   try {
     await examStore.downloadExamSchedule(fileId, fileName);
@@ -207,12 +423,18 @@ const downloadFile = async (fileId: number, fileName: string) => {
 const answers: RoleTitleKey[] = ['Yes', 'AM', 'PM', 'No'];
 
 const filteredResponses = (answer: RoleTitleKey, filterRoles: string[]) => {
-  return props.responses.filter(response => {
+  return props.responses.filter((response) => {
     if (filterRoles.includes('Examiner')) {
-      const isValidLevel = response.userLevel.some(level => props.exam.levels.includes(level));
+      const isValidLevel = response.userLevel.some((level) =>
+        props.exam.levels.includes(level)
+      );
       if (!isValidLevel) return false;
     }
-    return response.response === answer && (filterRoles.length === 0 || filterRoles.some(role => response.userRole.includes(role)));
+    return (
+      response.response === answer &&
+      (filterRoles.length === 0 ||
+        filterRoles.some((role) => response.userRole.includes(role)))
+    );
   });
 };
 
@@ -236,6 +458,99 @@ const getAnswerStyle = (answer: RoleTitleKey) => {
 const goToUserProfile = (userId: number) => {
   router.push(`/user/${userId}`);
 };
+
+const saveChanges = async () => {
+  if (editableExam.value) {
+    await examStore.updateExam(editableExam.value);
+    await examStore.getExam(editableExam.value.id);
+    initializeEditableExam(); // Reinitialize editableExam with formatted times
+    editmode.value = false;
+  }
+};
+
+const prepareExam = async () => {
+    Dialog.create({
+      title: 'Prepare Exam',
+      message: 'You want to inform all workers about this exam?',
+      ok: {
+        label: 'Yes',
+        color: 'positive',
+      },
+      cancel: {
+        label: 'No',
+        color: 'negative',
+      },
+    }).onOk(async () => {
+      if (editableExam.value) {
+      await examStore.prepareExam(editableExam.value.id);
+      await examStore.getExam(editableExam.value.id);
+    }
+    });
+};
+
+const complete = async () => {
+    Dialog.create({
+      title: 'Complete Exam',
+      message: 'You want to complete this exam? This will complete the whole process.',
+      ok: {
+        label: 'Yes',
+        color: 'positive',
+      },
+      cancel: {
+        label: 'No',
+        color: 'negative',
+      },
+    }).onOk(async () => {
+      if (editableExam.value) {
+      await examStore.completeExam(editableExam.value.id);
+      await examStore.getExam(editableExam.value.id);
+    }
+    });
+};
+
+
+const deleteExam = async () => {
+  Dialog.create({
+    title: 'Delete Exam',
+    message: 'You want to delete this exam?',
+    ok: {
+      label: 'Yes',
+      color: 'negative',
+      push: true,
+    },
+    cancel: {
+      label: 'No',
+      color: 'primary',
+      push: true,
+    },
+  }).onOk(async () => {
+    if (editableExam.value) {
+      await examStore.deleteExam(editableExam.value.id);
+      router.push('/exams');
+    }
+  });
+};
+
+const deleteFile = async (fileId: number, fileName: string) => {
+  Dialog.create({
+    title: 'Delete File',
+    message: `You want to delete ${fileName} file?`,
+    ok: {
+      label: 'Yes',
+      color: 'negative',
+    },
+    cancel: {
+      label: 'No',
+      color: 'primary',
+    },
+  }).onOk(async () => {
+    if (fileId) {
+      await examStore.deleteExamFile(fileId);
+      await examStore.getExam(props.exam.id);
+    }
+  });
+};
+
 </script>
 
 <style scoped>

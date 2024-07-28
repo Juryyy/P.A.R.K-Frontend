@@ -5,6 +5,13 @@ export const formatTime = (datetime: Date) => {
   return `${hours}:${minutes}`;
 };
 
+export const formatTimeString = (datetime: string) => {
+  const date = new Date(datetime);
+  const hours = date.getUTCHours().toString().padStart(2, '0');
+  const minutes = date.getUTCMinutes().toString().padStart(2, '0');
+  return `${hours}:${minutes}`;
+}
+
 export const formatDate = (datetime: Date) => {
   const date = new Date(datetime);
   const day = date.getUTCDate().toString().padStart(2, '0');

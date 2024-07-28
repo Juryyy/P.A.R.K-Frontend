@@ -156,9 +156,9 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
-    async updatePassword(oldPassword: string, newPassword: string) {
+    async updatePassword(password: string, newPassword: string) {
       try {
-        await api.post('/auth/updatePassword', { oldPassword, newPassword });
+        await api.post('/auth/password-update', { password, newPassword });
         Notify.create({
           color: 'positive',
           message: 'Password updated',

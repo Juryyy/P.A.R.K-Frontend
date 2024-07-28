@@ -1,7 +1,9 @@
 <template>
-  <div class="login-page">
-    <LoginForm />
-  </div>
+  <q-layout class="login-page">
+    <q-page-container>
+      <LoginForm />
+    </q-page-container>
+</q-layout>
 </template>
 
 <script setup lang="ts">

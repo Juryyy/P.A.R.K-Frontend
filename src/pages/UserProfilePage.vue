@@ -6,13 +6,16 @@
       active-color="secondary"
       indicator-color="secondary"
     >
-      <q-tab name="User" label="User" />
-      <q-tab v-if="currentUser?.id?.toString() === userId" name="Password" label="Password Reset" />
+      <q-tab name="User" label="Profile" />
+      <q-tab v-if="currentUser?.id?.toString() === userId" name="Password" label="Password Update" />
       <!--<q-tab name="Exams" label="Exams" />-->
     </q-tabs>
     <q-tab-panels v-model="tab">
       <q-tab-panel name="User" v-if="state.loaded">
         <UserInfo v-if="state.loaded && user" :user="user" :user-avatar="userAvatar" />
+      </q-tab-panel>
+      <q-tab-panel name="Password" v-if="state.loaded && currentUser?.id?.toString() === userId">
+        <PasswordReset v-if="state.loaded && user" :user="user" />
       </q-tab-panel>
       <!--<q-tab-panel name="Exams" v-if="state.loaded">
         <UserExams v-if="state.loaded && user" :user="user" />
@@ -29,6 +32,7 @@ import { useUserStore } from 'src/stores/userStore';
 import { Loading, Dialog } from 'quasar';
 import UserInfo from 'src/components/Users/UserInfo.vue';
 import { User } from 'src/stores/db/types';
+import PasswordReset from 'src/components/Users/PasswordReset.vue';
 
 const tab = ref('User');
 const userStore = useUserStore();

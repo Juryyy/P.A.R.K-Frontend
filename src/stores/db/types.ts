@@ -51,6 +51,7 @@ export interface DayOfExams {
   date: Date;
   isForInvigilators: boolean;
   isForExaminers: boolean;
+  isLocked: boolean;
 }
 
 export interface Exam {
@@ -59,8 +60,8 @@ export interface Exam {
   location: string;
   type: string;
   levels: string[];
-  startTime: Date;
-  endTime: Date;
+  startTime: string;
+  endTime: string;
   note: string;
   dayOfExamsId: number;
   pdfUrl?: string | null;
@@ -72,6 +73,8 @@ export interface Exam {
   examiners: User[];
   candidates: string[];
   files: File[];
+  isPrepared: boolean;
+  isCompleted: boolean;
 }
 
 export interface ExamWithVenueLink extends Exam {
@@ -141,11 +144,9 @@ export enum LevelEnum {
   C2 = 'C2',
 }
 
-export enum examTypeEnum {
+export enum ExamTypeEnum {
   Computer = 'Computer',
-  ComputerSpeaking = 'Computer Speaking',
   Paper = 'Paper',
-  PaperSpeaking = 'Paper Speaking',
   Mock = 'Mock',
   Speaking = 'Speaking',
 }
