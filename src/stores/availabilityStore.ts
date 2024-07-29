@@ -31,6 +31,7 @@ export const useAvailabilityStore = defineStore('availability', {
           message: 'Responses updated',
           position: 'bottom',
           icon: 'check',
+          textColor: 'black',
         });
       } catch (error) {
         Notify.create({

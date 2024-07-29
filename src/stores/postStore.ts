@@ -22,6 +22,7 @@ export const usePostStore = defineStore('post', {
           message: 'Post added',
           position: 'bottom',
           icon: 'check',
+          textColor: 'black',
         });
       } catch (error) {
         Notify.create({
@@ -71,6 +72,7 @@ export const usePostStore = defineStore('post', {
           message: 'File downloaded',
           position: 'bottom',
           icon: 'check',
+          textColor: 'black',
         });
       } catch (error) {
         Notify.create({

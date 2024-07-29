@@ -23,6 +23,7 @@ export const useAdminStore = defineStore('admin', {
           message: response.data.success,
           position: 'bottom',
           icon: 'check',
+          textColor: 'black',
         });
       } catch (error) {
         Notify.create({
@@ -52,6 +53,7 @@ export const useAdminStore = defineStore('admin', {
           message: response.data.success,
           position: 'bottom',
           icon: 'check',
+          textColor: 'black',
         });
       } catch (error : any) {
         console.error(error);
@@ -96,6 +98,7 @@ export const useAdminStore = defineStore('admin', {
           message: response.data.success,
           position: 'bottom',
           icon: 'check',
+          textColor: 'black',
         });
       }
       catch (error) {
@@ -120,6 +123,7 @@ export const useAdminStore = defineStore('admin', {
           message: response.data.success,
           position: 'bottom',
           icon: 'check',
+          textColor: 'black',
         });
       }
       catch (error) {
@@ -140,6 +144,7 @@ export const useAdminStore = defineStore('admin', {
           message: response.data.success,
           position: 'bottom',
           icon: 'check',
+          textColor: 'black',
         });
       }
       catch (error) {
@@ -148,6 +153,7 @@ export const useAdminStore = defineStore('admin', {
           message: 'Error during deleting location',
           position: 'bottom',
           icon: 'report_problem',
+          textColor: 'black',
         });
       }
     },
@@ -160,6 +166,7 @@ export const useAdminStore = defineStore('admin', {
           message: response.data.success,
           position: 'bottom',
           icon: 'check',
+          textColor: 'black',
         });
       }
       catch (error) {
@@ -168,6 +175,7 @@ export const useAdminStore = defineStore('admin', {
           message: 'Error during deleting venue',
           position: 'bottom',
           icon: 'report_problem',
+          textColor: 'black',
         });
       }
     },
@@ -183,6 +191,7 @@ export const useAdminStore = defineStore('admin', {
           message: response.data.success,
           position: 'bottom',
           icon: 'check',
+          textColor: 'black',
         });
       } catch (error) {
         Notify.create({
@@ -205,6 +214,7 @@ export const useAdminStore = defineStore('admin', {
           message: response.data.success,
           position: 'bottom',
           icon: 'check',
+          textColor: 'black',
         });
       } catch (error) {
         Notify.create({

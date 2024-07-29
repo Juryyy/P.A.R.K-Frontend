@@ -33,6 +33,7 @@ export const useAuthStore = defineStore('auth', {
           message: 'Verification successful',
           position: 'bottom',
           icon: 'check',
+          textColor: 'black',
         });
       } catch (error) {
         Notify.create({
@@ -56,6 +57,7 @@ export const useAuthStore = defineStore('auth', {
           message: '2FA code sent to your email',
           position: 'bottom',
           icon: 'check',
+          textColor: 'black',
         });
       } catch (error) {
         Notify.create({
@@ -95,6 +97,7 @@ export const useAuthStore = defineStore('auth', {
             message: 'Successfully logged out',
             position: 'bottom',
             icon: 'check_circle',
+            textColor: 'black',
           });
         } else {
           throw new Error('Logout failed');
@@ -122,6 +125,7 @@ export const useAuthStore = defineStore('auth', {
           message: 'User registered',
           position: 'bottom',
           icon: 'check',
+          textColor: 'black',
         });
       } catch (error : any) {
         let errorMessage = 'Error during registration';
@@ -145,6 +149,7 @@ export const useAuthStore = defineStore('auth', {
           message: 'Password reset email sent',
           position: 'bottom',
           icon: 'check',
+          textColor: 'black',
         });
       } catch (error) {
         Notify.create({
@@ -164,6 +169,7 @@ export const useAuthStore = defineStore('auth', {
           message: 'Password updated',
           position: 'bottom',
           icon: 'check',
+          textColor: 'black',
         });
       } catch (error) {
           Notify.create({

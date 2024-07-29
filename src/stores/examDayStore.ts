@@ -54,6 +54,7 @@ export const useExamDayStore = defineStore('examDay', {
           message: 'Exam day added',
           position: 'bottom',
           icon: 'check',
+          textColor: 'black',
         });
       } catch (error) {
         Notify.create({
@@ -73,6 +74,7 @@ export const useExamDayStore = defineStore('examDay', {
           message: 'Exam day deleted',
           position: 'bottom',
           icon: 'check',
+          textColor: 'black',
         });
       } catch (error) {
         Notify.create({
@@ -92,6 +94,7 @@ export const useExamDayStore = defineStore('examDay', {
           message: 'Lock changed',
           position: 'bottom',
           icon: 'check',
+          textColor: 'black',
         });
       } catch (error) {
         Notify.create({

@@ -99,15 +99,15 @@
         </q-img>
 
         <q-card-section class="q-pa-md">
-         <q-card
-          :class="exam.isPrepared ? 'isPrepared' : 'isNotPrepared'"
-          bordered
-          v-for="exam in usersExamsRef"
-          :key="exam.id"
+          <q-card
+            :class="exam.isPrepared ? 'isPrepared' : 'isNotPrepared'"
+            bordered
+            v-for="exam in usersExamsRef"
+            :key="exam.id"
           >
             <q-card-section>
-              <q-item-label>Location: <b>{{ exam.location }}</b></q-item-label>
-              <q-item-label>Venue: <b>{{ exam.venue }}</b></q-item-label>
+              <q-item-label>Location: <b>{{ exam.location }} - {{ exam.venue }}</b></q-item-label>
+              <q-item-label>Type: <b>{{ exam.type }}</b></q-item-label>
               <q-item-label>Date: <b>{{ formatDateString(exam.startTime) }} </b></q-item-label>
               <q-item-label>
                 Time:
@@ -115,7 +115,6 @@
                   {{ formatTimeString(exam.startTime) + ' - ' + formatTimeString(exam.endTime) }}
                 </b>
               </q-item-label>
-              <q-item-label>Type: <b>{{ exam.type }}</b></q-item-label>
               <q-item-label>
                 Note:
                 <b v-if="shouldShowMoreLink(exam.note)" @click="showFullNoteDialog()">
@@ -139,9 +138,8 @@
                 </q-card>
               </q-dialog>
               </q-item-label>
-              <q-item-label class="absolute-top-right q-ma-sm">
+              <q-item-label class="absolute-top-right q-ma-sm button-container">
                 <q-btn
-                  class="q-mr-xs"
                   color="secondary"
                   label="View"
                   @click="() => {
@@ -273,21 +271,6 @@ function toggleRightDrawer() {
 
 const miniState = ref(true);
 
-const formatTime = (datetime: Date) => {
-  const date = new Date(datetime);
-  const hours = date.getHours().toString().padStart(2, '0');
-  const minutes = date.getMinutes().toString().padStart(2, '0');
-  return `${hours}:${minutes}`;
-};
-
-const formatDate = (datetime: Date) => {
-  const date = new Date(datetime);
-  const day = date.getDate().toString().padStart(2, '0');
-  const month = (date.getMonth() + 1).toString().padStart(2, '0');
-  const year = date.getFullYear().toString().padStart(2, '0');
-  return `${day}.${month}.${year}`;
-};
-
 const showVenue = (gLink: string) => {
   window.open(gLink, '_blank');
 };
@@ -328,5 +311,12 @@ const viewUser = async (user: any) => {
 
 .isNotPrepared {
   background-color: $primary-light;
+}
+
+.button-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem; /* Adjust the gap between buttons as needed */
 }
 </style>

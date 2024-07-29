@@ -33,6 +33,7 @@ export const useCandidateStore = defineStore('candidateImportStore', {
           message: response.data.success,
           position: 'bottom',
           icon: 'check',
+          textColor: 'black',
         });
       }catch(error){
         Notify.create({

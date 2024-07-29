@@ -120,11 +120,12 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
-import { RoleEnum, User, UserInfo } from 'src/stores/db/types';
+import { RoleEnum, User } from 'src/stores/db/types';
 import { defineProps } from 'vue';
 import { useUserStore } from 'src/stores/userStore';
 import { getRoleColor, getLevelColor } from 'src/helpers/Color';
-import { formatDateString } from '../../helpers/FormatTime';
+import { formatDateString } from 'src/helpers/FormatTime';
+import deepEqual from 'src/helpers/deepEqual'; // Assumes you have a deepEqual utility function
 
 const props = defineProps<{
   user: User | null;
@@ -135,6 +136,8 @@ const userStore = useUserStore();
 
 const editableUser = ref<User | null>(props.user ? { ...props.user } : null);
 
+const initialUser = ref<User | null>(props.user ? { ...props.user } : null); // Keep a copy of the initial user data
+
 const currentUser = userStore.user;
 
 const isCurrentUser = computed(() => {
@@ -142,13 +145,14 @@ const isCurrentUser = computed(() => {
 });
 
 const hasChanges = computed(() => {
-  return JSON.stringify(editableUser.value) !== JSON.stringify(props.user);
+  return !deepEqual(editableUser.value, initialUser.value);
 });
 
 const isUpdating = ref(false);
 
 watch(() => props.user, (newUser) => {
   editableUser.value = newUser ? { ...newUser } : null;
+  initialUser.value = newUser ? { ...newUser } : null; // Update the initialUser copy when props.user changes
 });
 
 const updateProfile = async () => {
@@ -170,6 +174,7 @@ const updateProfile = async () => {
       await userStore.getProfile(editableUser.value.id);
       if (userStore.selectedUser) {
         editableUser.value = { ...userStore.selectedUser };
+        initialUser.value = { ...userStore.selectedUser }; // Reset the initialUser after successful update
       }
     }
   } finally {
@@ -190,7 +195,6 @@ const dateOfBirthFormatted = computed({
   },
 });
 </script>
-
 
 <style lang="scss" scoped>
 .card-container {

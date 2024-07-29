@@ -191,6 +191,8 @@ export const useUserStore = defineStore('user', {
         message: 'Profile updated',
         position: 'bottom',
         icon: 'check',
+        closeBtn: 'X',
+        textColor: 'black',
       });
       }
       catch (error) {

@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { api } from '../boot/axios';
 import { Notify } from 'quasar';
 import { ref } from 'vue';
-import { Exam, RoleEnum } from './db/types';
+import { Exam } from './db/types';
 
 export const useExamStore = defineStore('exam', {
   state: () => ({
@@ -43,6 +43,7 @@ export const useExamStore = defineStore('exam', {
           message: 'Exam created',
           position: 'bottom',
           icon: 'check',
+          textColor: 'black',
         });
       } catch (error) {
         Notify.create({
@@ -77,6 +78,7 @@ export const useExamStore = defineStore('exam', {
           message: 'Exam updated',
           position: 'bottom',
           icon: 'check',
+          textColor: 'black',
         });
       } catch (error) {
         Notify.create({
@@ -101,6 +103,7 @@ export const useExamStore = defineStore('exam', {
           message: 'Worker added',
           position: 'bottom',
           icon: 'check',
+          textColor: 'black',
         });
       } catch (error) {
         Notify.create({
@@ -124,6 +127,7 @@ export const useExamStore = defineStore('exam', {
           message: 'Worker removed',
           position: 'bottom',
           icon: 'check',
+          textColor: 'black',
         });
       } catch (error) {
         Notify.create({
@@ -151,6 +155,7 @@ export const useExamStore = defineStore('exam', {
           color: 'positive',
           message: 'File uploaded successfully',
           position: 'bottom',
+          textColor: 'black',
           icon: 'check',
         });
       } catch (error) {
@@ -184,11 +189,81 @@ export const useExamStore = defineStore('exam', {
           message: 'File downloaded',
           position: 'bottom',
           icon: 'check',
+          textColor: 'black',
         });
       } catch (error) {
         Notify.create({
           color: 'negative',
           message: 'Error during file download',
+          position: 'bottom',
+          icon: 'report_problem',
+        });
+      }
+    },
+
+    async updateCompleted(examId: number, completed: boolean) {
+      try {
+        await api.put('/exams/updateCompleted', {
+          examId,
+          completed
+        });
+
+        Notify.create({
+          color: 'positive',
+          message: 'Exam status updated',
+          position: 'bottom',
+          icon: 'check',
+          textColor: 'black',
+        });
+      } catch (error) {
+        Notify.create({
+          color: 'negative',
+          message: 'Error during updating exam status',
+          position: 'bottom',
+          icon: 'report_problem',
+        });
+      }
+    },
+
+    async updatePrepared(examId: number, prepared: boolean) {
+      try {
+        await api.put('/exams/updatePrepared', {
+          examId,
+          prepared
+        });
+
+        Notify.create({
+          color: 'positive',
+          message: 'Exam status updated',
+          position: 'bottom',
+          icon: 'check',
+          textColor: 'black',
+        });
+      } catch (error) {
+        Notify.create({
+          color: 'negative',
+          message: 'Error during updating exam status',
+          position: 'bottom',
+          icon: 'report_problem',
+        });
+      }
+    },
+
+    async deleteExam(examId: number) {
+      try {
+        await api.delete(`/exams/${examId}`);
+
+        Notify.create({
+          color: 'positive',
+          message: 'Exam deleted',
+          position: 'bottom',
+          icon: 'check',
+          textColor: 'black',
+        });
+      } catch (error) {
+        Notify.create({
+          color: 'negative',
+          message: 'Error during deleting exam',
           position: 'bottom',
           icon: 'report_problem',
         });

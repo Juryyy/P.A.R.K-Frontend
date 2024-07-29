@@ -1,7 +1,9 @@
 <template>
   <div class="container">
-    <q-card bordered class="q-ma-md top-card" v-if="editableExam">
+    <q-card bordered :class="cardClass + ' q-ma-md top-card'" v-if="editableExam">
       <q-card-section>
+        <b v-if="editableExam.isPrepared && !editableExam.isCompleted" class="text-green text-bold text-h5">This exam is marked as ready!</b>
+        <b v-else-if="editableExam.isCompleted" class="text-orange text-bold text-h5">This exam is completed!</b>
         <div v-if="editmode">
           <q-select
             v-model="editableExam.type"
@@ -174,7 +176,7 @@
         <q-separator class="q-my-sm" />
         <q-btn
           color="blue"
-          label="Prepare exam"
+          :label="editableExam.isPrepared ? 'Unprepare Exam' : 'Prepare Exam'"
           @click="prepareExam()"
           class="q-ma-sm"
           rounded
@@ -275,7 +277,7 @@
 
 <script setup lang="ts">
 import { dayResponse, Exam, Location, Venue, ExamTypeEnum, LevelEnum } from 'src/stores/db/types';
-import { ref, reactive} from 'vue';
+import { ref, reactive, computed} from 'vue';
 import { formatTimeString } from 'src/helpers/FormatTime';
 import { useExamStore } from 'src/stores/examStore';
 import { useExamDayStore } from 'src/stores/examDayStore';
@@ -482,8 +484,9 @@ const prepareExam = async () => {
       },
     }).onOk(async () => {
       if (editableExam.value) {
-      await examStore.prepareExam(editableExam.value.id);
+      await examStore.updatePrepared(editableExam.value.id, !editableExam.value.isPrepared);
       await examStore.getExam(editableExam.value.id);
+      initializeEditableExam();
     }
     });
 };
@@ -502,8 +505,9 @@ const complete = async () => {
       },
     }).onOk(async () => {
       if (editableExam.value) {
-      await examStore.completeExam(editableExam.value.id);
+      await examStore.updateCompleted(editableExam.value.id, true);
       await examStore.getExam(editableExam.value.id);
+      initializeEditableExam();
     }
     });
 };
@@ -526,7 +530,7 @@ const deleteExam = async () => {
   }).onOk(async () => {
     if (editableExam.value) {
       await examStore.deleteExam(editableExam.value.id);
-      router.push('/exams');
+      router.push('/admin/exams');
     }
   });
 };
@@ -545,15 +549,23 @@ const deleteFile = async (fileId: number, fileName: string) => {
     },
   }).onOk(async () => {
     if (fileId) {
-      await examStore.deleteExamFile(fileId);
+      //await examStore.deleteExamFile(fileId);
       await examStore.getExam(props.exam.id);
+      initializeEditableExam();
     }
   });
 };
 
+const cardClass = computed(() => {
+  return {
+    'positive-border top-card q-ma-md': editableExam.value?.isPrepared && !editableExam.value?.isCompleted,
+    'complete-border top-card q-ma-md': editableExam.value?.isCompleted,
+    'top-card q-ma-md': !editableExam.value?.isPrepared && !editableExam.value?.isCompleted
+  };
+});
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .container {
   display: flex;
   flex-direction: column;
@@ -613,5 +625,13 @@ const deleteFile = async (fileId: number, fileName: string) => {
 
 .clickable-name {
   cursor: pointer;
+}
+
+.positive-border {
+  border: 3px solid #CBE09D;
+}
+
+.complete-border {
+  border: 3px solid #FFD700;
 }
 </style>
