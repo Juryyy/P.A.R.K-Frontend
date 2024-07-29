@@ -3,7 +3,6 @@ import { api } from '../boot/axios';
 import { Notify } from 'quasar';
 import { ref } from 'vue';
 import { Exam, RoleEnum } from './db/types';
-import { update } from 'lodash';
 
 export const useExamStore = defineStore('exam', {
   state: () => ({

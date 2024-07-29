@@ -236,11 +236,11 @@ const essentialLinks: EssentialLinkProps[] = [
 ];
 
 const adminEssentialLinks: EssentialLinkProps[] = [
-  {
-    title: 'Import Candidates',
-    link: 'import-candidates',
-    icon: 'cloud_upload',
-  },
+  //{
+  //  title: 'Import Candidates',
+  //  link: 'import-candidates',
+  //  icon: 'cloud_upload',
+  //},
   {
     title: 'Create Availability',
     link: 'create-availability',
