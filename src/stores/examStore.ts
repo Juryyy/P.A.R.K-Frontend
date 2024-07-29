@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { api } from '../boot/axios';
 import { Notify } from 'quasar';
 import { ref } from 'vue';
-import { Exam } from './db/types';
+import { Exam } from '../db/types';
 
 export const useExamStore = defineStore('exam', {
   state: () => ({
@@ -195,6 +195,32 @@ export const useExamStore = defineStore('exam', {
         Notify.create({
           color: 'negative',
           message: 'Error during file download',
+          position: 'bottom',
+          icon: 'report_problem',
+        });
+      }
+    },
+
+    async uploadExamDayReport(id: number, candidates: number, comment: string, issues: string){
+      try {
+        await api.post('/exams/uploadExamDayReport', {
+          id,
+          candidates,
+          comment,
+          issues
+        });
+
+        Notify.create({
+          color: 'positive',
+          message: 'Report uploaded',
+          position: 'bottom',
+          icon: 'check',
+          textColor: 'black',
+        });
+      } catch (error) {
+        Notify.create({
+          color: 'negative',
+          message: 'Error during uploading report',
           position: 'bottom',
           icon: 'report_problem',
         });

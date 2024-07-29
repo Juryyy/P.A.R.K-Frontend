@@ -1,0 +1,302 @@
+<template>
+  <div class="container">
+    <q-card bordered :class="cardClass + ' q-ma-md top-card'" v-if="editableExam">
+      <q-card-section>
+        <b v-if="editableExam.isPrepared && !editableExam.isCompleted" class="text-green text-bold text-h5">This exam is marked as ready!</b>
+        <b v-else-if="editableExam.isCompleted" class="text-orange text-bold text-h5">This exam is completed!</b>
+
+        <div>
+          <div class="text-h5">{{ exam.type }}</div>
+          <div class="text-h5">{{ exam.location }} - {{ exam.venue }}</div>
+          <div class="text-bold">
+            Levels:
+            <q-chip
+              v-for="level in exam.levels"
+              :key="level"
+              :color="getLevelColor(level)"
+              class="q-ma-xs"
+            >
+              {{ level }}
+            </q-chip>
+          </div>
+          <div class="text-bold">
+            Start time: {{ formatTimeString(exam.startTime) }}
+          </div>
+          <div class="text-bold">
+            End time: {{ formatTimeString(exam.endTime) }}
+          </div>
+          <div class="text-bold">
+            Note:
+            <b
+              v-if="shouldShowMoreLink(exam.note)"
+              @click="showFullNoteDialog()"
+            >
+              {{ truncatedNote(exam.note) }}
+              <span class="more-link">...more</span>
+            </b>
+            <b v-else>
+              <b>{{ exam.note }}</b>
+            </b>
+          </div>
+          <q-dialog v-model="showNoteDialog">
+            <q-card class="note-dialog-card">
+              <q-card-section>
+                <div class="text-h6">Full Note</div>
+                <div class="note-content">{{ exam?.note }}</div>
+              </q-card-section>
+              <q-card-actions align="right">
+                <q-btn
+                  color="primary"
+                  label="Close"
+                  @click="showNoteDialog = false"
+                />
+              </q-card-actions>
+            </q-card>
+          </q-dialog>
+        </div>
+
+        <q-separator class="q-my-sm" />
+        <div v-for="(role, key) in roles" :key="key">
+          {{ role.title }}:
+          <div v-if="exam[key].length === 0">No {{ key }} assigned</div>
+          <div
+            class="text-bold"
+            v-else
+            v-for="person in exam[key]"
+            :key="person.id"
+          >
+            {{ person.firstName }} {{ person.lastName }}
+          </div>
+        </div>
+        <q-separator class="q-mt-sm" />
+
+        <p class="text-h6 q-mt-sm">Files:</p>
+        <div v-if="exam.files && exam.files.length > 0">
+          <div v-for="file in exam.files" :key="file.id" class="q-mt-sm">
+            <q-btn
+              color="secondary"
+              :label="file.name"
+              @click="downloadFile(file.id ?? 0, file.name)"
+              :loading="file.id !== undefined ? loadingFiles[file.id] : false"
+              unelevated
+              outline
+            >
+              <template v-slot:loading>
+                <q-spinner size="20px" />
+              </template>
+            </q-btn>
+          </div>
+        </div>
+      </q-card-section>
+    </q-card>
+
+    <q-card bordered class="q-ma-md form-card" v-if="editableExam && !editableExam.dayReportId">
+      <q-card-section>
+        <b class="text-h5">Exam day report:</b>
+        <q-form class="q-my-md" ref="examForm">
+          <q-input
+            v-model="editableExam.type"
+            label="Type"
+            outlined
+            dense
+            readonly
+            :input-style="{ fontWeight: 'bold' }"
+            class="q-mb-md"/>
+          <q-input
+            v-model="location"
+            label="Location"
+            outlined
+            dense
+            readonly
+            :input-style="{ fontWeight: 'bold' }"
+            class="q-mb-md"/>
+          <q-input
+            v-model="candidates"
+            label="Number of candidates"
+            outlined
+            dense
+            type="number"
+            :rules="[val => !!val || 'Number of candidates is required']"
+            :input-style="{ fontWeight: 'bold' }"
+            class="q-mb-md"/>
+            <q-input
+            v-model="issues"
+            label="Issues"
+            outlined
+            dense
+            type="textarea"
+            :rules="[val => !!val || 'Issues are required']"
+            class="q-mb-md"/>
+            <q-input
+            v-model="comment"
+            label="Comment"
+            outlined
+            dense
+            type="textarea"
+            :rules="[val => !!val || 'Comment is required']"
+            class="q-mb-md"/>
+          <q-btn
+            color="primary"
+            icon="save"
+            @click="saveExamDayReport"
+            class="q-mb-md float-right"
+          />
+        </q-form>
+      </q-card-section>
+    </q-card>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, reactive, computed} from 'vue';
+import { useExamStore } from 'src/stores/examStore';
+import { Dialog, QForm } from 'quasar';
+import { Exam } from 'src/db/types';
+import { formatTimeString } from 'src/helpers/FormatTime';
+import { getLevelColor } from 'src/helpers/Color'; // Importing the color helper
+
+const examStore = useExamStore();
+
+const props = defineProps<{
+  exam: Exam;
+}>();
+
+let editableExam = ref<Exam | null>(props.exam ? { ...props.exam } : null);
+
+const candidates = ref<number>();
+const comment = ref<string>();
+const issues = ref<string>();
+
+console.log(editableExam.value);
+
+const location = computed(() => {
+  return editableExam.value?.location + ' - ' + editableExam.value?.venue;
+});
+
+const initializeEditableExam = () => {
+  if (props.exam) {
+    const formattedExam = {
+      ...props.exam,
+      startTime: formatTimeString(props.exam.startTime),
+      endTime: formatTimeString(props.exam.endTime)
+    };
+    editableExam.value = formattedExam;
+  }
+};
+
+initializeEditableExam();
+
+const loadingFiles = reactive<{ [key: number]: boolean }>({});
+const showNoteDialog = ref(false);
+
+const roles = {
+  supervisors: { title: 'Supervisor' },
+  invigilators: {
+    title: 'Invigilator'
+  },
+  examiners: { title: 'Examiner' }
+} as const;
+
+const shouldShowMoreLink = (note: string | undefined) => {
+  const maxLength = 19;
+  return note && note.length > maxLength;
+};
+
+const showFullNoteDialog = () => {
+  showNoteDialog.value = true;
+};
+
+const truncatedNote = (note: string | undefined) => {
+  const maxLength = 19;
+  if (note && note.length > maxLength) {
+    return `${note.substring(0, maxLength)}`;
+  }
+  return note;
+};
+
+const examForm = ref<QForm | null>(null);
+
+const saveExamDayReport = async () => {
+  if (!editableExam.value) {
+    return;
+  }
+
+  if (examForm.value) {
+    const isFormValid = await examForm.value.validate();
+    if (!isFormValid) {
+      return;
+    }
+  }
+
+  if (!candidates.value || !comment.value || !issues.value) {
+    return;
+  }
+
+  await examStore.uploadExamDayReport(editableExam.value.id, candidates.value, comment.value, issues.value);
+};
+
+const downloadFile = async (fileId: number, fileName: string) => {
+  if (fileId === undefined) {
+    console.error('Invalid fileId: cannot be undefined');
+    return;
+  }
+  loadingFiles[fileId] = true;
+  try {
+    await examStore.downloadExamSchedule(fileId, fileName);
+  } finally {
+    loadingFiles[fileId] = false;
+  }
+};
+
+const cardClass = computed(() => {
+  if (editableExam.value?.isPrepared && !editableExam.value?.isCompleted) {
+    return 'positive-border top-card q-ma-md';
+  } else if (editableExam.value?.isCompleted) {
+    return 'complete-border top-card q-ma-md';
+  } else {
+    return 'top-card q-ma-md';
+  }
+});
+</script>
+
+
+<style scoped lang="scss">
+.container {
+  display: flex;
+  flex-direction: column;
+}
+
+.top-card {
+  flex: 1;
+  margin-bottom: 1rem;
+}
+
+.form-card {
+  flex: 1;
+}
+
+@media (min-width: 600px) {
+  .container {
+    flex-direction: row;
+  }
+
+  .top-card {
+    max-width: 50%;
+    margin-right: 1rem;
+    margin-bottom: 0;
+  }
+
+  .form-card {
+    max-width: 50%;
+  }
+}
+
+.positive-border {
+  border: 3px solid #CBE09D;
+}
+
+.complete-border {
+  border: 3px solid #FFD700;
+}
+</style>
+

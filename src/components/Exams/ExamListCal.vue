@@ -188,7 +188,7 @@ import { useExamDayStore } from 'src/stores/examDayStore';
 import { useExamStore } from 'src/stores/examStore';
 import { useAdminStore } from 'src/stores/adminStore';
 import { Loading, Notify } from 'quasar';
-import { DayOfExams, Exam, LevelEnum, ExamTypeEnum, Location, Venue } from 'src/stores/db/types';
+import { DayOfExams, Exam, LevelEnum, ExamTypeEnum, Location, Venue } from 'src/db/types';
 import { router } from 'src/router/index';
 import { formatTimeString } from 'src/helpers/FormatTime';
 import { nextTick } from 'vue';

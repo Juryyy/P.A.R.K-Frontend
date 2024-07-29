@@ -206,7 +206,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, watch, nextTick } from 'vue';
-import { User, RoleEnum, LevelEnum, ExtendedUser } from 'src/stores/db/types';
+import { User, RoleEnum, LevelEnum, ExtendedUser } from 'src/db/types';
 import { useUserStore } from 'src/stores/userStore';
 import { useAdminStore } from 'src/stores/adminStore';
 import { router } from 'src/router';
@@ -391,4 +391,3 @@ function submitForm() {
   });
 }
 </script>
-

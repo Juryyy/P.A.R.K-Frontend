@@ -79,7 +79,7 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue';
 import { useExamDayStore } from '../../stores/examDayStore';
-import { DayOfExams } from '../../stores/db/types';
+import { DayOfExams } from 'src/db/types';
 import { Loading, Dialog } from 'quasar';
 
 const examDayStore = useExamDayStore();

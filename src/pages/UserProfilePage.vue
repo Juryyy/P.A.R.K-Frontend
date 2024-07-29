@@ -31,7 +31,7 @@ import { ref, onBeforeMount, onUnmounted, reactive, onMounted } from 'vue';
 import { useUserStore } from 'src/stores/userStore';
 import { Loading, Dialog } from 'quasar';
 import UserInfo from 'src/components/Users/UserInfo.vue';
-import { User } from 'src/stores/db/types';
+import { User } from 'src/db/types';
 import PasswordReset from 'src/components/Users/PasswordReset.vue';
 
 const tab = ref('User');
@@ -84,3 +84,4 @@ onUnmounted(() => {
   userStore.clearSelectedUserInfo();
 });
 </script>
+src/db/types

@@ -59,7 +59,7 @@ export interface Exam {
   venue: string;
   location: string;
   type: string;
-  levels: string[];
+  levels: LevelEnum[];
   startTime: string;
   endTime: string;
   note: string;
@@ -75,6 +75,7 @@ export interface Exam {
   files: File[];
   isPrepared: boolean;
   isCompleted: boolean;
+  dayReportId?: number | null;
 }
 
 export interface ExamWithVenueLink extends Exam {

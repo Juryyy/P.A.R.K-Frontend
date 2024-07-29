@@ -143,7 +143,7 @@
                   color="secondary"
                   label="View"
                   @click="() => {
-                    router.push(`/exams/${exam.id}`);
+                    router.push(`/exam/${exam.id}`);
                   }"
                 />
                 <q-btn color="secondary" icon="map" @click="showVenue(exam.venueLink)" />
@@ -166,7 +166,7 @@ import EssentialLink, { EssentialLinkProps } from 'components/Auth_nav/Essential
 import { useUserStore } from 'src/stores/userStore';
 import { useAuthStore } from 'src/stores/authStore';
 import { router } from 'src/router/index';
-import { ExamWithVenueLink, RoleEnum } from 'src/stores/db/types';
+import { ExamWithVenueLink, RoleEnum } from 'src/db/types';
 import { Loading } from 'quasar';
 import { getRoleColor } from 'src/helpers/Color';
 import { sortRoles } from 'src/helpers/FormatRole';

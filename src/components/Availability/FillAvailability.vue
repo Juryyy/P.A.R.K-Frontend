@@ -49,7 +49,7 @@
 
 <script setup lang="ts">
 import { useAvailabilityStore } from '../../stores/availabilityStore'
-import { UserAnswers, UserResponses } from '../../stores/db/types';
+import { UserAnswers, UserResponses } from 'src/db/types';
 
 const { userResponses }: { userResponses: UserResponses[] } =
   useAvailabilityStore();

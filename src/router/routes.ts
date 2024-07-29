@@ -44,6 +44,17 @@ const routes: RouteRecordRaw[] = [
         },
       },
       {
+        path: 'exam/:id',
+        component: () => import('pages/ViewExamPage.vue'),
+        name: 'ViewExam',
+        props: true,
+        beforeEnter: examCheck,
+        meta: {
+          title: 'Exam',
+        },
+      },
+      // Admin routes
+      {
         path: '/admin',
         children: [
       {
@@ -66,7 +77,7 @@ const routes: RouteRecordRaw[] = [
       },
       {
         path: 'exams/:id',
-        component: () => import('pages/ExamPage.vue'),
+        component: () => import('pages/admin/ExamPage.vue'),
         name: 'Exam',
         beforeEnter: checkOffice,
         props: true,

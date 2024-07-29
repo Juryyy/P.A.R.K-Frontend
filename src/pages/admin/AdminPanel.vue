@@ -8,14 +8,10 @@
     indicator-color="primary"
   >
     <q-tab name="locations" label="Locations" />
-    <q-tab name="users" label="Users" />
   </q-tabs>
   <q-tab-panels v-model="tab">
     <q-tab-panel name="locations" v-if=loaded class="cards-container">
       <LocationsVenues/>
-    </q-tab-panel>
-    <q-tab-panel name="users" v-if=loaded>
-      <UserList/>
     </q-tab-panel>
   </q-tab-panels>
 

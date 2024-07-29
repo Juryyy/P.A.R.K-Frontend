@@ -1,4 +1,4 @@
-import { RoleEnum, LevelEnum } from '../stores/db/types';
+import { RoleEnum, LevelEnum } from '../db/types';
 
 export const formatRole = (role: RoleEnum): string => {
   switch (role) {

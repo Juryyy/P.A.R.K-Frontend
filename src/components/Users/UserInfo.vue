@@ -120,7 +120,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
-import { RoleEnum, User } from 'src/stores/db/types';
+import { RoleEnum, User } from 'src/db/types';
 import { defineProps } from 'vue';
 import { useUserStore } from 'src/stores/userStore';
 import { getRoleColor, getLevelColor } from 'src/helpers/Color';

@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { api } from '../boot/axios';
 import { Notify } from 'quasar';
 import { ref } from 'vue';
-import { Post, RoleEnum } from 'src/stores/db/types';
+import { Post, RoleEnum } from 'src/db/types';
 
 export const usePostStore = defineStore('post', {
   state: () => ({

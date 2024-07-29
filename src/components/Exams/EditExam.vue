@@ -57,7 +57,17 @@
         <div v-else>
           <div class="text-h5">{{ exam.type }}</div>
           <div class="text-h5">{{ exam.location }} - {{ exam.venue }}</div>
-          <div class="text-bold">Levels: {{ exam.levels.join(', ') }}</div>
+          <div class="text-bold"> Levels:
+            <q-chip
+            v-for="level in exam.levels"
+            :key="level"
+            :color="getLevelColor(level)"
+            size="12px"
+
+          >
+            {{ level }}
+          </q-chip>
+          </div>
           <div class="text-bold">
             Start time: {{ formatTimeString(exam.startTime) }}
           </div>
@@ -99,7 +109,7 @@
         icon="edit"
         @click="editmode = !editmode"
         round
-        class="right"
+        class="right q-mt-xs"
         />
         <q-btn
           v-if="editmode"
@@ -107,7 +117,7 @@
           icon="save"
           @click="saveChanges()"
           round
-          class="right"
+          class="right q-mt-xs"
         />
         <q-separator class="q-my-sm" />
         <div v-for="(role, key) in roles" :key="key">
@@ -276,14 +286,15 @@
 </template>
 
 <script setup lang="ts">
-import { dayResponse, Exam, Location, Venue, ExamTypeEnum, LevelEnum } from 'src/stores/db/types';
-import { ref, reactive, computed} from 'vue';
+import { dayResponse, Exam, Location, Venue, ExamTypeEnum, LevelEnum } from 'src/db/types';
+import { ref, reactive, computed, watch } from 'vue';
 import { formatTimeString } from 'src/helpers/FormatTime';
 import { useExamStore } from 'src/stores/examStore';
 import { useExamDayStore } from 'src/stores/examDayStore';
 import { useRouter } from 'vue-router';
 import { useAdminStore } from 'src/stores/adminStore';
 import { Dialog } from 'quasar';
+import { getLevelColor } from 'src/helpers/Color';
 
 const examStore = useExamStore();
 const examDayStore = useExamDayStore();
@@ -295,27 +306,29 @@ const props = defineProps<{
   responses: dayResponse[];
 }>();
 
-let editableExam = ref<Exam | null>(props.exam ? { ...props.exam } : null);
+const editableExam = ref<Exam | null>(props.exam ? { ...props.exam } : null);
 
 const examTypes = Object.values(ExamTypeEnum);
 const levelOptions = Object.values(LevelEnum);
-const examLocations = ref(['']);
-const examVenues = ref(['']);
+const examLocations = ref<string[]>([]);
+const examVenues = ref<string[]>([]);
 
-examLocations.value = adminStore.locationsWithVenues.map((location: Location) => location.name);
+const initializeLocations = () => {
+  examLocations.value = adminStore.locationsWithVenues.map((location: Location) => location.name);
+};
+
 const updateExamVenues = () => {
-  if(editableExam.value){
-    editableExam.value.venue = '';
+  if (editableExam.value) {
+    const selectedLoc = adminStore.locationsWithVenues.find(
+      (location: Location) => location.name === editableExam.value?.location
+    );
 
-    const selectedLoc: Location | undefined = editableExam.value ? adminStore.locationsWithVenues.find(
-        (location: Location) => editableExam.value && location.name === editableExam.value.location
-      ) : undefined;
-
-    if (selectedLoc){
+    if (selectedLoc) {
       examVenues.value = selectedLoc.venues.map((venue: Venue) => venue.name);
+    } else {
+      examVenues.value = [];
     }
   }
-  else return;
 };
 
 const initializeEditableExam = () => {
@@ -323,13 +336,17 @@ const initializeEditableExam = () => {
     const formattedExam = {
       ...props.exam,
       startTime: formatTimeString(props.exam.startTime),
-      endTime: formatTimeString(props.exam.endTime)
+      endTime: formatTimeString(props.exam.endTime),
     };
     editableExam.value = formattedExam;
+    updateExamVenues();
   }
 };
 
+initializeLocations();
 initializeEditableExam();
+
+watch(() => editableExam.value?.location, updateExamVenues);
 
 const selectedFiles = ref<File[]>([]);
 const loadingFiles = reactive<{ [key: number]: boolean }>({});
@@ -471,47 +488,46 @@ const saveChanges = async () => {
 };
 
 const prepareExam = async () => {
-    Dialog.create({
-      title: 'Prepare Exam',
-      message: 'You want to inform all workers about this exam?',
-      ok: {
-        label: 'Yes',
-        color: 'positive',
-      },
-      cancel: {
-        label: 'No',
-        color: 'negative',
-      },
-    }).onOk(async () => {
-      if (editableExam.value) {
+  Dialog.create({
+    title: 'Prepare Exam',
+    message: 'You want to inform all workers about this exam?',
+    ok: {
+      label: 'Yes',
+      color: 'positive',
+    },
+    cancel: {
+      label: 'No',
+      color: 'negative',
+    },
+  }).onOk(async () => {
+    if (editableExam.value) {
       await examStore.updatePrepared(editableExam.value.id, !editableExam.value.isPrepared);
       await examStore.getExam(editableExam.value.id);
       initializeEditableExam();
     }
-    });
+  });
 };
 
 const complete = async () => {
-    Dialog.create({
-      title: 'Complete Exam',
-      message: 'You want to complete this exam? This will complete the whole process.',
-      ok: {
-        label: 'Yes',
-        color: 'positive',
-      },
-      cancel: {
-        label: 'No',
-        color: 'negative',
-      },
-    }).onOk(async () => {
-      if (editableExam.value) {
+  Dialog.create({
+    title: 'Complete Exam',
+    message: 'You want to complete this exam? This will complete the whole process.',
+    ok: {
+      label: 'Yes',
+      color: 'positive',
+    },
+    cancel: {
+      label: 'No',
+      color: 'negative',
+    },
+  }).onOk(async () => {
+    if (editableExam.value) {
       await examStore.updateCompleted(editableExam.value.id, true);
       await examStore.getExam(editableExam.value.id);
       initializeEditableExam();
     }
-    });
+  });
 };
-
 
 const deleteExam = async () => {
   Dialog.create({
@@ -557,13 +573,16 @@ const deleteFile = async (fileId: number, fileName: string) => {
 };
 
 const cardClass = computed(() => {
-  return {
-    'positive-border top-card q-ma-md': editableExam.value?.isPrepared && !editableExam.value?.isCompleted,
-    'complete-border top-card q-ma-md': editableExam.value?.isCompleted,
-    'top-card q-ma-md': !editableExam.value?.isPrepared && !editableExam.value?.isCompleted
-  };
+  if (editableExam.value?.isPrepared && !editableExam.value?.isCompleted) {
+    return 'positive-border top-card q-ma-md';
+  } else if (editableExam.value?.isCompleted) {
+    return 'complete-border top-card q-ma-md';
+  } else {
+    return 'top-card q-ma-md';
+  }
 });
 </script>
+
 
 <style scoped lang="scss">
 .container {

@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { api } from '../boot/axios';
-import { UserInfo, User } from './db/types';
+import { UserInfo, User } from '../db/types';
 import { ref } from 'vue';
 import { Notify } from 'quasar';
 

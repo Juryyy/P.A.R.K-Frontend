@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { api } from '../boot/axios';
 import { Notify } from 'quasar';
 import { ref } from 'vue';
-import { UserAnswers } from './db/types';
+import { UserAnswers } from '../db/types';
 
 export const useAvailabilityStore = defineStore('availability', {
   state: () => ({

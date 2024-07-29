@@ -63,7 +63,7 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue';
 import { useAdminStore } from 'src/stores/adminStore';
-import { Location } from 'src/stores/db/types';
+import { Location } from 'src/db/types';
 import { Loading, Notify, Dialog } from 'quasar';
 
 const adminStore = useAdminStore();

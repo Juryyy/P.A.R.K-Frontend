@@ -129,7 +129,7 @@
 import { ref, reactive, onBeforeMount, computed } from 'vue';
 import { usePostStore } from 'src/stores/postStore';
 import { useUserStore } from 'src/stores/userStore';
-import { Post, RoleEnum, User } from 'src/stores/db/types';
+import { Post, RoleEnum, User } from 'src/db/types';
 import { Loading } from 'quasar';
 
 const postStore = usePostStore();
