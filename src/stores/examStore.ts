@@ -201,11 +201,12 @@ export const useExamStore = defineStore('exam', {
       }
     },
 
-    async uploadExamDayReport(id: number, candidates: number, comment: string, issues: string){
+    async uploadExamDayReport(examId: number, candidates: number, absent: number, comment: string, issues: string){
       try {
-        await api.post('/exams/uploadExamDayReport', {
-          id,
+        await api.post('/exams/createDayReport', {
+          examId,
           candidates,
+          absent,
           comment,
           issues
         });

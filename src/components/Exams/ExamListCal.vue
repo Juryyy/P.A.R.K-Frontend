@@ -169,7 +169,7 @@
               <q-btn
                 color="red"
                 label="Close"
-                @click="state.showAddExam = false"
+                @click="resetInputExam()"
               />
               <q-btn color="primary" label="Add" @click="addExam" />
             </q-card-actions>
@@ -231,6 +231,17 @@ const updateExamVenues = () => {
   if (selectedLoc) {
     examVenues.value = selectedLoc.venues.map((venue: Venue) => venue.name);
   }
+};
+
+const resetInputExam = () => {
+  inputExam.location = '';
+  inputExam.venue = '';
+  inputExam.type = '';
+  inputExam.levels = [];
+  inputExam.startTime = '';
+  inputExam.endTime = '';
+  inputExam.note = '';
+  state.showAddExam = false;
 };
 
 const state = reactive({

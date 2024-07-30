@@ -150,7 +150,6 @@
             color="primary"
             v-model="selectedFiles"
             @change="onFileChange"
-            :clearable="true"
           />
           <q-btn
             v-if="selectedFiles.length"
@@ -158,6 +157,15 @@
             color="primary"
             label="Upload Files"
             @click="uploadFiles"
+          />
+        </div>
+        <div v-if="selectedFiles.length > 0" class="q-mt-md">
+          <q-chip
+            v-for="(file, index) in selectedFiles"
+            :key="index"
+            :label="file.name"
+            removable
+            @remove="removeFile(index)"
           />
         </div>
         <p class="text-h6 q-mt-sm">Files:</p>
@@ -417,6 +425,10 @@ const onFileChange = (files: File[]) => {
   }
 };
 
+const removeFile = (index: number) => {
+  selectedFiles.value.splice(index, 1);
+};
+
 const uploadFiles = async () => {
   if (selectedFiles.value.length > 0) {
     for (const file of selectedFiles.value) {
@@ -522,7 +534,7 @@ const complete = async () => {
     },
   }).onOk(async () => {
     if (editableExam.value) {
-      await examStore.updateCompleted(editableExam.value.id, true);
+      await examStore.updateCompleted(editableExam.value.id, !editableExam.value.isCompleted);
       await examStore.getExam(editableExam.value.id);
       initializeEditableExam();
     }
@@ -582,7 +594,6 @@ const cardClass = computed(() => {
   }
 });
 </script>
-
 
 <style scoped lang="scss">
 .container {

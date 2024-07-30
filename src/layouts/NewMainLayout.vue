@@ -142,11 +142,12 @@
                 <q-btn
                   color="secondary"
                   label="View"
+                  round
                   @click="() => {
                     router.push(`/exam/${exam.id}`);
                   }"
                 />
-                <q-btn color="secondary" icon="map" @click="showVenue(exam.venueLink)" />
+                <q-btn color="secondary" round icon="map" @click="showVenue(exam.venueLink)" />
               </q-item-label>
             </q-card-section>
           </q-card>

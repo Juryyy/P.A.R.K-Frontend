@@ -111,6 +111,14 @@
             :input-style="{ fontWeight: 'bold' }"
             class="q-mb-md"/>
           <q-input
+            v-model="levels"
+            label="Levels"
+            outlined
+            dense
+            readonly
+            :input-style="{ fontWeight: 'bold' }"
+            class="q-mb-md"/>
+          <q-input
             v-model="candidates"
             label="Number of candidates"
             outlined
@@ -118,15 +126,24 @@
             type="number"
             :rules="[val => !!val || 'Number of candidates is required']"
             :input-style="{ fontWeight: 'bold' }"
-            class="q-mb-md"/>
+            />
             <q-input
+            v-model="absent"
+            label="Number of absent candidates"
+            outlined
+            dense
+            type="number"
+            :rules="[val => !!val || 'Number of absent candidates is required']"
+            :input-style="{ fontWeight: 'bold' }"
+            />
+          <q-input
             v-model="issues"
             label="Issues"
             outlined
             dense
             type="textarea"
             :rules="[val => !!val || 'Issues are required']"
-            class="q-mb-md"/>
+            />
             <q-input
             v-model="comment"
             label="Comment"
@@ -134,7 +151,7 @@
             dense
             type="textarea"
             :rules="[val => !!val || 'Comment is required']"
-            class="q-mb-md"/>
+            />
           <q-btn
             color="primary"
             icon="save"
@@ -166,8 +183,11 @@ let editableExam = ref<Exam | null>(props.exam ? { ...props.exam } : null);
 const candidates = ref<number>();
 const comment = ref<string>();
 const issues = ref<string>();
+const absent = ref<number>();
 
-console.log(editableExam.value);
+const levels = computed(() => {
+  return editableExam.value?.levels.join(', ');
+});
 
 const location = computed(() => {
   return editableExam.value?.location + ' - ' + editableExam.value?.venue;
@@ -228,11 +248,11 @@ const saveExamDayReport = async () => {
     }
   }
 
-  if (!candidates.value || !comment.value || !issues.value) {
+  if (!candidates.value || !comment.value || !issues.value || !absent.value) {
     return;
   }
 
-  await examStore.uploadExamDayReport(editableExam.value.id, candidates.value, comment.value, issues.value);
+  await examStore.uploadExamDayReport(editableExam.value.id, candidates.value, absent.value, comment.value, issues.value);
 };
 
 const downloadFile = async (fileId: number, fileName: string) => {
