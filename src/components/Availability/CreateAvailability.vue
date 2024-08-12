@@ -23,7 +23,10 @@
       <q-toggle v-model="state.examiners" label="Examiners" />
     </div>
     <div class="table-container q-mb-md">
-      <q-btn color="primary" label="Add Date" @click="addDate()" />
+      <q-btn color="primary" label="Add Date" @click="addDate()"/>
+    </div>
+    <div class="table-container q-mb-md">
+      <q-btn color="primary" label="Inform Users" @click="openInformDialog()" />
     </div>
 
     <div class="table-container">
@@ -73,6 +76,43 @@
         </template>
       </q-table>
     </div>
+    <q-dialog v-model="state.showInformDialog" persistent>
+      <q-card>
+        <q-card-section>
+          <div class="text-h6">Inform Users</div>
+          <q-form @submit="submitInformUsers">
+            <q-input
+              v-model="informUsersForm.startDate"
+              label="Start Date"
+              type="date"
+              :rules="[val => !!val || 'Start Date is required']"
+              mask="YYYY-MM-DD"
+              filled
+            />
+            <q-input
+              v-model="informUsersForm.endDate"
+              label="End Date"
+              type="date"
+              :rules="[val => !!val || 'End Date is required']"
+              mask="YYYY-MM-DD"
+              filled
+            />
+            <q-input
+              v-model="informUsersForm.dateOfSubmission"
+              label="Date of Submission"
+              type="date"
+              :rules="[val => !!val || 'Date of Submission is required']"
+              mask="YYYY-MM-DD"
+              filled
+            />
+            <q-card-actions align="right">
+              <q-btn label="Cancel" color="negative" @click="state.showInformDialog = false" />
+              <q-btn label="Send" color="primary" type="submit" :loading="state.loadingSend" :disable="state.loadingSend" />
+            </q-card-actions>
+          </q-form>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
@@ -80,21 +120,27 @@
 import { reactive, ref } from 'vue';
 import { useExamDayStore } from '../../stores/examDayStore';
 import { DayOfExams } from 'src/db/types';
-import { Loading, Dialog } from 'quasar';
+import { Loading, Dialog, Notify } from 'quasar';
 
 const examDayStore = useExamDayStore();
-
 const examDays: DayOfExams[] = examDayStore.upcomingExamDays;
-const currentDate = new Date();
 
 const examDaysRef = ref(examDays);
 
+const currentDate = new Date();
+
 const state = reactive({
-  date: `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1)
-    .toString()
-    .padStart(2, '0')}-${currentDate.getDate().toString().padStart(2, '0')}`,
+  date: `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}-${currentDate.getDate().toString().padStart(2, '0')}`,
   invigilators: true,
   examiners: true,
+  showInformDialog: false, // State for showing the dialog
+  loadingSend: false, // State for loading
+});
+
+const informUsersForm = reactive({
+  startDate: '',
+  endDate: '',
+  dateOfSubmission: '',
 });
 
 const addDate = async () => {
@@ -109,6 +155,37 @@ const columns: any = [
   { name: 'type', label: 'Type', align: 'left', field: 'Type' },
   { name: 'actions', label: 'Actions', align: 'left', field: 'id' },
 ];
+
+const openInformDialog = () => {
+  state.showInformDialog = true;
+};
+
+const submitInformUsers = async () => {
+  if (!informUsersForm.startDate || !informUsersForm.endDate || !informUsersForm.dateOfSubmission) {
+    Notify.create({
+      message: 'All fields are required!',
+      color: 'negative',
+    });
+    return;
+  }
+
+  state.loadingSend = true; // Start loading
+  try {
+    await examDayStore.informUsers(informUsersForm.startDate, informUsersForm.endDate, informUsersForm.dateOfSubmission);
+    Notify.create({
+      message: 'Users informed successfully!',
+      color: 'positive',
+    });
+  } catch (error) {
+    Notify.create({
+      message: 'Failed to inform users!',
+      color: 'negative',
+    });
+  } finally {
+    state.loadingSend = false; // Stop loading
+    state.showInformDialog = false;
+  }
+};
 
 const formatDate = (date: Date) => {
   return new Date(date)

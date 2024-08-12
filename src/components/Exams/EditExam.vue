@@ -5,6 +5,14 @@
         <b v-if="editableExam.isPrepared && !editableExam.isCompleted" class="text-green text-bold text-h5">This exam is marked as ready!</b>
         <b v-else-if="editableExam.isCompleted" class="text-orange text-bold text-h5">This exam is completed!</b>
         <div v-if="editmode">
+          <q-btn
+            color="grey"
+            icon="arrow_back"
+            @click="editmode = !editmode"
+            round
+            class="right q-mt-xs"
+            size="xs"
+            />
           <q-select
             v-model="editableExam.type"
             label="Type"
@@ -177,7 +185,6 @@
               @click="downloadFile(file.id ?? 0, file.name)"
               :loading="file.id !== undefined ? loadingFiles[file.id] : false"
               unelevated
-              outline
             >
               <template v-slot:loading>
                 <q-spinner size="20px" />
@@ -191,6 +198,27 @@
             />
           </div>
         </div>
+        <q-separator class="q-my-sm" v-if="editableExam.dayReport" />
+        <p v-if="editableExam.dayReport" class="text-h6 q-mt-sm">Exam Day Report:</p>
+        <div v-if="editableExam.dayReport">
+          <q-btn
+            color="secondary"
+            :label="editableExam.dayReport.name"
+            @click="downloadExamDayReport(editableExam.dayReport.id, editableExam.dayReport.name)"
+            :loading="loadingFiles[editableExam.dayReport.id] ?? false"
+            unelevated
+          >
+            <template v-slot:loading>
+              <q-spinner size="20px" />
+            </template>
+          </q-btn>
+          <q-btn
+            color="negative"
+            icon="delete"
+            @click="deleteFile(editableExam.dayReport.id, editableExam.dayReport.name)"
+            class="q-ma-sm"
+          />
+        </div>
         <q-separator class="q-my-sm" />
         <q-btn
           color="blue"
@@ -201,7 +229,7 @@
         />
         <q-btn
           color="primary"
-          label="Complete exam"
+          :label="editableExam.isCompleted ? 'Uncomplete Exam' : 'Complete exam'"
           @click="complete()"
           class="q-ma-sm"
           rounded
@@ -435,8 +463,25 @@ const uploadFiles = async () => {
       await examStore.uploadExamSchedule(file, props.exam.id);
     }
     selectedFiles.value = [];
+
+    await examStore.getExam(props.exam.id);
+    initializeEditableExam();
   }
 };
+
+const downloadExamDayReport = async (fileId: number, fileName: string) => {
+  if (fileId === undefined) {
+    console.error('Invalid fileId: cannot be undefined');
+    return;
+  }
+  loadingFiles[fileId] = true;
+  try {
+    await examStore.downloadExamDayReport(fileId, fileName);
+  } finally {
+    loadingFiles[fileId] = false;
+  }
+};
+
 
 const downloadFile = async (fileId: number, fileName: string) => {
   if (fileId === undefined) {
@@ -445,7 +490,7 @@ const downloadFile = async (fileId: number, fileName: string) => {
   }
   loadingFiles[fileId] = true;
   try {
-    await examStore.downloadExamSchedule(fileId, fileName);
+    await examStore.downloadExamFile(fileId, fileName);
   } finally {
     loadingFiles[fileId] = false;
   }
@@ -523,7 +568,7 @@ const prepareExam = async () => {
 const complete = async () => {
   Dialog.create({
     title: 'Complete Exam',
-    message: 'You want to complete this exam? This will complete the whole process.',
+    message: 'You want to change completion of this exam?',
     ok: {
       label: 'Yes',
       color: 'positive',
@@ -593,8 +638,8 @@ const cardClass = computed(() => {
     return 'top-card q-ma-md';
   }
 });
-</script>
 
+</script>
 <style scoped lang="scss">
 .container {
   display: flex;

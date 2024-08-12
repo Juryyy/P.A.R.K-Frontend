@@ -76,6 +76,7 @@ export interface Exam {
   isPrepared: boolean;
   isCompleted: boolean;
   dayReportId?: number | null;
+  dayReport?: DayReport | null;
 }
 
 export interface ExamWithVenueLink extends Exam {
@@ -194,3 +195,11 @@ interface Author{
   lastName: string;
 }
 
+
+export interface DayReport{
+  id: number;
+  name: string;
+  examId: number;
+  createdAt: Date;
+  authorId: number;
+}

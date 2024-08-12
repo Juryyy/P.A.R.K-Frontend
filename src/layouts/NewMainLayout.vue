@@ -10,7 +10,8 @@
           icon="menu"
           @click="toggleLeftDrawer"
         />
-        <q-toolbar-title> P.A.R.K Admin </q-toolbar-title>
+        <q-toolbar-title v-if="!isMobile"> P.A.R.K. App </q-toolbar-title>
+        <q-toolbar-title v-else></q-toolbar-title>
         <div v-if="!rightDrawerOpen" class="q-gutter-md row items-center">
           <q-avatar size="46px" class="q-pr-xl clickable-avatar" @click="viewUser(user)">
             <img :src="userAvatar" alt="User Avatar" />
@@ -40,6 +41,9 @@
         @mouseout="miniState = true"
         mini-to-overlay
       >
+        <div class="mobile-header bg-primary q-px-md q-py-sm" v-if="isMobile">
+          <q-toolbar-title class="text-center">P.A.R.K. App</q-toolbar-title>
+        </div>
         <div class="drawer-content">
           <q-list>
             <essential-link
@@ -280,6 +284,15 @@ const viewUser = async (user: any) => {
   await nextTick();
   router.push(`/user/${user.id}`);
 };
+
+const isMobile = ref(false);
+
+const updateIsMobile = () => {
+  isMobile.value = window.innerWidth <= 600;
+};
+
+window.addEventListener('resize', updateIsMobile);
+updateIsMobile();
 </script>
 
 <style lang="scss" scoped>
@@ -319,5 +332,16 @@ const viewUser = async (user: any) => {
   flex-direction: column;
   align-items: flex-end;
   gap: 0.5rem; /* Adjust the gap between buttons as needed */
+}
+
+.mobile-header {
+  color: #000000;
+  display: none;
+}
+
+@media (max-width: 600px) {
+  .mobile-header {
+    display: flex;
+  }
 }
 </style>

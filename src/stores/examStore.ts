@@ -168,9 +168,9 @@ export const useExamStore = defineStore('exam', {
       }
     },
 
-    async downloadExamSchedule(examId: number, fileName: string) {
+    async downloadExamFile(fileId: number, fileName: string) {
       try {
-        const response = await api.get(`/onedrive/files/exam/download/${examId}`, {
+        const response = await api.get(`/onedrive/files/exam/download/${fileId}`, {
           responseType: 'blob',
         });
 
@@ -201,6 +201,27 @@ export const useExamStore = defineStore('exam', {
       }
     },
 
+    async deleteExamFile(fileId: number) {
+      try {
+        await api.delete(`/onedrive/files/exam/delete/${fileId}`);
+
+        Notify.create({
+          color: 'positive',
+          message: 'File deleted',
+          position: 'bottom',
+          icon: 'check',
+          textColor: 'black',
+        });
+      } catch (error) {
+        Notify.create({
+          color: 'negative',
+          message: 'Error during file deletion',
+          position: 'bottom',
+          icon: 'report_problem',
+        });
+      }
+    },
+
     async uploadExamDayReport(examId: number, candidates: number, absent: number, comment: string, issues: string){
       try {
         await api.post('/exams/createDayReport', {
@@ -222,6 +243,39 @@ export const useExamStore = defineStore('exam', {
         Notify.create({
           color: 'negative',
           message: 'Error during uploading report',
+          position: 'bottom',
+          icon: 'report_problem',
+        });
+      }
+    },
+
+    async downloadExamDayReport(dayReportId: number, fileName: string) {
+      try {
+        const response = await api.get(`/onedrive/files/exam/downloadReport/${dayReportId}`, {
+          responseType: 'blob',
+        });
+
+        const blob = new Blob([response.data], { type: 'application/octet-stream' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+
+        Notify.create({
+          color: 'positive',
+          message: 'File downloaded',
+          position: 'bottom',
+          icon: 'check',
+          textColor: 'black',
+        });
+      } catch (error) {
+        Notify.create({
+          color: 'negative',
+          message: 'Error during file download',
           position: 'bottom',
           icon: 'report_problem',
         });

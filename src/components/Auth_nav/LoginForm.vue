@@ -171,6 +171,7 @@ const validate = async (event: Event) => {
     if (localStorage.getItem('id')) {
       userStore.getUserInfo();
       await userStore.getUsersAvatar();
+      await userStore.getUsersExams();
       router.push('/');
     }
   } finally {

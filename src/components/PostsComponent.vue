@@ -26,7 +26,9 @@
         </q-item>
         <q-item>
           <q-item-section>
-            <q-item-label class="q-mb-md content-label">{{ post.content }}</q-item-label>
+            <q-item-label class="q-mb-md content-label">
+              <div v-html="post.content" class="q-item-label" caption />
+            </q-item-label>
             <q-separator v-if="post.files && post.files.length" />
             <div v-if="post.files && post.files.length" class="align-left">
               <div class="q-mt-xs">
@@ -44,6 +46,16 @@
             </div>
           </q-item-section>
         </q-item>
+        <div class="align-right">
+          <q-btn
+            v-if="(user?.role?.includes('Office') || user?.role?.includes('Developer')) && post.id"
+            color="negative"
+            icon="delete"
+            @click="deletePost(post.id)"
+            class="q-mt-md"
+            size="md"
+          />
+        </div>
       </q-card-section>
     </q-card>
 
@@ -130,7 +142,7 @@ import { ref, reactive, onBeforeMount, computed } from 'vue';
 import { usePostStore } from 'src/stores/postStore';
 import { useUserStore } from 'src/stores/userStore';
 import { Post, RoleEnum, User } from 'src/db/types';
-import { Loading } from 'quasar';
+import { Loading, Notify } from 'quasar';
 
 const postStore = usePostStore();
 const userStore = useUserStore();
@@ -196,8 +208,29 @@ const save = async () => {
     await postStore.getPosts();
     postsRef.value = postStore.posts;
   } catch (error) {
-    console.error(error);
+    Notify.create({
+      message: 'Failed to upload post',
+      color: 'negative',
+    });
   } finally {
+    Loading.hide();
+  }
+};
+
+const deletePost = async (postId: number) => {
+  Loading.show({
+    message: 'Deleting post...',
+    spinnerColor: 'red',
+    messageColor: 'red',
+    backgroundColor: 'black',
+  });
+
+  try {
+    await postStore.deletePost(postId);
+    await postStore.getPosts();
+    postsRef.value = postStore.posts;
+  }
+    finally {
     Loading.hide();
   }
 };
@@ -270,6 +303,10 @@ const datesMatch = (date1: Date | undefined, date2: Date | undefined) => {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+}
+
+.align-right {
+  text-align: right;
 }
 
 .post-card {

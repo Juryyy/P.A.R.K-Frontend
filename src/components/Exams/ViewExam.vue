@@ -79,7 +79,6 @@
               @click="downloadFile(file.id ?? 0, file.name)"
               :loading="file.id !== undefined ? loadingFiles[file.id] : false"
               unelevated
-              outline
             >
               <template v-slot:loading>
                 <q-spinner size="20px" />
@@ -87,10 +86,32 @@
             </q-btn>
           </div>
         </div>
+
+        <q-separator class="q-my-sm" />
+        <p v-if="editableExam.dayReport" class="text-h6 q-mt-sm">Exam Day Report:</p>
+        <div v-if="editableExam.dayReport">
+          <q-btn
+            color="secondary"
+            :label="editableExam.dayReport.name"
+            @click="downloadExamDayReport()"
+            :loading="loadingFiles[editableExam.dayReport.id] ?? false"
+            unelevated
+          >
+            <template v-slot:loading>
+              <q-spinner size="20px" />
+            </template>
+          </q-btn>
+          <q-btn hidden
+            color="negative"
+            icon="delete"
+            :click="/* deleteFile(editableExam.dayReport.id, editableExam.dayReport.name) */ null"
+            class="q-ma-sm"
+          />
+        </div>
       </q-card-section>
     </q-card>
 
-    <q-card bordered class="q-ma-md form-card" v-if="editableExam && !editableExam.dayReportId">
+    <q-card bordered class="q-ma-md form-card" v-if="editableExam && editableExam.dayReportId === null">
       <q-card-section>
         <b class="text-h5">Exam day report:</b>
         <q-form class="q-my-md" ref="examForm">
@@ -262,9 +283,29 @@ const downloadFile = async (fileId: number, fileName: string) => {
   }
   loadingFiles[fileId] = true;
   try {
-    await examStore.downloadExamSchedule(fileId, fileName);
+    await examStore.downloadExamFile(fileId, fileName);
   } finally {
     loadingFiles[fileId] = false;
+  }
+};
+
+const downloadExamDayReport = async () => {
+  console.log(editableExam.value);
+  if (!editableExam.value) {
+    console.error('Invalid editableExam: cannot be null or undefined');
+    return;
+  }
+
+  if (editableExam.value.dayReport?.id === null || editableExam.value.dayReport?.id === undefined) {
+    console.error('Invalid dayReportId: cannot be null or undefined');
+    return;
+  }
+
+  loadingFiles[editableExam.value.dayReport.id] = true;
+  try {
+    await examStore.downloadExamDayReport(editableExam.value.dayReport.id, editableExam.value.dayReport?.name ?? '');
+  } finally {
+    loadingFiles[editableExam.value.dayReport.id] = false;
   }
 };
 

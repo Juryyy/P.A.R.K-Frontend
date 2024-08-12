@@ -18,14 +18,13 @@
       <div class="cards-container q-mt-md q-flex q-flex-wrap q-justify-around">
         <q-card
           bordered
-          class="q-ma-md"
+          :class="cardClass(exam)"
           v-for="exam in filteredExams"
           :key="exam.id"
         >
           <q-card-section>
-            <div class="text-h5">{{ exam.location }}</div>
-            <div class="text-h6">Venue: {{ exam.venue }} </div>
-            <div>Type: {{ exam.type }}</div>
+            <div class="text-h5">{{ exam.type }}</div>
+            <div class="text-h6">Location: {{ exam.location + ' - ' + exam.venue }}</div>
             <div>Levels: {{ exam.levels.join(', ') }}</div>
             <div>Start time: {{ formatTimeString(exam.startTime) }}</div>
             <div>End time: {{ formatTimeString(exam.endTime) }}</div>
@@ -69,7 +68,7 @@
                 v-for="invigilator in exam.invigilators"
                 :key="invigilator.id"
               >
-                {{ invigilator.firstName }} {{ invigilator.lastName }}
+                <b>{{ invigilator.firstName }} {{ invigilator.lastName }}</b>
               </div>
             </div>
 
@@ -79,7 +78,7 @@
                 No examiners assigned
               </div>
               <div v-else v-for="examiner in exam.examiners" :key="examiner.id">
-                {{ examiner.firstName }} {{ examiner.lastName }}
+                <b>{{ examiner.firstName }} {{ examiner.lastName }}</b>
               </div>
             </div>
           </q-card-section>
@@ -388,6 +387,17 @@ const showFullNoteDialog = () => {
   showNoteDialog.value = true;
 };
 
+const cardClass = (exam: Exam) => {
+  console.log(exam);
+  if (exam.isPrepared && !exam.isCompleted) {
+    return 'positive-border top-card q-ma-md';
+  } else if (exam.isCompleted) {
+    return 'complete-border top-card q-ma-md';
+  } else {
+    return 'top-card q-ma-md';
+  }
+};
+
 </script>
 
 <style lang="scss" scoped>
@@ -424,4 +434,13 @@ const showFullNoteDialog = () => {
     align-items: center;
   }
 }
+
+.positive-border {
+  border: 3px solid #CBE09D;
+}
+
+.complete-border {
+  border: 3px solid #FFD700;
+}
 </style>
+

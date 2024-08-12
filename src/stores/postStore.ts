@@ -83,5 +83,47 @@ export const usePostStore = defineStore('post', {
         });
       }
     },
+
+    async deleteFile(fileId: number) {
+      try {
+        await api.delete(`/onedrive/files/post/delete/${fileId}`);
+
+        Notify.create({
+          color: 'positive',
+          message: 'File deleted',
+          position: 'bottom',
+          icon: 'check',
+          textColor: 'black',
+        });
+      } catch (error) {
+        Notify.create({
+          color: 'negative',
+          message: 'Error during file deletion',
+          position: 'bottom',
+          icon: 'report_problem',
+        });
+      }
+    },
+
+    async deletePost(postId: number) {
+      try {
+        await api.delete(`/posts/delete/${postId}`);
+
+        Notify.create({
+          color: 'positive',
+          message: 'Post deleted',
+          position: 'bottom',
+          icon: 'check',
+          textColor: 'black',
+        });
+      } catch (error) {
+        Notify.create({
+          color: 'negative',
+          message: 'Error during post deletion',
+          position: 'bottom',
+          icon: 'report_problem',
+        });
+      }
+    }
   },
 });

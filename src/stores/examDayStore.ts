@@ -104,6 +104,30 @@ export const useExamDayStore = defineStore('examDay', {
           icon: 'report_problem',
         });
       }
+    },
+
+    async informUsers(startDate : string, endDate : string, dateOfSubmits : string) {
+      try {
+        await api.post('/examDays/informUsers', {
+          startDate: startDate,
+          endDate: endDate,
+          dateOfSubmits: dateOfSubmits,
+        });
+        Notify.create({
+          color: 'positive',
+          message: 'Users informed',
+          position: 'bottom',
+          icon: 'check',
+          textColor: 'black',
+        });
+      } catch (error) {
+        Notify.create({
+          color: 'negative',
+          message: 'Error during informing users',
+          position: 'bottom',
+          icon: 'report_problem',
+        });
+      }
     }
   },
 });
