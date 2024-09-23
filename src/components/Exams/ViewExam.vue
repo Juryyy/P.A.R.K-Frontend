@@ -111,52 +111,82 @@
       </q-card-section>
     </q-card>
 
-    <q-card bordered class="q-ma-md form-card" v-if="editableExam && editableExam.dayReportId === null">
+    <q-card bordered class="q-ma-md form-card" v-if="editableExam && editableExam.dayReport === null">
       <q-card-section>
         <b class="text-h5">Exam day report:</b>
         <q-form class="q-my-md" ref="examForm">
           <q-input
-            v-model="editableExam.type"
-            label="Type"
-            outlined
-            dense
-            readonly
-            :input-style="{ fontWeight: 'bold' }"
-            class="q-mb-md"/>
+          v-model="editableExam.type"
+          label="Type"
+          outlined
+          dense
+          readonly
+          :input-style="{ fontWeight: 'bold' }"
+          class="q-mb-md"/>
+        <q-input
+          v-model="location"
+          label="Location"
+          outlined
+          dense
+          readonly
+          :input-style="{ fontWeight: 'bold' }"
+          class="q-mb-md"/>
+        <q-input
+          v-model="levels"
+          label="Levels"
+          outlined
+          dense
+          readonly
+          :input-style="{ fontWeight: 'bold' }"
+          class="q-mb-md"/>
+        <q-input
+          v-model="candidates"
+          label="Number of candidates"
+          outlined
+          dense
+          type="number"
+          :rules="[val => !!val || 'Number of candidates is required']"
+          :input-style="{ fontWeight: 'bold' }"
+          />
+
           <q-input
-            v-model="location"
-            label="Location"
-            outlined
-            dense
-            readonly
-            :input-style="{ fontWeight: 'bold' }"
-            class="q-mb-md"/>
-          <q-input
-            v-model="levels"
-            label="Levels"
-            outlined
-            dense
-            readonly
-            :input-style="{ fontWeight: 'bold' }"
-            class="q-mb-md"/>
-          <q-input
-            v-model="candidates"
-            label="Number of candidates"
-            outlined
-            dense
-            type="number"
-            :rules="[val => !!val || 'Number of candidates is required']"
-            :input-style="{ fontWeight: 'bold' }"
-            />
-            <q-input
-            v-model="absent"
+            v-model.number="absent"
             label="Number of absent candidates"
             outlined
             dense
             type="number"
             :rules="[val => !!val || 'Number of absent candidates is required']"
             :input-style="{ fontWeight: 'bold' }"
-            />
+          />
+
+          <div v-if="absent && absent > 0" class="q-mb-md q-pa-sm table-border">
+            <p class="text-subtitle1">Absent Candidates Details:</p>
+            <div v-for="(candidate, index) in absentCandidates" :key="index" class="q-mb-sm">
+              <div class="row q-col-gutter-xs">
+                <div class="col-2">
+                  <q-input v-model="candidate.id" label="ID" dense outlined />
+                </div>
+                <div class="col-3">
+                  <q-input v-model="candidate.firstName" label="First Name" dense outlined />
+                </div>
+                <div class="col-4">
+                  <q-input v-model="candidate.lastName" label="Last Name" dense outlined />
+                </div>
+                <div class="col-3">
+                  <q-select
+                    v-model="candidate.level"
+                    :options="editableExam.levels"
+                    label="Level"
+                    dense
+                    outlined
+                    emit-value
+                    map-options
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
           <q-input
             v-model="issues"
             label="Issues"
@@ -164,15 +194,15 @@
             dense
             type="textarea"
             :rules="[val => !!val || 'Issues are required']"
-            />
-            <q-input
+          />
+          <q-input
             v-model="comment"
             label="Comment"
             outlined
             dense
             type="textarea"
             :rules="[val => !!val || 'Comment is required']"
-            />
+          />
           <q-btn
             color="primary"
             icon="save"
@@ -186,12 +216,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed} from 'vue';
+import { ref, reactive, computed, watch} from 'vue';
 import { useExamStore } from 'src/stores/examStore';
 import { Dialog, QForm } from 'quasar';
 import { Exam } from 'src/db/types';
 import { formatTimeString } from 'src/helpers/FormatTime';
-import { getLevelColor } from 'src/helpers/Color'; // Importing the color helper
+import { getLevelColor } from 'src/helpers/Color';
 
 const examStore = useExamStore();
 
@@ -205,6 +235,8 @@ const candidates = ref<number>();
 const comment = ref<string>();
 const issues = ref<string>();
 const absent = ref<number>();
+const examForm = ref<QForm | null>(null);
+
 
 const levels = computed(() => {
   return editableExam.value?.levels.join(', ');
@@ -213,6 +245,18 @@ const levels = computed(() => {
 const location = computed(() => {
   return editableExam.value?.location + ' - ' + editableExam.value?.venue;
 });
+
+const absentCandidates = ref<Array<{ id: number | undefined; firstName: string; lastName: string; level: string }>>([]);
+
+watch(() => absent.value, (newCount) => {
+  if (newCount && newCount > 0) {
+    absentCandidates.value = Array(Number(newCount)).fill(null).map(() => ({ id: undefined, firstName: '', lastName: '', level: '' }));
+  } else {
+    absentCandidates.value = [];
+  }
+}, { immediate: true, deep: true });
+
+
 
 const initializeEditableExam = () => {
   if (props.exam) {
@@ -255,8 +299,6 @@ const truncatedNote = (note: string | undefined) => {
   return note;
 };
 
-const examForm = ref<QForm | null>(null);
-
 const saveExamDayReport = async () => {
   if (!editableExam.value) {
     return;
@@ -269,11 +311,18 @@ const saveExamDayReport = async () => {
     }
   }
 
-  if (!candidates.value || !comment.value || !issues.value || !absent.value) {
+  if (!candidates.value || !comment.value || !issues.value || absent.value === undefined) {
     return;
   }
 
-  await examStore.uploadExamDayReport(editableExam.value.id, candidates.value, absent.value, comment.value, issues.value);
+  await examStore.uploadExamDayReport(
+    editableExam.value.id,
+    candidates.value,
+    absent.value,
+    comment.value,
+    issues.value,
+    //absentCandidates.value  // Add this line to include absent candidates data
+  );
 };
 
 const downloadFile = async (fileId: number, fileName: string) => {
@@ -358,6 +407,11 @@ const cardClass = computed(() => {
 
 .complete-border {
   border: 3px solid #FFD700;
+}
+
+.table-border{
+  border: 1px solid lightgrey;
+  border-radius: 10px;
 }
 </style>
 

@@ -57,10 +57,17 @@
             <div class="q-my-sm">Email: <b>{{ editableUser.email }}</b></div>
             <div v-if="editableUser.dateOfBirth" class="q-my-sm">Date of Birth: <b>{{ formatDateString(editableUser.dateOfBirth) }}</b></div>
             <div class="q-my-sm">Phone: <b>{{ editableUser.phone || '--- --- ---' }}</b></div>
-            <div class="q-my-sm">Driving License: <b><q-checkbox v-model="editableUser.drivingLicense" disable /></b></div>
+            <div class="q-my-sm">Driving License: <q-checkbox v-model="editableUser.drivingLicense" disable /></div>
             <div class="q-my-sm">Note: <b>{{ editableUser.note }}</b></div>
             <div class="q-my-sm">Detailed Note: <b>{{ editableUser.noteLonger }}</b></div>
           </template>
+
+          <q-input v-if="isCurrentUserAdmin"
+          v-model="editableUser.adminNote"
+          label="Admin Note"
+          :input-style="{ fontWeight: 'bold' }"
+          type="textarea"
+          />
           <div class="q-my-xs">
             <label class="text-body1"><b>Roles:</b></label>
             <div>
@@ -144,6 +151,11 @@ const isCurrentUser = computed(() => {
   return currentUser?.id === editableUser.value?.id;
 });
 
+const isCurrentUserAdmin = computed(() => {
+  if(!currentUser.role) return false;
+  return currentUser?.role.includes(RoleEnum.Office || RoleEnum.Developer);
+});
+
 const hasChanges = computed(() => {
   return !deepEqual(editableUser.value, initialUser.value);
 });
@@ -169,6 +181,7 @@ const updateProfile = async () => {
         editableUser.value.noteLonger,
         editableUser.value.drivingLicense,
         editableUser.value.phone
+
       );
       // Fetch the updated user profile
       await userStore.getProfile(editableUser.value.id);
