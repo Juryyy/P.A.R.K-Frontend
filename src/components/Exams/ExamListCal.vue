@@ -388,7 +388,6 @@ const showFullNoteDialog = () => {
 };
 
 const cardClass = (exam: Exam) => {
-  console.log(exam);
   if (exam.isPrepared && !exam.isCompleted) {
     return 'positive-border top-card q-ma-md';
   } else if (exam.isCompleted) {

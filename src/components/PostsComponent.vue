@@ -16,12 +16,14 @@
               <q-badge v-else color="warning" clickable :label="formatDate(post.updatedAt)" />
             </q-item-label>
             <q-item-label class="text-right">
-              <q-badge color="orange" v-if="post.author">{{ post.author.firstName }} {{ post.author.lastName }}</q-badge>
+              <q-badge class="q-pa-xs" color="orange" v-if="post.author">{{ post.author.firstName }} {{ post.author.lastName }}</q-badge>
             </q-item-label>
-            <q-item-label class="text-center text-h5">{{ post.title }}</q-item-label>
             <q-item-label class="text-left">
+              Roles:
               <q-chip class="q-mr-xs" size="12px" color="secondary" v-for="role in post.taggedRoles" :key="role" :label="role" />
             </q-item-label>
+            <q-separator inset class="q-my-sm"/>
+            <q-item-label class="text-center text-h5">{{ post.title }}</q-item-label>
           </q-item-section>
         </q-item>
         <q-item>
@@ -48,11 +50,19 @@
         </q-item>
         <div class="align-right">
           <q-btn
+          v-if="(user?.id === post.authorId) && post.id"
+          color="primary"
+          icon="edit"
+          @click="console.log()"
+          class="q-mt-md"
+          size="md"
+        />
+          <q-btn
             v-if="(user?.role?.includes('Office') || user?.role?.includes('Developer')) && post.id"
             color="negative"
             icon="delete"
             @click="deletePost(post.id)"
-            class="q-mt-md"
+            class="q-mt-md q-ml-xs"
             size="md"
           />
         </div>

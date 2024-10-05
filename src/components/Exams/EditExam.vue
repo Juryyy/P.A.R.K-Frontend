@@ -227,13 +227,13 @@
           class="q-ma-sm"
           rounded
         />
-        <q-btn
+        <!--<q-btn
           color="primary"
           :label="editableExam.isCompleted ? 'Uncomplete Exam' : 'Complete exam'"
           @click="complete()"
           class="q-ma-sm"
           rounded
-        />
+        />-->
         <q-btn
           color="negative"
           label="Delete Exam"
@@ -329,7 +329,7 @@ import { useExamStore } from 'src/stores/examStore';
 import { useExamDayStore } from 'src/stores/examDayStore';
 import { useRouter } from 'vue-router';
 import { useAdminStore } from 'src/stores/adminStore';
-import { Dialog } from 'quasar';
+import { Dialog, Notify } from 'quasar';
 import { getLevelColor } from 'src/helpers/Color';
 
 const examStore = useExamStore();
@@ -471,7 +471,10 @@ const uploadFiles = async () => {
 
 const downloadExamDayReport = async (fileId: number, fileName: string) => {
   if (fileId === undefined) {
-    console.error('Invalid fileId: cannot be undefined');
+    Notify.create({
+      message: 'Invalid fileId: cannot be undefined',
+      color: 'negative',
+    });
     return;
   }
   loadingFiles[fileId] = true;
@@ -485,7 +488,10 @@ const downloadExamDayReport = async (fileId: number, fileName: string) => {
 
 const downloadFile = async (fileId: number, fileName: string) => {
   if (fileId === undefined) {
-    console.error('Invalid fileId: cannot be undefined');
+    Notify.create({
+      message: 'Invalid fileId: cannot be undefined',
+      color: 'negative',
+    });
     return;
   }
   loadingFiles[fileId] = true;
@@ -547,7 +553,7 @@ const saveChanges = async () => {
 const prepareExam = async () => {
   Dialog.create({
     title: 'Prepare Exam',
-    message: 'You want to inform all workers about this exam?',
+    message: 'You want to inform all workers about this exam? It is recommended to not edit the exam after preparing it.',
     ok: {
       label: 'Yes',
       color: 'positive',
@@ -557,7 +563,27 @@ const prepareExam = async () => {
       color: 'negative',
     },
   }).onOk(async () => {
-    if (editableExam.value) {
+    if(!editableExam.value?.files || editableExam.value?.files.length === 0 && !editableExam.value.isPrepared) {
+      Dialog.create({
+        title: 'No Files',
+        message: 'You need to upload files before preparing the exam.',
+        ok: {
+          label: 'OK',
+          color: 'positive',
+        },
+      });
+    }
+    else if(!editableExam.value?.supervisors || !editableExam.value?.invigilators || !editableExam.value?.examiners) {
+      Dialog.create({
+        title: 'No Workers',
+        message: 'You need to assign workers before preparing the exam.',
+        ok: {
+          label: 'OK',
+          color: 'positive',
+        },
+      });
+    }
+    else if (editableExam.value) {
       await examStore.updatePrepared(editableExam.value.id, !editableExam.value.isPrepared);
       await examStore.getExam(editableExam.value.id);
       initializeEditableExam();
@@ -589,16 +615,14 @@ const complete = async () => {
 const deleteExam = async () => {
   Dialog.create({
     title: 'Delete Exam',
-    message: 'You want to delete this exam?',
+    message: 'You want to delete this exam? This action cannot be undone!',
     ok: {
       label: 'Yes',
-      color: 'negative',
-      push: true,
+      color: 'positive',
     },
     cancel: {
       label: 'No',
-      color: 'primary',
-      push: true,
+      color: 'negative',
     },
   }).onOk(async () => {
     if (editableExam.value) {

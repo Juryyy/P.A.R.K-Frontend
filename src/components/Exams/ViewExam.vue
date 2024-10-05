@@ -161,28 +161,31 @@
 
           <div v-if="absent && absent > 0" class="q-mb-md q-pa-sm table-border">
             <p class="text-subtitle1">Absent Candidates Details:</p>
-            <div v-for="(candidate, index) in absentCandidates" :key="index" class="q-mb-sm">
-              <div class="row q-col-gutter-xs">
-                <div class="col-2">
-                  <q-input v-model="candidate.id" label="ID" dense outlined />
-                </div>
-                <div class="col-3">
-                  <q-input v-model="candidate.firstName" label="First Name" dense outlined />
-                </div>
-                <div class="col-4">
-                  <q-input v-model="candidate.lastName" label="Last Name" dense outlined />
-                </div>
-                <div class="col-3">
-                  <q-select
-                    v-model="candidate.level"
-                    :options="editableExam.levels"
-                    label="Level"
-                    dense
-                    outlined
-                    emit-value
-                    map-options
-                  />
-                </div>
+            <div class="row q-col-gutter-xs q-mb-sm q-mx-xs q-px-sm table-header">
+              <div class="col-2">ID</div>
+              <div class="col-3">First Name</div>
+              <div class="col-4">Last Name</div>
+              <div class="col-3">Level</div>
+            </div>
+            <div v-for="(candidate, index) in absentCandidates" :key="index" class="row q-col-gutter-xs q-mb-sm table-row">
+              <div class="col-2">
+                <q-input v-model="candidate.id" dense outlined />
+              </div>
+              <div class="col-3">
+                <q-input v-model="candidate.firstName" dense outlined />
+              </div>
+              <div class="col-4">
+                <q-input v-model="candidate.lastName" dense outlined />
+              </div>
+              <div class="col-3">
+                <q-select
+                  v-model="candidate.level"
+                  :options="editableExam.levels"
+                  dense
+                  outlined
+                  emit-value
+                  map-options
+                />
               </div>
             </div>
           </div>
@@ -374,30 +377,33 @@ const cardClass = computed(() => {
 .container {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
 }
 
 .top-card {
-  flex: 1;
+  width: 100%;
   margin-bottom: 1rem;
 }
 
 .form-card {
-  flex: 1;
+  width: 100%;
 }
 
 @media (min-width: 600px) {
   .container {
     flex-direction: row;
+    align-items: flex-start;
   }
 
   .top-card {
-    max-width: 50%;
+    width: calc(50% - 0.5rem);
     margin-right: 1rem;
     margin-bottom: 0;
+    align-self: flex-start;
   }
 
   .form-card {
-    max-width: 50%;
+    width: calc(50% - 0.5rem);
   }
 }
 
@@ -412,6 +418,16 @@ const cardClass = computed(() => {
 .table-border{
   border: 1px solid lightgrey;
   border-radius: 10px;
+}
+
+.table-header {
+  font-weight: bold;
+  background-color: #f7f7f7;
+  border-radius: 5px;
+}
+
+.table-row:last-child {
+  border-bottom: none;
 }
 </style>
 
