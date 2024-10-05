@@ -7,7 +7,7 @@ import { Exam } from '../db/types';
 export const useExamStore = defineStore('exam', {
   state: () => ({
     upcomingExams: ref<Exam[]>([]),
-    pastExams: ref([]),
+    pastExams: ref<Exam[]>([]),
     selectedExam: ref<Exam>(),
     selectedExamDay: ref(),
   }),
@@ -345,6 +345,21 @@ export const useExamStore = defineStore('exam', {
         Notify.create({
           color: 'negative',
           message: 'Error during deleting exam',
+          position: 'bottom',
+          icon: 'report_problem',
+        });
+      }
+    },
+
+    async getExamsForDay(dayOfExamsId: number) {
+      try {
+        const response = await api.get(`/exams/day/${dayOfExamsId}`);
+        this.pastExams = this.pastExams.filter(exam => exam.dayOfExamsId !== dayOfExamsId);
+        this.pastExams = [...this.pastExams, ...response.data];
+      } catch (error) {
+        Notify.create({
+          color: 'negative',
+          message: 'Error during getting exams for day',
           position: 'bottom',
           icon: 'report_problem',
         });

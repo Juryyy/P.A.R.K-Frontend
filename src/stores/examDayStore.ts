@@ -8,12 +8,27 @@ export const useExamDayStore = defineStore('examDay', {
   state: () => ({
     upcomingExamDays: ref([]),
     responsesForExamDay: ref<dayResponse[]>([]),
+    allExamDays: ref([]),
   }),
   actions: {
     async loadExamDays() {
       try {
         const response = await api.get('/examDays/examDays');
         this.upcomingExamDays = response.data;
+      } catch (error) {
+        Notify.create({
+          color: 'negative',
+          message: 'Error during getting exam days',
+          position: 'bottom',
+          icon: 'report_problem',
+        });
+      }
+    },
+
+    async loadAllExamDays() {
+      try {
+        const response = await api.get('/examDays/all');
+        this.allExamDays = response.data;
       } catch (error) {
         Notify.create({
           color: 'negative',

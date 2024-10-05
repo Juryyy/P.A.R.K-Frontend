@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <q-card bordered :class="cardClass + ' q-ma-md top-card'" v-if="editableExam">
+    <q-card bordered :class="cardClass + ' top-card '" v-if="editableExam">
       <q-card-section>
         <b v-if="editableExam.isPrepared && !editableExam.isCompleted" class="text-green text-bold text-h5">This exam is marked as ready!</b>
         <b v-else-if="editableExam.isCompleted" class="text-orange text-bold text-h5">This exam is completed!</b>
@@ -72,13 +72,16 @@
 
         <p class="text-h6 q-mt-sm">Files:</p>
         <div v-if="exam.files && exam.files.length > 0">
-          <div v-for="file in exam.files" :key="file.id" class="q-mt-sm">
+          <div v-for="file in exam.files" :key="file.id" class="q-mt-sm file-item">
+            <q-icon :name="getFileIcon(file.name)" size="24px" class="q-mr-sm" />
+            <span class="file-name">{{ file.name }}</span>
             <q-btn
-              color="secondary"
-              :label="file.name"
+              flat
+              dense
+              round
+              icon="download"
               @click="downloadFile(file.id ?? 0, file.name)"
               :loading="file.id !== undefined ? loadingFiles[file.id] : false"
-              unelevated
             >
               <template v-slot:loading>
                 <q-spinner size="20px" />
@@ -89,24 +92,30 @@
 
         <q-separator class="q-my-sm" />
         <p v-if="editableExam.dayReport" class="text-h6 q-mt-sm">Exam Day Report:</p>
-        <div v-if="editableExam.dayReport">
+        <div v-if="editableExam.dayReport" class="file-item">
+          <q-icon name="picture_as_pdf" size="24px" class="q-mr-sm" />
+          <span class="file-name">{{ editableExam.dayReport.name }}</span>
           <q-btn
-            color="secondary"
-            :label="editableExam.dayReport.name"
+            flat
+            dense
+            round
+            icon="download"
             @click="downloadExamDayReport()"
             :loading="loadingFiles[editableExam.dayReport.id] ?? false"
-            unelevated
           >
             <template v-slot:loading>
               <q-spinner size="20px" />
             </template>
           </q-btn>
-          <q-btn hidden
+          <q-btn
+            flat
+            dense
+            round
             color="negative"
             icon="delete"
-            :click="/* deleteFile(editableExam.dayReport.id, editableExam.dayReport.name) */ null"
-            class="q-ma-sm"
           />
+          <!--            @click=/* deleteFile(editableExam.dayReport.id, editableExam.dayReport.name) */
+-->
         </div>
       </q-card-section>
     </q-card>
@@ -225,6 +234,7 @@ import { Dialog, QForm } from 'quasar';
 import { Exam } from 'src/db/types';
 import { formatTimeString } from 'src/helpers/FormatTime';
 import { getLevelColor } from 'src/helpers/Color';
+import { getFileIcon } from 'src/helpers/FileType';
 
 const examStore = useExamStore();
 
@@ -381,12 +391,12 @@ const cardClass = computed(() => {
 }
 
 .top-card {
-  width: 100%;
+  width: 90%;
   margin-bottom: 1rem;
 }
 
 .form-card {
-  width: 100%;
+  width: 90%;
 }
 
 @media (min-width: 600px) {
@@ -429,5 +439,19 @@ const cardClass = computed(() => {
 .table-row:last-child {
   border-bottom: none;
 }
-</style>
 
+.file-item {
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  border-radius: 4px;
+  max-width: 15rem;
+  background-color: rgba(0, 0, 0, 0.03);
+  margin-bottom: 8px;
+}
+
+.file-name {
+  flex-grow: 1;
+  margin-right: 8px;
+}
+</style>

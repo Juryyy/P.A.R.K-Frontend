@@ -7,7 +7,7 @@
       @click="show = true"
       v-if="user?.role?.includes('Office') || user?.role?.includes('Developer')"
     />
-    <q-card class="q-my-md post-card" v-for="post in postsRef" :key="post.id" style="border: 6px solid #CBE09D;">
+    <q-card class="q-my-md post-card" v-for="post in postsRef" :key="post.id" bordered>
       <q-card-section>
         <q-item>
           <q-item-section>

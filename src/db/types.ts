@@ -54,6 +54,10 @@ export interface DayOfExams {
   isLocked: boolean;
 }
 
+export interface DayOfExamsC extends DayOfExams {
+  examsCount: number;
+}
+
 export interface Exam {
   id: number;
   venue: string;
