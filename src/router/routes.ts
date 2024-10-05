@@ -116,22 +116,6 @@ const routes: RouteRecordRaw[] = [
     },
   },
   {
-    path: '/forgot-password',
-    component: () => import('pages/ForgotPasswordPage.vue'),
-    name: 'ForgotPassword',
-    meta: {
-      title: 'Forgot Password',
-    },
-  },
-  {
-    path: '/verify',
-    component: () => import('pages/VerifyPage.vue'),
-    name: 'Verify',
-    meta: {
-      title: 'Verify',
-    },
-  },
-  {
     path: '/test',
     component: () => import('pages/TestPage.vue'),
     name: 'Test',
