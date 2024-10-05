@@ -2,9 +2,9 @@ import { defineStore } from 'pinia';
 import { api } from '../boot/axios';
 import { ref } from 'vue';
 import { Notify } from 'quasar';
-import { RoleEnum } from './db/types';
+import { RoleEnum } from '../db/types';
 import { removeSpaces } from '../helpers/RemoveSpaces';
-import { Location } from 'src/stores/db/types';
+import { Location } from 'src/db/types';
 
 export const useAdminStore = defineStore('admin', {
   state: () => ({
@@ -23,6 +23,7 @@ export const useAdminStore = defineStore('admin', {
           message: response.data.success,
           position: 'bottom',
           icon: 'check',
+          textColor: 'black',
         });
       } catch (error) {
         Notify.create({
@@ -41,26 +42,28 @@ export const useAdminStore = defineStore('admin', {
     ) {
       try {
         // Backend does not accept spaces in role
-        const Srole = role.map((r) => r.toString());
-        email = removeSpaces(email);
-        firstName = removeSpaces(firstName);
-        lastName = removeSpaces(lastName);
         const response = await api.post('/office/registerUser', {
           firstName,
           lastName,
           email,
-          Srole,
+          role,
         });
         Notify.create({
           color: 'positive',
           message: response.data.success,
           position: 'bottom',
           icon: 'check',
+          textColor: 'black',
         });
-      } catch (error) {
+      } catch (error : any) {
+        console.error(error);
+        let errorMessage = 'Error during registration';
+        if (error.response && error.response.data && error.response.data.error) {
+          errorMessage = error.response.data.error;
+        }
         Notify.create({
           color: 'negative',
-          message: 'Error during registering user',
+          message: errorMessage,
           position: 'bottom',
           icon: 'report_problem',
         });
@@ -95,6 +98,7 @@ export const useAdminStore = defineStore('admin', {
           message: response.data.success,
           position: 'bottom',
           icon: 'check',
+          textColor: 'black',
         });
       }
       catch (error) {
@@ -119,6 +123,7 @@ export const useAdminStore = defineStore('admin', {
           message: response.data.success,
           position: 'bottom',
           icon: 'check',
+          textColor: 'black',
         });
       }
       catch (error) {
@@ -139,6 +144,7 @@ export const useAdminStore = defineStore('admin', {
           message: response.data.success,
           position: 'bottom',
           icon: 'check',
+          textColor: 'black',
         });
       }
       catch (error) {
@@ -147,6 +153,7 @@ export const useAdminStore = defineStore('admin', {
           message: 'Error during deleting location',
           position: 'bottom',
           icon: 'report_problem',
+          textColor: 'black',
         });
       }
     },
@@ -159,6 +166,7 @@ export const useAdminStore = defineStore('admin', {
           message: response.data.success,
           position: 'bottom',
           icon: 'check',
+          textColor: 'black',
         });
       }
       catch (error) {
@@ -167,13 +175,55 @@ export const useAdminStore = defineStore('admin', {
           message: 'Error during deleting venue',
           position: 'bottom',
           icon: 'report_problem',
+          textColor: 'black',
         });
       }
     },
 
     async updateUserLevel(id: number, level: string[]) {
-      console.log('updateUserLevel');
-    }
+      try {
+        const response = await api.post('/office/updateUserLevel', {
+          id,
+          level,
+        });
+        Notify.create({
+          color: 'positive',
+          message: response.data.success,
+          position: 'bottom',
+          icon: 'check',
+          textColor: 'black',
+        });
+      } catch (error) {
+        Notify.create({
+          color: 'negative',
+          message: 'Error during updating user level',
+          position: 'bottom',
+          icon: 'report_problem',
+        });
+      }
+    },
 
+    async updateUserIsSenior(id: number, isSenior: boolean) {
+      try {
+        const response = await api.post('/office/updateUserSenior', {
+          id,
+          isSenior,
+        });
+        Notify.create({
+          color: 'positive',
+          message: response.data.success,
+          position: 'bottom',
+          icon: 'check',
+          textColor: 'black',
+        });
+      } catch (error) {
+        Notify.create({
+          color: 'negative',
+          message: 'Error during updating user seniority',
+          position: 'bottom',
+          icon: 'report_problem',
+        });
+      }
+    },
   },
 });

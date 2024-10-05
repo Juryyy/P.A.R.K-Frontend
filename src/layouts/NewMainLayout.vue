@@ -10,7 +10,8 @@
           icon="menu"
           @click="toggleLeftDrawer"
         />
-        <q-toolbar-title> P.A.R.K Admin </q-toolbar-title>
+        <q-toolbar-title v-if="!isMobile"> P.A.R.K. App </q-toolbar-title>
+        <q-toolbar-title v-else></q-toolbar-title>
         <div v-if="!rightDrawerOpen" class="q-gutter-md row items-center">
           <q-avatar size="46px" class="q-pr-xl clickable-avatar" @click="viewUser(user)">
             <img :src="userAvatar" alt="User Avatar" />
@@ -40,6 +41,9 @@
         @mouseout="miniState = true"
         mini-to-overlay
       >
+        <div class="mobile-header bg-primary q-px-md q-py-sm" v-if="isMobile">
+          <q-toolbar-title class="text-center">P.A.R.K. App</q-toolbar-title>
+        </div>
         <div class="drawer-content">
           <q-list>
             <essential-link
@@ -60,7 +64,7 @@
               v-for="link in adminEssentialLinks"
               :key="link.title"
               :title="link.title"
-              :link="link.link"
+              :link="`/admin/${link.link}`"
               :icon="link.icon"
             />
           </q-list>
@@ -99,18 +103,22 @@
         </q-img>
 
         <q-card-section class="q-pa-md">
-          <q-card class="card q-mb-sm" bordered v-for="exam in usersExamsRef" :key="exam.id">
+          <q-card
+            :class="exam.isPrepared ? 'isPrepared' : 'isNotPrepared'"
+            bordered
+            v-for="exam in usersExamsRef"
+            :key="exam.id"
+          >
             <q-card-section>
-              <q-item-label>Location: <b>{{ exam.location }}</b></q-item-label>
-              <q-item-label>Venue: <b>{{ exam.venue }}</b></q-item-label>
-              <q-item-label>Date: <b>{{ formatDate(exam.startTime) }} </b></q-item-label>
+              <q-item-label>Location: <b>{{ exam.location }} - {{ exam.venue }}</b></q-item-label>
+              <q-item-label>Type: <b>{{ exam.type }}</b></q-item-label>
+              <q-item-label>Date: <b>{{ formatDateString(exam.startTime) }} </b></q-item-label>
               <q-item-label>
                 Time:
                 <b>
-                  {{ formatTime(exam.startTime) + ' - ' + formatTime(exam.endTime) }}
+                  {{ formatTimeString(exam.startTime) + ' - ' + formatTimeString(exam.endTime) }}
                 </b>
               </q-item-label>
-              <q-item-label>Type: <b>{{ exam.type }}</b></q-item-label>
               <q-item-label>
                 Note:
                 <b v-if="shouldShowMoreLink(exam.note)" @click="showFullNoteDialog()">
@@ -134,16 +142,16 @@
                 </q-card>
               </q-dialog>
               </q-item-label>
-              <q-item-label class="absolute-top-right q-ma-sm">
+              <q-item-label class="absolute-top-right q-ma-sm button-container">
                 <q-btn
-                  class="q-mr-xs"
                   color="secondary"
                   label="View"
+                  round
                   @click="() => {
-                    router.push(`/exams/${exam.id}`);
+                    router.push(`/exam/${exam.id}`);
                   }"
                 />
-                <q-btn color="secondary" icon="map" @click="showVenue(exam.venueLink)" />
+                <q-btn color="secondary" round icon="map" @click="showVenue(exam.venueLink)" />
               </q-item-label>
             </q-card-section>
           </q-card>
@@ -163,10 +171,11 @@ import EssentialLink, { EssentialLinkProps } from 'components/Auth_nav/Essential
 import { useUserStore } from 'src/stores/userStore';
 import { useAuthStore } from 'src/stores/authStore';
 import { router } from 'src/router/index';
-import { ExamWithVenueLink, RoleEnum } from 'src/stores/db/types';
+import { ExamWithVenueLink, RoleEnum } from 'src/db/types';
 import { Loading } from 'quasar';
 import { getRoleColor } from 'src/helpers/Color';
 import { sortRoles } from 'src/helpers/FormatRole';
+import { formatDateString, formatTimeString } from 'src/helpers/FormatTime';
 
 const userStore = useUserStore();
 const authStore = useAuthStore();
@@ -230,24 +239,24 @@ const essentialLinks: EssentialLinkProps[] = [
 ];
 
 const adminEssentialLinks: EssentialLinkProps[] = [
-  {
-    title: 'Import Candidates',
-    link: '/import-candidates',
-    icon: 'cloud_upload',
-  },
+  //{
+  //  title: 'Import Candidates',
+  //  link: 'import-candidates',
+  //  icon: 'cloud_upload',
+  //},
   {
     title: 'Create Availability',
-    link: '/create-availability',
+    link: 'create-availability',
     icon: 'event_note',
   },
   {
     title: 'Exams',
-    link: '/exams',
+    link: 'exams',
     icon: 'assignment',
   },
   {
     title: 'Admin Panel',
-    link: '/admin-panel',
+    link: 'admin-panel',
     icon: 'admin_panel_settings',
   },
 ];
@@ -267,21 +276,6 @@ function toggleRightDrawer() {
 
 const miniState = ref(true);
 
-const formatTime = (datetime: Date) => {
-  const date = new Date(datetime);
-  const hours = date.getHours().toString().padStart(2, '0');
-  const minutes = date.getMinutes().toString().padStart(2, '0');
-  return `${hours}:${minutes}`;
-};
-
-const formatDate = (datetime: Date) => {
-  const date = new Date(datetime);
-  const day = date.getDate().toString().padStart(2, '0');
-  const month = (date.getMonth() + 1).toString().padStart(2, '0');
-  const year = date.getFullYear().toString().padStart(2, '0');
-  return `${day}.${month}.${year}`;
-};
-
 const showVenue = (gLink: string) => {
   window.open(gLink, '_blank');
 };
@@ -290,6 +284,15 @@ const viewUser = async (user: any) => {
   await nextTick();
   router.push(`/user/${user.id}`);
 };
+
+const isMobile = ref(false);
+
+const updateIsMobile = () => {
+  isMobile.value = window.innerWidth <= 600;
+};
+
+window.addEventListener('resize', updateIsMobile);
+updateIsMobile();
 </script>
 
 <style lang="scss" scoped>
@@ -314,5 +317,31 @@ const viewUser = async (user: any) => {
 
 .clickable-avatar {
   cursor: pointer;
+}
+
+.isPrepared {
+  background-color: $primary;
+}
+
+.isNotPrepared {
+  background-color: $primary-light;
+}
+
+.button-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem; /* Adjust the gap between buttons as needed */
+}
+
+.mobile-header {
+  color: #000000;
+  display: none;
+}
+
+@media (max-width: 600px) {
+  .mobile-header {
+    display: flex;
+  }
 }
 </style>

@@ -2,12 +2,13 @@ import { defineStore } from 'pinia';
 import { api } from '../boot/axios';
 import { Notify } from 'quasar';
 import { ref } from 'vue';
-import { dayResponse } from './db/types';
+import { dayResponse } from '../db/types';
 
 export const useExamDayStore = defineStore('examDay', {
   state: () => ({
     upcomingExamDays: ref([]),
     responsesForExamDay: ref<dayResponse[]>([]),
+    allExamDays: ref([]),
   }),
   actions: {
     async loadExamDays() {
@@ -24,10 +25,23 @@ export const useExamDayStore = defineStore('examDay', {
       }
     },
 
+    async loadAllExamDays() {
+      try {
+        const response = await api.get('/examDays/all');
+        this.allExamDays = response.data;
+      } catch (error) {
+        Notify.create({
+          color: 'negative',
+          message: 'Error during getting exam days',
+          position: 'bottom',
+          icon: 'report_problem',
+        });
+      }
+    },
+
     async loadResponsesForExamDay(id: number) {
       try {
         const response = await api.get(`/responses/responsesExamDay/${id}`);
-        console.log(response.data);
         this.responsesForExamDay = response.data;
       } catch (error) {
         Notify.create({
@@ -55,6 +69,7 @@ export const useExamDayStore = defineStore('examDay', {
           message: 'Exam day added',
           position: 'bottom',
           icon: 'check',
+          textColor: 'black',
         });
       } catch (error) {
         Notify.create({
@@ -74,6 +89,7 @@ export const useExamDayStore = defineStore('examDay', {
           message: 'Exam day deleted',
           position: 'bottom',
           icon: 'check',
+          textColor: 'black',
         });
       } catch (error) {
         Notify.create({
@@ -93,11 +109,36 @@ export const useExamDayStore = defineStore('examDay', {
           message: 'Lock changed',
           position: 'bottom',
           icon: 'check',
+          textColor: 'black',
         });
       } catch (error) {
         Notify.create({
           color: 'negative',
           message: 'Error during changing lock',
+          position: 'bottom',
+          icon: 'report_problem',
+        });
+      }
+    },
+
+    async informUsers(startDate : string, endDate : string, dateOfSubmits : string) {
+      try {
+        await api.post('/examDays/informUsers', {
+          startDate: startDate,
+          endDate: endDate,
+          dateOfSubmits: dateOfSubmits,
+        });
+        Notify.create({
+          color: 'positive',
+          message: 'Users informed',
+          position: 'bottom',
+          icon: 'check',
+          textColor: 'black',
+        });
+      } catch (error) {
+        Notify.create({
+          color: 'negative',
+          message: 'Error during informing users',
           position: 'bottom',
           icon: 'report_problem',
         });

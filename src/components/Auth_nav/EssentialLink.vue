@@ -12,7 +12,7 @@
 </template>
 
 <script setup lang="ts">
-import { withDefaults } from 'vue';
+import { withDefaults, defineProps } from 'vue';
 import { useRoute } from 'vue-router';
 import { computed } from 'vue';
 

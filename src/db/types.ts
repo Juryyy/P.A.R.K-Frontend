@@ -13,18 +13,18 @@ export interface User {
   avatarUrl: string | null;
   activatedAccount: boolean;
   deactivated: boolean;
-  dateOfBirth: string | null;
+  dateOfBirth: string;
+  responses: Response[];
+  isSenior: boolean;
+
+  supervisedExams: Exam[];
+  invigilatedExams: Exam[];
+  examinedExams: Exam[];
   _count: {
     supervisedExams: number;
     invigilatedExams: number;
     examinedExams: number;
   };
-  supervisedExams: Exam[];
-  invigilatedExams: Exam[];
-  examinedExams: Exam[];
-  responses: Response[];
-  isSenior: boolean;
-  isRoleChanged?: boolean;
 }
 
 export interface UserInfo {
@@ -36,6 +36,7 @@ export interface UserInfo {
   dateOfBirth: string | null;
   drivingLicense: boolean | null;
   note: string | null;
+  noteLonger: string | null;
   adminNote: string | null;
   role: string[] | null;
   level: string[] | null;
@@ -50,6 +51,11 @@ export interface DayOfExams {
   date: Date;
   isForInvigilators: boolean;
   isForExaminers: boolean;
+  isLocked: boolean;
+}
+
+export interface DayOfExamsC extends DayOfExams {
+  examsCount: number;
 }
 
 export interface Exam {
@@ -57,9 +63,9 @@ export interface Exam {
   venue: string;
   location: string;
   type: string;
-  levels: string[];
-  startTime: Date;
-  endTime: Date;
+  levels: LevelEnum[];
+  startTime: string;
+  endTime: string;
   note: string;
   dayOfExamsId: number;
   pdfUrl?: string | null;
@@ -70,6 +76,11 @@ export interface Exam {
   invigilators: User[];
   examiners: User[];
   candidates: string[];
+  files: File[];
+  isPrepared: boolean;
+  isCompleted: boolean;
+  dayReportId?: number | null;
+  dayReport?: DayReport | null;
 }
 
 export interface ExamWithVenueLink extends Exam {
@@ -89,6 +100,8 @@ export interface ExtendedUser extends User {
   isRoleChanged: boolean;
   originalLevels: LevelEnum[];
   isLevelChanged: boolean;
+  isSeniorChanged: boolean;
+  originalIsSenior: boolean;
 }
 
 export interface UserResponses {
@@ -124,6 +137,8 @@ export interface dayResponse {
   userRole : string[];
   assigned: boolean;
   userId: number;
+  userNote?: string | null;
+  userLevel: LevelEnum[];
 }
 
 export enum LevelEnum {
@@ -135,11 +150,9 @@ export enum LevelEnum {
   C2 = 'C2',
 }
 
-export enum examTypeEnum {
+export enum ExamTypeEnum {
   Computer = 'Computer',
-  ComputerSpeaking = 'Computer Speaking',
   Paper = 'Paper',
-  PaperSpeaking = 'Paper Speaking',
   Mock = 'Mock',
   Speaking = 'Speaking',
 }
@@ -162,18 +175,35 @@ export interface Post {
   title: string;
   content: string;
   authorId?: number;
-  author?: User;
+  author?: Author;
   createdAt?: Date;
   updatedAt?: Date;
   taggedRoles?: RoleEnum[],
   users?: User[],
-  driveLink: DriveLink[];
+  files?: File[],
 }
 
-export interface DriveLink{
+export interface File{
   id?: number;
-  link: string;
   name: string;
   postId?: number;
+  createdAt?: Date;
+  authorId?: number;
+  author?: User;
+  post?: Post;
 }
 
+interface Author{
+  id: number;
+  firstName: string;
+  lastName: string;
+}
+
+
+export interface DayReport{
+  id: number;
+  name: string;
+  examId: number;
+  createdAt: Date;
+  authorId: number;
+}

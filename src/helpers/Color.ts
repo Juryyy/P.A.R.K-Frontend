@@ -1,5 +1,5 @@
 import { L } from 'app/dist/pwa/assets/index.543cd0d7';
-import { LevelEnum, RoleEnum } from '../stores/db/types';
+import { LevelEnum, RoleEnum } from '../db/types';
 
 export const getRoleColor = (role: RoleEnum): string => {
   switch (role) {

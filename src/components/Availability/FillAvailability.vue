@@ -1,6 +1,6 @@
 <template>
   <q-page class="page-container">
-    <div class="q-pa-md q-gutter-md content-container">
+    <div class="q-pa-md content-container">
       <h4 v-if="userResponses.length === 0">No availability yet, wait for Center Exam Manager to create some</h4>
       <q-table v-else
         class="primary-header"
@@ -49,7 +49,7 @@
 
 <script setup lang="ts">
 import { useAvailabilityStore } from '../../stores/availabilityStore'
-import { UserAnswers, UserResponses } from '../../stores/db/types';
+import { UserAnswers, UserResponses } from 'src/db/types';
 
 const { userResponses }: { userResponses: UserResponses[] } =
   useAvailabilityStore();
@@ -91,8 +91,23 @@ const handleSubmit = async () => {
 
 .content-container {
   width: 100%;
-  @media(min-width: 600px){
-    max-width: 30%; /* Adjust the max-width as necessary */
+  margin: 0 auto; /* Center align */
+
+  /* Quasar provides breakpoints as CSS classes */
+  @media (min-width: 600px) {
+    max-width: 50%;
+  }
+
+  @media (min-width: 1024px) {
+    max-width: 40%;
+  }
+
+  @media (min-width: 1280px) {
+    max-width: 35%;
+  }
+
+  @media (min-width: 1440px) {
+    max-width: 30%;
   }
 }
 

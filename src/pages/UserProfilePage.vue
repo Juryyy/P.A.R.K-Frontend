@@ -2,21 +2,24 @@
   <q-page>
     <q-tabs
       v-model="tab"
-      class="q-mb-md"
       align="justify"
-      active-color="primary"
-      indicator-color="primary"
+      active-color="secondary"
+      indicator-color="secondary"
     >
-      <q-tab name="User" label="User" />
-      <q-tab name="Exams" label="Exams" />
+      <q-tab name="User" label="Profile" />
+      <q-tab v-if="currentUser?.id?.toString() === userId" name="Password" label="Password Update" />
+      <!--<q-tab name="Exams" label="Exams" />-->
     </q-tabs>
     <q-tab-panels v-model="tab">
       <q-tab-panel name="User" v-if="state.loaded">
         <UserInfo v-if="state.loaded && user" :user="user" :user-avatar="userAvatar" />
       </q-tab-panel>
-      <q-tab-panel name="Exams" v-if="state.loaded">
-        <UserExams v-if="state.loaded && user" :user="user" />
+      <q-tab-panel name="Password" v-if="state.loaded && currentUser?.id?.toString() === userId">
+        <PasswordReset v-if="state.loaded && user" :user="user" />
       </q-tab-panel>
+      <!--<q-tab-panel name="Exams" v-if="state.loaded">
+        <UserExams v-if="state.loaded && user" :user="user" />
+      </q-tab-panel>-->
     </q-tab-panels>
   </q-page>
 </template>
@@ -28,7 +31,8 @@ import { ref, onBeforeMount, onUnmounted, reactive, onMounted } from 'vue';
 import { useUserStore } from 'src/stores/userStore';
 import { Loading, Dialog } from 'quasar';
 import UserInfo from 'src/components/Users/UserInfo.vue';
-import { User } from 'src/stores/db/types';
+import { User } from 'src/db/types';
+import PasswordReset from 'src/components/Users/PasswordReset.vue';
 
 const tab = ref('User');
 const userStore = useUserStore();
@@ -37,6 +41,7 @@ const route = useRoute();
 const userId = ref(route.params.id);
 const user = ref<User | null>(null);
 const userAvatar = ref<string | null>(null);
+const currentUser = userStore.user;
 
 const state = reactive({
   loaded: false,
@@ -79,3 +84,4 @@ onUnmounted(() => {
   userStore.clearSelectedUserInfo();
 });
 </script>
+src/db/types

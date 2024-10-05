@@ -1,85 +1,127 @@
 <template>
-  <q-card class="absolute-center">
-    <q-form v-if="!isCodeVerification">
-      <q-input
-        filled
-        v-model="state.email"
-        label="Email"
-        lazy-rules
-        :rules="[(val) => !!val || 'Email is required']"
-        autocomplete="email"
-      />
-      <q-input
-        filled
-        v-model="state.password"
-        label="Password"
-        lazy-rules
-        :type="state.passwordHidden ? 'password' : 'text'"
-        :rules="[(val) => !!val || 'Password is required']"
-        autocomplete="current-password"
-      >
-        <template v-slot:append>
-          <q-icon
-            :name="state.passwordHidden ? 'visibility_off' : 'visibility'"
-            class="cursor-pointer"
-            @click="state.passwordHidden = !state.passwordHidden"
+  <q-page class="flex-center">
+    <q-card class="form-card">
+      <q-form v-if="!isCodeVerification && !isForgotPassword">
+        <p class="text-h5">Login required</p>
+        <q-input
+          filled
+          v-model="state.email"
+          label="Email"
+          lazy-rules
+          :rules="[(val) => !!val || 'Email is required']"
+          autocomplete="email"
+        />
+        <q-input
+          filled
+          v-model="state.password"
+          label="Password"
+          lazy-rules
+          :type="state.passwordHidden ? 'password' : 'text'"
+          :rules="[(val) => !!val || 'Password is required']"
+          autocomplete="current-password"
+        >
+          <template v-slot:append>
+            <q-icon
+              :name="state.passwordHidden ? 'visibility_off' : 'visibility'"
+              class="cursor-pointer"
+              @click="state.passwordHidden = !state.passwordHidden"
+            />
+          </template>
+        </q-input>
+        <q-card-actions class="actions-container">
+          <q-btn
+            flat
+            label="Forgot password?"
+            color="primary"
+            @click="isForgotPassword = true"
           />
-        </template>
-      </q-input>
-      <q-card-actions align="right">
-        <q-btn
-          flat
-          label="Forgot password?"
-          color="primary"
-          to="/forgot-password"
-        />
-        <q-btn
-          class="q-mt-md"
-          color="primary"
-          label="Login"
-          type="submit"
-          @click="login"
-          :loading="loading"
-          :disable="loading"
-        >
-          <template v-slot:loading>
-            <q-spinner size="20px" />
-          </template>
-        </q-btn>
-      </q-card-actions>
-    </q-form>
+          <q-btn
+            color="primary"
+            label="Login"
+            type="submit"
+            @click="login"
+            :loading="loading"
+            :disable="loading"
+          >
+            <template v-slot:loading>
+              <q-spinner size="20px" />
+            </template>
+          </q-btn>
+        </q-card-actions>
+      </q-form>
 
-    <q-form v-else>
-      <h4 class="text-h6">Enter the code sent to your email</h4>
-      <div class="code-inputs">
-        <input
-          v-for="(digit, index) in code"
-          :key="index"
-          v-model="code[index]"
-          maxlength="1"
-          @paste="handlePaste"
-          @input="handleInput(index)"
-          type="text"
-          class="code-input"
+      <q-form v-else-if="isCodeVerification">
+        <p class="text-h6">Enter the code sent to your email</p>
+        <div class="code-inputs">
+          <input
+            v-for="(digit, index) in code"
+            :key="index"
+            v-model="code[index]"
+            maxlength="1"
+            @paste="handlePaste"
+            @input="handleInput(index)"
+            type="text"
+            class="code-input"
+          />
+        </div>
+        <q-card-actions class="actions-container">
+          <q-btn
+            flat
+            align="left"
+            icon="arrow_back"
+            label="Back"
+            color="primary"
+            @click="clear()"
+          />
+          <q-btn
+            color="primary"
+            label="Submit"
+            type="submit"
+            @click="validate"
+            :loading="loading"
+            :disable="loading"
+          >
+            <template v-slot:loading>
+              <q-spinner size="20px" />
+            </template>
+          </q-btn>
+        </q-card-actions>
+      </q-form>
+
+      <q-form v-else>
+        <p class="text-h5">Reset Password</p>
+        <q-input
+          filled
+          v-model="state.email"
+          label="Email"
+          lazy-rules
+          :rules="[(val) => !!val || 'Email is required']"
+          autocomplete="email"
         />
-      </div>
-      <q-card-actions align="right">
-        <q-btn
-          class="q-mt-md"
-          color="primary"
-          label="Submit"
-          type="submit"
-          @click="validate"
-          :loading="loading"
-          :disable="loading"
-        >
-          <template v-slot:loading>
-            <q-spinner size="20px" />
-          </template>
-        </q-btn>
-      </q-card-actions>
-    </q-form>
-  </q-card>
+        <q-card-actions class="actions-container">
+          <q-btn
+            flat
+            icon="arrow_back"
+            label="Back"
+            color="primary"
+            @click="clear()"
+          />
+          <q-btn
+            color="primary"
+            label="Reset Password"
+            type="submit"
+            @click="resetPassword"
+            :loading="loading"
+            :disable="loading"
+          >
+            <template v-slot:loading>
+              <q-spinner size="20px" />
+            </template>
+          </q-btn>
+        </q-card-actions>
+      </q-form>
+    </q-card>
+  </q-page>
 </template>
 
 <script setup lang="ts">
@@ -100,15 +142,19 @@ const state = reactive({
 });
 
 const isCodeVerification = ref(false);
+const isForgotPassword = ref(false);
 const loading = ref(false);
 const code = ref(['', '', '', '', '', '']);
 
 const login = async (event: Event) => {
+  if (!state.email || !state.password) {
+    return;
+  }
   event.preventDefault();
   loading.value = true;
   try {
     await authStore.login(state.email, state.password);
-    if (authStore.verification) {
+    if (authStore.verification === true ) {
       isCodeVerification.value = true;
     }
   } finally {
@@ -125,10 +171,28 @@ const validate = async (event: Event) => {
     if (localStorage.getItem('id')) {
       userStore.getUserInfo();
       await userStore.getUsersAvatar();
+      await userStore.getUsersExams();
       router.push('/');
     }
   } finally {
     loading.value = false;
+  }
+};
+
+const resetPassword = async (event: Event) => {
+  if (!state.email) {
+    return;
+  }
+  event.preventDefault();
+  loading.value = true;
+  try {
+    await authStore.resetPassword(state.email);
+  } finally {
+    loading.value = false;
+    const mail = state.email;
+    clear();
+    state.email = mail;
+    isForgotPassword.value = false;
   }
 };
 
@@ -143,16 +207,44 @@ const handleInput = (index: number) => {
     nextInput?.focus();
   }
 };
+
+const clear = () => {
+  isCodeVerification.value = false;
+  isForgotPassword.value = false;
+  state.email = '';
+  state.password = '';
+  state.code = '';
+  code.value = ['', '', '', '', '', ''];
+};
 </script>
 
 <style lang="scss" scoped>
-.q-card {
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.form-card {
   max-width: 400px;
-  margin: 0 auto;
+  width: 100%;
+  margin: 0 1rem;
+  padding: 1rem;
 }
 
 .q-form {
   padding: 1.5rem;
+}
+
+@media (max-width: 600px) {
+  .form-card {
+    padding: 1rem;
+  }
+
+  .q-form {
+    padding: 1rem;
+  }
 }
 
 .code-inputs {
@@ -168,5 +260,16 @@ const handleInput = (index: number) => {
   text-align: center;
   border: 1px solid #ccc;
   border-radius: 4px;
+}
+
+.actions-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+}
+
+.actions-container q-btn {
+  margin-top: 0 !important;
 }
 </style>

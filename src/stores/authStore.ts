@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { api } from '../boot/axios';
-import { User } from './db/types';
+import { User } from '../db/types';
 import { Notify } from 'quasar';
 import { useUserStore } from './userStore';
 
@@ -31,15 +31,15 @@ export const useAuthStore = defineStore('auth', {
         Notify.create({
           color: 'positive',
           message: 'Verification successful',
-          position: 'top',
+          position: 'bottom',
           icon: 'check',
+          textColor: 'black',
         });
       } catch (error) {
-        console.error('Error during verification:', error);
         Notify.create({
           color: 'negative',
-          message: 'Error during verification',
-          position: 'top',
+          message: 'The code is not valid or has expired',
+          position: 'bottom',
           icon: 'report_problem',
           });
         }
@@ -55,15 +55,15 @@ export const useAuthStore = defineStore('auth', {
         Notify.create({
           color: 'positive',
           message: '2FA code sent to your email',
-          position: 'top',
+          position: 'bottom',
           icon: 'check',
+          textColor: 'black',
         });
       } catch (error) {
-        console.error('Error during login:', error);
         Notify.create({
           color: 'negative',
-          message: 'Error during login',
-          position: 'top',
+          message: 'Email and password do not match',
+          position: 'bottom',
           icon: 'report_problem',
         });
       }
@@ -73,59 +73,48 @@ export const useAuthStore = defineStore('auth', {
       try {
         const user = useUserStore().getUserInfo();
         if (!user) {
-          Notify.create({
-            color: 'negative',
-            message: 'Error during logout',
-            position: 'top',
-            icon: 'report_problem',
-          });
           return;
         }
 
         const response = await api.delete('/auth/logout');
         if (response.status === 200) {
           // Explicitly remove known keys
-          const keysToRemove = [
-            'id', 'email', 'firstName', 'lastName', 'phone', 'drivingLicense', 'note',
-            'adminNote', 'role', 'avatarUrl', 'activatedAccount', 'deactivated', 'isSenior', 'dateOfBirth',
-          ];
-          keysToRemove.forEach(key => {
-            if (localStorage.getItem(key) !== null) {
-              localStorage.removeItem(key);
-            }
-          });
+          //const keysToRemove = [
+          //  'id', 'email', 'firstName', 'lastName', 'phone', 'drivingLicense', 'note',
+          //  'adminNote', 'role', 'avatarUrl', 'activatedAccount', 'deactivated', 'isSenior', 'dateOfBirth',
+          //];
+          //keysToRemove.forEach(key => {
+          //  if (localStorage.getItem(key) !== null) {
+          //    localStorage.removeItem(key);
+          //  }
+          //});
           // Optionally, clear the entire localStorage if it is safe to do so
-          // localStorage.clear();
+          localStorage.clear();
 
           this.user = undefined;
           Notify.create({
             color: 'positive',
             message: 'Successfully logged out',
-            position: 'top',
+            position: 'bottom',
             icon: 'check_circle',
+            textColor: 'black',
           });
         } else {
           throw new Error('Logout failed');
         }
       } catch (error) {
-        console.error('Error during logout:', error);
         Notify.create({
           color: 'negative',
           message: 'Error during logout',
-          position: 'top',
+          position: 'bottom',
           icon: 'report_problem',
         });
       }
     },
 
-    async registerUser(
-      email: string,
-      firstName: string,
-      lastName: string,
-      role: string
-    ) {
+    async registerUser(email: string, firstName: string, lastName: string, role: string) {
       try {
-        await api.post('/office/registerUser', {
+        const response = await api.post('/office/registerUser', {
           email,
           firstName,
           lastName,
@@ -134,18 +123,63 @@ export const useAuthStore = defineStore('auth', {
         Notify.create({
           color: 'positive',
           message: 'User registered',
-          position: 'top',
+          position: 'bottom',
           icon: 'check',
+          textColor: 'black',
         });
-      } catch (error) {
-        console.error('Error during registration:', error);
+      } catch (error : any) {
+        let errorMessage = 'Error during registration';
+        if (error.response && error.response.data && error.response.data.error) {
+          errorMessage = error.response.data.error;
+        }
         Notify.create({
           color: 'negative',
-          message: 'Error during registration',
-          position: 'top',
+          message: errorMessage,
+          position: 'bottom',
           icon: 'report_problem',
         });
       }
     },
+
+    async resetPassword(email: string) {
+      try {
+        await api.post('/auth/password-reset', { email });
+        Notify.create({
+          color: 'positive',
+          message: 'Password reset email sent',
+          position: 'bottom',
+          icon: 'check',
+          textColor: 'black',
+        });
+      } catch (error) {
+        Notify.create({
+          color: 'negative',
+          message: 'Error during password reset',
+          position: 'bottom',
+          icon: 'report_problem',
+        });
+      }
+    },
+
+    async updatePassword(password: string, newPassword: string) {
+      try {
+        await api.post('/auth/password-update', { password, newPassword });
+        Notify.create({
+          color: 'positive',
+          message: 'Password updated',
+          position: 'bottom',
+          icon: 'check',
+          textColor: 'black',
+        });
+      } catch (error) {
+          Notify.create({
+          color: 'negative',
+          message: 'Error during password update',
+          position: 'bottom',
+          icon: 'report_problem',
+        });
+      }
+    }
+
   },
 });
