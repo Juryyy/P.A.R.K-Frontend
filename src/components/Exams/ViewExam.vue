@@ -231,7 +231,7 @@
 import { ref, reactive, computed, watch} from 'vue';
 import { useExamStore } from 'src/stores/examStore';
 import { Dialog, QForm } from 'quasar';
-import { Exam } from 'src/db/types';
+import { AbsentCandidates, Exam } from 'src/db/types';
 import { formatTimeString } from 'src/helpers/FormatTime';
 import { getLevelColor } from 'src/helpers/Color';
 import { getFileIcon } from 'src/helpers/FileType';
@@ -250,7 +250,6 @@ const issues = ref<string>();
 const absent = ref<number>();
 const examForm = ref<QForm | null>(null);
 
-
 const levels = computed(() => {
   return editableExam.value?.levels.join(', ');
 });
@@ -259,7 +258,7 @@ const location = computed(() => {
   return editableExam.value?.location + ' - ' + editableExam.value?.venue;
 });
 
-const absentCandidates = ref<Array<{ id: number | undefined; firstName: string; lastName: string; level: string }>>([]);
+const absentCandidates = ref<AbsentCandidates[]>([]);
 
 watch(() => absent.value, (newCount) => {
   if (newCount && newCount > 0) {
@@ -334,7 +333,7 @@ const saveExamDayReport = async () => {
     absent.value,
     comment.value,
     issues.value,
-    //absentCandidates.value  // Add this line to include absent candidates data
+    absentCandidates.value  // Add this line to include absent candidates data
   );
 };
 

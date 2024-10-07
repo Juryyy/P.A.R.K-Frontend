@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { api } from '../boot/axios';
 import { Notify } from 'quasar';
 import { ref } from 'vue';
-import { Exam } from '../db/types';
+import { AbsentCandidates, Exam } from '../db/types';
 
 export const useExamStore = defineStore('exam', {
   state: () => ({
@@ -222,14 +222,15 @@ export const useExamStore = defineStore('exam', {
       }
     },
 
-    async uploadExamDayReport(examId: number, candidates: number, absent: number, comment: string, issues: string){
+    async uploadExamDayReport(examId: number, candidates: number, absent: number, comment: string, issues: string, absentCandidates : AbsentCandidates[]){
       try {
         await api.post('/exams/createDayReport', {
           examId,
           candidates,
           absent,
           comment,
-          issues
+          issues,
+          absentCandidates
         });
 
         Notify.create({

@@ -58,6 +58,13 @@ export interface DayOfExamsC extends DayOfExams {
   examsCount: number;
 }
 
+export interface AbsentCandidates {
+  id: number | undefined;
+  firstName: string;
+  lastName: string;
+  level: string
+}
+
 export interface Exam {
   id: number;
   venue: string;
