@@ -129,6 +129,7 @@ import { reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from 'src/stores/authStore';
 import { useUserStore } from 'src/stores/userStore';
+import { Loading } from 'quasar';
 
 const authStore = useAuthStore();
 const userStore = useUserStore();
@@ -169,10 +170,12 @@ const validate = async (event: Event) => {
     state.code = code.value.join('');
     await authStore.verifyUser(state.email, state.code);
     if (localStorage.getItem('id')) {
+      Loading.show();
       userStore.getUserInfo();
       await userStore.getUsersAvatar();
       await userStore.getUsersExams();
       router.push('/');
+      Loading.hide();
     }
   } finally {
     loading.value = false;

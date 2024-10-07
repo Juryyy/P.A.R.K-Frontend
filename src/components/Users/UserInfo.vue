@@ -120,6 +120,16 @@
           </template>
         </q-btn>
       </q-card-actions>
+      <q-card-actions v-if="isCurrentUserAdmin" align="right">
+        <q-btn :disable="!hasChanges || isUpdating" :color="hasChanges && !isUpdating ? 'primary' : 'grey'" @click="updateAdminNote">
+          <template v-if="isUpdating">
+            <q-spinner size="20px" />
+          </template>
+          <template v-else>
+            Update Admin Note
+          </template>
+        </q-btn>
+      </q-card-actions>
     </q-card>
     <div v-else>No user information available.</div>
   </div>
@@ -188,6 +198,26 @@ const updateProfile = async () => {
       if (userStore.selectedUser) {
         editableUser.value = { ...userStore.selectedUser };
         initialUser.value = { ...userStore.selectedUser }; // Reset the initialUser after successful update
+      }
+    }
+  } finally {
+    isUpdating.value = false;
+  }
+};
+
+const updateAdminNote = async () => {
+  isUpdating.value = true;
+  try {
+    if (editableUser.value) {
+      await userStore.updateAdminNote(
+        editableUser.value.id,
+        editableUser.value.adminNote
+      );
+      // Fetch the updated user profile
+      await userStore.getProfile(editableUser.value.id);
+      if (userStore.selectedUser) {
+        editableUser.value = { ...userStore.selectedUser };
+        initialUser.value = { ...userStore.selectedUser };
       }
     }
   } finally {

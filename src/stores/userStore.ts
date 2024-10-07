@@ -205,6 +205,30 @@ export const useUserStore = defineStore('user', {
       }
    },
 
+   async updateAdminNote (id: number, adminNote: string | null) {
+    try {
+      await api.put('/users/updateAdminNote', {
+        id,
+        adminNote,
+      });
+      Notify.create({
+        color: 'positive',
+        message: 'Admin note updated',
+        position: 'bottom',
+        icon: 'check',
+        closeBtn: 'X',
+        textColor: 'black',
+      });
+    } catch (error) {
+      Notify.create({
+        color: 'negative',
+        message: 'Error updating admin note',
+        position: 'bottom',
+        icon: 'report_problem',
+      });
+    }
+  },
+
     clearSelectedUserInfo() {
       this.selectedUser = undefined;
       this.selectedUserAvatar = '';
