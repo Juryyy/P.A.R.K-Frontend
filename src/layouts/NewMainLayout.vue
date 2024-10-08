@@ -71,8 +71,8 @@
         </div>
       </q-drawer>
     </div>
-    <q-drawer show-if-above v-model="rightDrawerOpen" side="right" elevated>
-      <q-scroll-area class="fit">
+    <q-drawer show-if-above v-model="rightDrawerOpen" side="right" elevated class="right-drawer">
+      <div class="user-info-section">
         <q-img src="/background.jpg" style="height: 150px">
           <div class="bg-transparent absolute-center q-pa-md drawer-avatar-box">
             <q-avatar size="80px" class="q-mr-md clickable-avatar" @click="viewUser(user)">
@@ -101,7 +101,9 @@
             </div>
           </div>
         </q-img>
+      </div>
 
+      <q-scroll-area class="exam-cards-scroll-area">
         <q-card-section class="q-pa-md">
           <q-card
             v-for="exam in usersExamsRef"
@@ -140,7 +142,7 @@
                 <span v-else>{{ exam.note }}</span>
               </div>
               <div class="row justify-end q-gutter-sm">
-                <q-btn color="primary" icon="visibility" label="View" @click="viewExam(exam.id)" />
+                <q-btn color="primary" icon="visibility" @click="viewExam(exam.id)" />
                 <q-btn color="secondary" icon="map" @click="showVenue(exam.venueLink)" />
                 <q-btn color="accent" icon="event" @click="addToGoogleCalendar(exam)" />
               </div>
@@ -166,7 +168,7 @@ import { ExamWithVenueLink, RoleEnum } from 'src/db/types';
 import { Loading } from 'quasar';
 import { getRoleColor } from 'src/helpers/Color';
 import { sortRoles } from 'src/helpers/FormatRole';
-import { formatDateString, formatTimeString } from 'src/helpers/formatTime';
+import { formatDateString, formatTimeString } from 'src/helpers/FormatTime';
 
 const userStore = useUserStore();
 const authStore = useAuthStore();
@@ -218,12 +220,17 @@ const essentialLinks: EssentialLinkProps[] = [
     icon: 'home',
   },
   {
-    title: 'Availability',
+    title: 'My Availability',
     link: '/availabilty-check',
     icon: 'calendar_today',
   },
   {
-    title: 'Users',
+    title: 'My Profile',
+    link: '/user/' + user.value?.id,
+    icon: 'person',
+  },
+  {
+    title: 'Other Users',
     link: '/users',
     icon: 'people',
   },
@@ -401,6 +408,6 @@ updateIsMobile();
 
 .exam-cards-scroll-area {
   flex-grow: 1;
-  height: calc(100% - 150px); // Adjust based on the height of your user info section
+  height: calc(100% - 150px);
 }
 </style>

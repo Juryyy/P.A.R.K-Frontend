@@ -1,6 +1,6 @@
 <template>
-  <div class="container">
-    <q-card bordered :class="cardClass + ' top-card '" v-if="editableExam">
+  <div class="container q-mb-md" >
+    <q-card bordered :class="cardClass" v-if="editableExam">
       <q-card-section>
         <b v-if="editableExam.isPrepared && !editableExam.isCompleted" class="text-green text-bold text-h5">This exam is marked as ready!</b>
         <b v-else-if="editableExam.isCompleted" class="text-orange text-bold text-h5">This exam is completed!</b>
@@ -58,14 +58,38 @@
         <q-separator class="q-my-sm" />
         <div v-for="(role, key) in roles" :key="key">
           {{ role.title }}:
-          <div v-if="exam[key].length === 0">No {{ key }} assigned</div>
+          <div v-if="editableExam[key].length === 0">No {{ key }} assigned</div>
           <div
-            class="text-bold"
+            class="text-bold personnel-item"
             v-else
-            v-for="person in exam[key]"
+            v-for="person in editableExam[key]"
             :key="person.id"
           >
             {{ person.firstName }} {{ person.lastName }}
+            <q-icon
+              :name="getConfirmationIcon(person.id, key)"
+              :color="getConfirmationColor(person.id, key)"
+              size="sm"
+              class="q-ml-sm"
+            >
+              <q-tooltip>
+                {{ getConfirmationTooltip(person.id, key) }}
+              </q-tooltip>
+            </q-icon>
+            <q-btn
+              v-if="isCurrentUser(person.id)"
+              flat
+              round
+              dense
+              :icon="getConfirmationButtonIcon(person.id, key)"
+              :color="getConfirmationButtonColor(person.id, key)"
+              @click="toggleConfirmation(person.id, key)"
+              class="q-ml-sm"
+            >
+              <q-tooltip>
+                {{ getConfirmationButtonTooltip(person.id, key) }}
+              </q-tooltip>
+            </q-btn>
           </div>
         </div>
         <q-separator class="q-mt-sm" />
@@ -235,6 +259,8 @@ import { AbsentCandidates, Exam } from 'src/db/types';
 import { formatTimeString } from 'src/helpers/FormatTime';
 import { getLevelColor } from 'src/helpers/Color';
 import { getFileIcon } from 'src/helpers/FileType';
+import { RoleEnum } from 'src/db/types';
+import { useUserStore } from 'src/stores/userStore';
 
 const examStore = useExamStore();
 
@@ -249,6 +275,9 @@ const comment = ref<string>();
 const issues = ref<string>();
 const absent = ref<number>();
 const examForm = ref<QForm | null>(null);
+
+const userStore = useUserStore();
+const currentUser = computed(() => userStore.user);
 
 const levels = computed(() => {
   return editableExam.value?.levels.join(', ');
@@ -333,7 +362,7 @@ const saveExamDayReport = async () => {
     absent.value,
     comment.value,
     issues.value,
-    absentCandidates.value  // Add this line to include absent candidates data
+    absentCandidates.value
   );
 };
 
@@ -379,6 +408,61 @@ const cardClass = computed(() => {
     return 'top-card q-ma-md';
   }
 });
+
+const getConfirmationStatus = (userId: number, roleKey: string) => {
+  const confirmation = editableExam.value?.userConfirmations.find(
+    conf => conf.userId === userId && conf.role === roleKey.toUpperCase()
+  );
+  return confirmation?.isConfirmed ?? false;
+};
+
+const getConfirmationIcon = (userId: number, roleKey: string) => {
+  return getConfirmationStatus(userId, roleKey) ? 'check_circle' : 'cancel';
+};
+
+const getConfirmationColor = (userId: number, roleKey: string) => {
+  return getConfirmationStatus(userId, roleKey) ? 'positive' : 'negative';
+};
+
+const getConfirmationTooltip = (userId: number, roleKey: string) => {
+  return getConfirmationStatus(userId, roleKey) ? 'Confirmed' : 'Not confirmed';
+};
+
+const isCurrentUser = (userId: number) => {
+  return currentUser.value?.id === userId;
+};
+
+const getConfirmationButtonIcon = (userId: number, roleKey: string) => {
+  return getConfirmationStatus(userId, roleKey) ? 'close' : 'check';
+};
+
+const getConfirmationButtonColor = (userId: number, roleKey: string) => {
+  return getConfirmationStatus(userId, roleKey) ? 'negative' : 'positive';
+};
+
+const getConfirmationButtonTooltip = (userId: number, roleKey: string) => {
+  return getConfirmationStatus(userId, roleKey) ? 'Cancel confirmation' : 'Confirm';
+};
+
+const toggleConfirmation = async (userId: number, roleKey: string) => {
+  if (!editableExam.value) return;
+
+  const currentStatus = getConfirmationStatus(userId, roleKey);
+  try {
+    //await examStore.toggleExamConfirmation(
+    ////  editableExam.value.id,
+    //  userId,
+    //  roleKey.toUpperCase() as RoleEnum,
+    //  !currentStatus
+    //);
+    // Refresh the exam data after toggling confirmation
+
+    initializeEditableExam();
+  } catch (error) {
+    console.error('Failed to toggle confirmation:', error);
+    // Handle error (show notification to user)
+  }
+};
 </script>
 
 
@@ -391,7 +475,7 @@ const cardClass = computed(() => {
 
 .top-card {
   width: 90%;
-  margin-bottom: 1rem;
+  margin-bottom: 3rem;
 }
 
 .form-card {

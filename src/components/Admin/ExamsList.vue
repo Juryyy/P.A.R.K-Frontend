@@ -2,8 +2,8 @@
   <div class="exam-schedule q-pa-md">
     <h2 class="text-h4 q-mb-md">Exams</h2>
     <div v-for="(monthDays, monthYear) in groupedDays" :key="monthYear">
-      <div class="text-h5 q-my-md">{{ formatMonthYear(monthYear) }}</div>
-      <q-separator v-if="isNewYear(monthYear)" class="q-my-lg" />
+      <div class="text-h5 q-my-md">{{ formatMonthYear(String(monthYear)) }}</div>
+      <q-separator v-if="isNewYear(String(monthYear))" class="q-my-lg" />
       <q-list class="rounded-borders">
         <div v-for="day in monthDays" :key="day.id" class="custom-expansion-item q-mb-md">
           <q-expansion-item
@@ -143,7 +143,7 @@ const isNewYear = (monthYear: string) => {
 
 const groupDaysByMonthAndYear = (days: DayOfExamsC[]) => {
   const sortedDays = [...days].sort((b, a) => new Date(a.date).getTime() - new Date(b.date).getTime());
-  return groupBy(sortedDays, (day) => {
+  return groupBy(sortedDays, (day : any) => {
     const date = new Date(day.date);
     return `${date.getFullYear()}-${date.getMonth()}`;
   });

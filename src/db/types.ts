@@ -65,6 +65,15 @@ export interface AbsentCandidates {
   level: string
 }
 
+export interface userConfirmations {
+  id: number;
+  examId: number;
+  userId: number;
+  role: RoleEnum;
+  isConfirmed: boolean;
+  confirmedAt: Date | null | undefined;
+}
+
 export interface Exam {
   id: number;
   venue: string;
@@ -88,6 +97,7 @@ export interface Exam {
   isCompleted: boolean;
   dayReportId?: number | null;
   dayReport?: DayReport | null;
+  userConfirmations: userConfirmations[];
 }
 
 export interface ExamWithVenueLink extends Exam {
