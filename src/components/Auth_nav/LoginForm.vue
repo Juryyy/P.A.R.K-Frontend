@@ -172,7 +172,7 @@ const validate = async (event: Event) => {
     if (localStorage.getItem('id')) {
       Loading.show();
       userStore.getUserInfo();
-      await userStore.getUsersAvatar();
+      //await userStore.getUsersAvatar(); for now
       await userStore.getUsersExams();
       router.push('/');
       Loading.hide();
