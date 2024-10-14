@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <q-card bordered :class="cardClass + ' q-ma-md top-card'" v-if="editableExam">
+    <q-card :class="['exam-card', 'q-ma-md', 'top-card', cardClass]" v-if="editableExam">
       <q-card-section>
         <b v-if="editableExam.isPrepared && !editableExam.isCompleted" class="text-green text-bold text-h5">This exam is marked as ready!</b>
         <b v-else-if="editableExam.isCompleted" class="text-orange text-bold text-h5">This exam is completed!</b>
@@ -242,7 +242,8 @@
         </div>
         <q-separator class="q-my-sm" />
         <q-btn
-          color="blue"
+          :color="editableExam.isPrepared ? 'warning' : 'blue'"
+          icon="event_available"
           :label="editableExam.isPrepared ? 'Unprepare Exam' : 'Prepare Exam'"
           @click="prepareExam()"
           class="q-ma-sm"
@@ -576,6 +577,7 @@ const saveChanges = async () => {
 };
 
 const prepareExam = async () => {
+  if(!editableExam.value?.isPrepared)
   Dialog.create({
     title: 'Prepare Exam',
     message: 'You want to inform all workers about this exam? It is recommended to not edit the exam after preparing it.',
@@ -614,6 +616,27 @@ const prepareExam = async () => {
       initializeEditableExam();
     }
   });
+
+  else {
+    Dialog.create({
+      title: 'Unprepare Exam',
+      message: 'You want to unprepare this exam? When you will prepare it again, all workers will be informed again.',
+      ok: {
+        label: 'Yes',
+        color: 'positive',
+      },
+      cancel: {
+        label: 'No',
+        color: 'negative',
+      },
+    }).onOk(async () => {
+      if (editableExam.value) {
+        await examStore.updatePrepared(editableExam.value.id, !editableExam.value.isPrepared);
+        await examStore.getExam(editableExam.value.id);
+        initializeEditableExam();
+      }
+    });
+  }
 };
 
 const complete = async () => {
@@ -680,11 +703,11 @@ const deleteFile = async (fileId: number, fileName: string) => {
 
 const cardClass = computed(() => {
   if (editableExam.value?.isPrepared && !editableExam.value?.isCompleted) {
-    return 'positive-border top-card q-ma-md';
+    return 'is-prepared';
   } else if (editableExam.value?.isCompleted) {
-    return 'complete-border top-card q-ma-md';
+    return 'is-completed';
   } else {
-    return 'top-card q-ma-md';
+    return '';
   }
 });
 
@@ -740,23 +763,17 @@ const cardClass = computed(() => {
   }
 }
 
-.border {
-  border: 1px solid #cacaca;
-  border-radius: 5px;
-  margin: 0.5rem;
-  padding: 0.5rem;
-}
-
 .clickable-name {
   cursor: pointer;
 }
 
-.positive-border {
-  border: 3px solid #CBE09D;
-}
+.exam-card {
+  transition: all 0.3s ease;
+  border-left: 5px solid $grey-5;
 
-.complete-border {
-  border: 3px solid #FFD700;
+  &.is-prepared {
+    border-left-color: $positive;
+  }
 }
 
 .file-item {

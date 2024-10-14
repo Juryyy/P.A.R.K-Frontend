@@ -1,6 +1,6 @@
 <template>
   <div class="exam-schedule q-pa-md">
-    <h2 class="text-h4 q-mb-md">Exams</h2>
+    <h2 class="text-h4 q-mb-md">View Exams</h2>
     <div v-for="(monthDays, monthYear) in groupedDays" :key="monthYear">
       <div class="text-h5 q-my-md">{{ formatMonthYear(String(monthYear)) }}</div>
       <q-separator v-if="isNewYear(String(monthYear))" class="q-my-lg" />
