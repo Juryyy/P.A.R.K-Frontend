@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <q-card bordered :class="cardClass + ' q-ma-md top-card'" v-if="editableExam">
+    <q-card :class="['exam-card', 'q-ma-md', 'top-card', cardClass]" v-if="editableExam">
       <q-card-section>
         <b v-if="editableExam.isPrepared && !editableExam.isCompleted" class="text-green text-bold text-h5">This exam is marked as ready!</b>
         <b v-else-if="editableExam.isCompleted" class="text-orange text-bold text-h5">This exam is completed!</b>
@@ -12,13 +12,14 @@
             round
             class="right q-mt-xs"
             size="xs"
-            />
+          />
           <q-select
             v-model="editableExam.type"
             label="Type"
             :options="examTypes"
             transition-show="scale"
             transition-hide="scale"
+            :disable="isExamLocked"
           />
           <q-select
             v-model="editableExam.location"
@@ -27,6 +28,7 @@
             transition-show="scale"
             transition-hide="scale"
             @update:model-value="updateExamVenues"
+            :disable="isExamLocked"
           />
           <q-select
             v-model="editableExam.venue"
@@ -35,6 +37,7 @@
             transition-show="scale"
             transition-hide="scale"
             :rules="[ (val) => !!val || 'Venue is required' ]"
+            :disable="isExamLocked"
           />
           <q-select
             v-model="editableExam.levels"
@@ -45,21 +48,25 @@
             multiple
             counter
             use-chips
+            :disable="isExamLocked"
           />
           <q-input
             v-model="editableExam.startTime"
             label="Start Time"
             type="time"
+            :disable="isExamLocked"
           />
           <q-input
             v-model="editableExam.endTime"
             label="End Time"
             type="time"
+            :disable="isExamLocked"
           />
           <q-input
             v-model="editableExam.note"
             label="Note"
             type="textarea"
+            :disable="isExamLocked"
           />
         </div>
         <div v-else>
@@ -118,36 +125,39 @@
         @click="editmode = !editmode"
         round
         class="right q-mt-xs"
-        />
-        <q-btn
-          v-if="editmode"
-          color="primary"
-          icon="save"
-          @click="saveChanges()"
-          round
-          class="right q-mt-xs"
-        />
-        <q-separator class="q-my-sm" />
-        <div v-for="(role, key) in roles" :key="key">
-          {{ role.title }}:
-          <div v-if="exam[key].length === 0">No {{ key }} assigned</div>
-          <div
-            class="text-bold"
-            v-else
-            v-for="person in exam[key]"
-            :key="person.id"
-          >
-            {{ person.firstName }} {{ person.lastName }}
-            <q-btn
-              @click="removeFromExam(exam.id, person.id, role.title)"
-              icon="remove"
-              round
-              color="negative"
-              size="xs"
-            />
-          </div>
+        :disable="isExamLocked"
+      />
+      <q-btn
+        v-if="editmode"
+        color="primary"
+        icon="save"
+        @click="saveChanges()"
+        round
+        class="right q-mt-xs"
+        :disable="isExamLocked"
+      />
+      <q-separator class="q-my-sm" />
+      <div v-for="(role, key) in roles" :key="key">
+        {{ role.title }}:
+        <div v-if="exam[key].length === 0">No {{ key }} assigned</div>
+        <div
+          class="text-bold"
+          v-else
+          v-for="person in exam[key]"
+          :key="person.id"
+        >
+          {{ person.firstName }} {{ person.lastName }}
+          <q-btn
+            @click="removeFromExam(exam.id, person.id, role.title)"
+            icon="remove"
+            round
+            color="negative"
+            size="xs"
+            :disable="isExamLocked"
+          />
         </div>
-        <q-separator class="q-mt-sm" />
+      </div>
+      <q-separator class="q-mt-sm" />
 
         <div>
           <q-file
@@ -178,74 +188,80 @@
         </div>
         <p class="text-h6 q-mt-sm">Files:</p>
         <div v-if="exam.files && exam.files.length > 0">
-          <div v-for="file in exam.files" :key="file.id" class="q-mt-sm">
+          <div v-for="file in exam.files" :key="file.id" class="q-mt-sm file-item">
+            <q-icon :name="getFileIcon(file.name)" size="24px" class="q-mr-sm" />
+            <span class="file-name">{{ file.name }}</span>
             <q-btn
-              color="secondary"
-              :label="file.name"
+              flat
+              dense
+              round
+              icon="download"
               @click="downloadFile(file.id ?? 0, file.name)"
               :loading="file.id !== undefined ? loadingFiles[file.id] : false"
-              unelevated
             >
               <template v-slot:loading>
                 <q-spinner size="20px" />
               </template>
             </q-btn>
             <q-btn
+              flat
+              dense
+              round
               color="negative"
               icon="delete"
               @click="deleteFile(file.id || 0, file.name)"
-              class="q-ma-sm"
             />
           </div>
         </div>
+
         <q-separator class="q-my-sm" v-if="editableExam.dayReport" />
         <p v-if="editableExam.dayReport" class="text-h6 q-mt-sm">Exam Day Report:</p>
-        <div v-if="editableExam.dayReport">
+        <div v-if="editableExam.dayReport" class="q-mt-sm file-item">
+          <q-icon name="picture_as_pdf" size="24px" class="q-mr-sm" />
+          <span class="file-name">{{ editableExam.dayReport.name }}</span>
           <q-btn
-            color="secondary"
-            :label="editableExam.dayReport.name"
+            flat
+            dense
+            round
+            icon="download"
             @click="downloadExamDayReport(editableExam.dayReport.id, editableExam.dayReport.name)"
             :loading="loadingFiles[editableExam.dayReport.id] ?? false"
-            unelevated
           >
             <template v-slot:loading>
               <q-spinner size="20px" />
             </template>
           </q-btn>
           <q-btn
+            flat
+            dense
+            round
             color="negative"
             icon="delete"
             @click="deleteFile(editableExam.dayReport.id, editableExam.dayReport.name)"
-            class="q-ma-sm"
           />
         </div>
         <q-separator class="q-my-sm" />
         <q-btn
-          color="blue"
+          :color="editableExam.isPrepared ? 'warning' : 'blue'"
+          icon="event_available"
           :label="editableExam.isPrepared ? 'Unprepare Exam' : 'Prepare Exam'"
           @click="prepareExam()"
           class="q-ma-sm"
           rounded
         />
-        <!--<q-btn
-          color="primary"
-          :label="editableExam.isCompleted ? 'Uncomplete Exam' : 'Complete exam'"
-          @click="complete()"
-          class="q-ma-sm"
-          rounded
-        />-->
         <q-btn
           color="negative"
           label="Delete Exam"
           @click="deleteExam()"
           class="q-ma-sm"
           rounded
+          :disable="isExamLocked"
         />
       </q-card-section>
     </q-card>
 
     <div class="override-section">
-      <q-toggle class="text-h6" v-model="isOverrideActive">
+      <q-toggle class="text-h6" v-model="isOverrideActive" :disable="isExamLocked">
         Switch to override responses
       </q-toggle>
       <div v-for="(role, key) in roles" :key="key">
@@ -305,6 +321,7 @@
                             round
                             color="primary"
                             size="xs"
+                            :disable="isExamLocked"
                           />
                         </div>
                         {{ response.userNote }}
@@ -331,6 +348,7 @@ import { useRouter } from 'vue-router';
 import { useAdminStore } from 'src/stores/adminStore';
 import { Dialog, Notify } from 'quasar';
 import { getLevelColor } from 'src/helpers/Color';
+import { getFileIcon } from 'src/helpers/FileType';
 
 const examStore = useExamStore();
 const examDayStore = useExamDayStore();
@@ -348,6 +366,10 @@ const examTypes = Object.values(ExamTypeEnum);
 const levelOptions = Object.values(LevelEnum);
 const examLocations = ref<string[]>([]);
 const examVenues = ref<string[]>([]);
+
+const isExamLocked = computed(() => {
+  return editableExam.value?.isPrepared || editableExam.value?.isCompleted;
+});
 
 const initializeLocations = () => {
   examLocations.value = adminStore.locationsWithVenues.map((location: Location) => location.name);
@@ -431,9 +453,11 @@ const addToExam = async (
   dayId: number,
   position: string
 ) => {
-  await examStore.addWorker(examId, userId, override, position);
-  await examDayStore.loadResponsesForExamDay(dayId);
-  await examStore.getExam(examId);
+  if (!isExamLocked.value) {
+    await examStore.addWorker(examId, userId, override, position);
+    await examDayStore.loadResponsesForExamDay(dayId);
+    await examStore.getExam(examId);
+  }
 };
 
 const removeFromExam = async (
@@ -441,10 +465,12 @@ const removeFromExam = async (
   userId: number,
   position: string
 ) => {
-  await examStore.removeWorker(examId, userId, position);
-  await examStore.getExam(examId);
-  const dayId = props.responses[0].dayOfExamsId;
-  await examDayStore.loadResponsesForExamDay(dayId);
+  if (!isExamLocked.value) {
+    await examStore.removeWorker(examId, userId, position);
+    await examStore.getExam(examId);
+    const dayId = props.responses[0].dayOfExamsId;
+    await examDayStore.loadResponsesForExamDay(dayId);
+  }
 };
 
 const onFileChange = (files: File[]) => {
@@ -542,15 +568,16 @@ const goToUserProfile = (userId: number) => {
 };
 
 const saveChanges = async () => {
-  if (editableExam.value) {
+  if (editableExam.value && !isExamLocked.value) {
     await examStore.updateExam(editableExam.value);
     await examStore.getExam(editableExam.value.id);
-    initializeEditableExam(); // Reinitialize editableExam with formatted times
+    initializeEditableExam();
     editmode.value = false;
   }
 };
 
 const prepareExam = async () => {
+  if(!editableExam.value?.isPrepared)
   Dialog.create({
     title: 'Prepare Exam',
     message: 'You want to inform all workers about this exam? It is recommended to not edit the exam after preparing it.',
@@ -589,6 +616,27 @@ const prepareExam = async () => {
       initializeEditableExam();
     }
   });
+
+  else {
+    Dialog.create({
+      title: 'Unprepare Exam',
+      message: 'You want to unprepare this exam? When you will prepare it again, all workers will be informed again.',
+      ok: {
+        label: 'Yes',
+        color: 'positive',
+      },
+      cancel: {
+        label: 'No',
+        color: 'negative',
+      },
+    }).onOk(async () => {
+      if (editableExam.value) {
+        await examStore.updatePrepared(editableExam.value.id, !editableExam.value.isPrepared);
+        await examStore.getExam(editableExam.value.id);
+        initializeEditableExam();
+      }
+    });
+  }
 };
 
 const complete = async () => {
@@ -655,11 +703,11 @@ const deleteFile = async (fileId: number, fileName: string) => {
 
 const cardClass = computed(() => {
   if (editableExam.value?.isPrepared && !editableExam.value?.isCompleted) {
-    return 'positive-border top-card q-ma-md';
+    return 'is-prepared';
   } else if (editableExam.value?.isCompleted) {
-    return 'complete-border top-card q-ma-md';
+    return 'is-completed';
   } else {
-    return 'top-card q-ma-md';
+    return '';
   }
 });
 
@@ -715,22 +763,34 @@ const cardClass = computed(() => {
   }
 }
 
-.border {
-  border: 1px solid #cacaca;
-  border-radius: 5px;
-  margin: 0.5rem;
-  padding: 0.5rem;
-}
-
 .clickable-name {
   cursor: pointer;
 }
 
-.positive-border {
-  border: 3px solid #CBE09D;
+.exam-card {
+  transition: all 0.3s ease;
+  border-left: 5px solid $grey-5;
+
+  &.is-prepared {
+    border-left-color: $positive;
+  }
 }
 
-.complete-border {
-  border: 3px solid #FFD700;
+.file-item {
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  border-radius: 4px;
+  max-width: 15rem;
+  background-color: rgba(0, 0, 0, 0.03);
+  margin-bottom: 8px;
+}
+
+.file-name {
+  flex-grow: 1;
+  margin-right: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 </style>

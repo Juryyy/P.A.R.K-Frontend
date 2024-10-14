@@ -1,85 +1,132 @@
 <template>
   <q-page class="page-container">
     <div class="q-pa-md content-container">
-      <h4 v-if="userResponses.length === 0">No availability yet, wait for Center Exam Manager to create some</h4>
-      <q-table v-else
-        class="primary-header"
-        :rows="userResponses"
-        :columns="columns"
-        row-key="date"
-        :hide-pagination="true"
-        :rows-per-page-options="[0]"
-        flat
-        bordered
-        square
-      >
-        <template v-slot:body-cell-action="props">
-          <q-td :props="props">
-            <div class="q-gutter-xs response-layout">
-              <div class="response-group compact-width">
-                <q-option-group
-                  v-model="props.row.response"
-                  :options="options.slice(0, 2)"
-                  type="radio"
-                  inline
-                  :disable="props.row.isLocked"
-                />
-              </div>
-              <div class="response-group compact-width">
-                <q-option-group
-                  v-model="props.row.response"
-                  :options="options.slice(2)"
-                  type="radio"
-                  inline
-                  :disable="props.row.isLocked"
-                />
-              </div>
-            </div>
-          </q-td>
-        </template>
-        <template v-slot:bottom>
-          <div class="q-pa-sm q-gutter-sm flex flex-row-reverse">
-            <q-btn push color="primary" label="Submit" @click="handleSubmit" />
-          </div>
-        </template>
-      </q-table>
+      <h4 v-if="userResponses.length === 0" class="text-center text-h5 text-weight-medium q-mb-xl">
+        No availability yet. Please wait for the Center Exam Manager to create some.
+      </h4>
+      <q-card v-else class="availability-card">
+        <q-card-section>
+          <div class="text-h6 text-weight-bold q-mb-md">Availability Response</div>
+        </q-card-section>
+        <q-separator />
+        <q-card-section>
+          <q-table
+            class="availability-table"
+            :rows="userResponses"
+            :columns="columns"
+            row-key="date"
+            :hide-pagination="true"
+            :rows-per-page-options="[0]"
+            flat
+            bordered
+          >
+            <template v-slot:header="props">
+              <q-tr :props="props">
+                <q-th v-for="col in props.cols" :key="col.name" :props="props" class="text-weight-bold">
+                  {{ col.label }}
+                </q-th>
+              </q-tr>
+            </template>
+            <template v-slot:body-cell-date="props">
+              <q-td :props="props" class="text-weight-medium">
+                {{ formatDate(props.row.date) }}
+              </q-td>
+            </template>
+            <template v-slot:body-cell-action="props">
+              <q-td :props="props">
+                <div class="response-layout q-gutter-y-sm">
+                  <q-option-group
+                    v-model="props.row.response"
+                    :options="options"
+                    type="radio"
+                    inline
+                    :disable="props.row.isLocked"
+                    dense
+                    class="response-group"
+                  >
+                    <template v-slot:label="{ label, value }">
+                      <q-chip
+                        :color="getChipColor(value)"
+                        text-color="black"
+                        :label="label"
+                        size="md"
+                        :class="{ 'q-chip--selected': props.row.response === value }"
+                      />
+                    </template>
+                  </q-option-group>
+                </div>
+              </q-td>
+            </template>
+          </q-table>
+        </q-card-section>
+        <q-separator />
+        <q-card-actions align="right" class="q-pa-md">
+          <q-btn
+            unelevated
+            color="primary"
+            label="Submit Responses"
+            @click="handleSubmit"
+            :loading="submitting"
+          />
+        </q-card-actions>
+      </q-card>
     </div>
   </q-page>
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue';
 import { useAvailabilityStore } from '../../stores/availabilityStore'
 import { UserAnswers, UserResponses } from 'src/db/types';
 
-const { userResponses }: { userResponses: UserResponses[] } =
-  useAvailabilityStore();
+const { userResponses }: { userResponses: UserResponses[] } = useAvailabilityStore();
+const submitting = ref(false);
 
 const columns: any = [
   {
     name: 'date',
     required: true,
-    label: 'Available dates',
+    label: 'Available Dates',
     align: 'left',
     field: 'date',
     sortable: true,
-    format: (val: string) => new Date(val).toLocaleDateString(),
   },
-  { name: 'action', align: 'center', label: 'Response', field: 'response' },
+  { name: 'action', align: 'center', label: 'Your Response', field: 'response' },
 ];
 
 const options = [
-  { label: 'Yes', value: 'Yes' },
-  { label: 'No', value: 'No' },
+  { label: 'YES', value: 'Yes' },
   { label: 'AM', value: 'AM' },
   { label: 'PM', value: 'PM' },
+  { label: 'NO', value: 'No' },
 ];
 
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+};
+
+const getChipColor = (value: string) => {
+  switch (value) {
+    case 'Yes': return 'positive';
+    case 'No': return 'negative';
+    case 'AM': return 'info';
+    case 'PM': return 'warning';
+    default: return 'grey';
+  }
+};
+
 const handleSubmit = async () => {
-  const answers: UserAnswers[] = userResponses.map((day) => ({
-    id: day.id,
-    response: day.response,
-  }));
-  await useAvailabilityStore().submitResponses(answers);
+  submitting.value = true;
+  try {
+    const answers: UserAnswers[] = userResponses.map((day) => ({
+      id: day.id,
+      response: day.response,
+    }));
+    await useAvailabilityStore().submitResponses(answers);
+  } finally {
+    submitting.value = false;
+  }
 };
 </script>
 
@@ -87,27 +134,38 @@ const handleSubmit = async () => {
 .page-container {
   display: flex;
   justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  padding: 2rem 1rem;
 }
 
 .content-container {
   width: 100%;
-  margin: 0 auto; /* Center align */
+  max-width: 800px;
+  margin: 0 auto;
+}
 
-  /* Quasar provides breakpoints as CSS classes */
-  @media (min-width: 600px) {
-    max-width: 50%;
+.availability-card {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.availability-table {
+  .q-table__top,
+  .q-table__bottom,
+  thead tr:first-child th {
+    background-color: #f8f8f8;
   }
 
-  @media (min-width: 1024px) {
-    max-width: 40%;
+  thead tr th {
+    font-weight: bold;
   }
 
-  @media (min-width: 1280px) {
-    max-width: 35%;
-  }
-
-  @media (min-width: 1440px) {
-    max-width: 30%;
+  tbody td {
+    padding-top: 12px;
+    padding-bottom: 12px;
   }
 }
 
@@ -115,30 +173,36 @@ const handleSubmit = async () => {
   display: flex;
   justify-content: center;
   align-items: center;
-  flex-direction: column;
 }
 
 .response-group {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
-  align-items: center;
+  gap: 0.5rem;
 }
 
-.compact-width {
-  max-width: 100%; /* Adjust the max-width as necessary */
-}
+.q-chip {
+  transition: all 0.3s ease;
+  font-size: 14px; // Increased font size
+  font-weight: 500; // Medium font weight for better readability
 
-.q-table .q-table__body > tr > td {
-  vertical-align: middle;
-  text-align: center;
+  &--selected {
+    transform: scale(1.05);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
 }
 
 @media (max-width: 600px) {
+  .page-container {
+    padding: 1rem 0.5rem;
+  }
+
   .response-layout {
     flex-direction: column;
-    align-items: stretch;
   }
-  .compact-width {
+
+  .response-group {
     width: 100%;
   }
 }

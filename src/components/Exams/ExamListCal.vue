@@ -1,183 +1,185 @@
 <template>
-  <q-page class="full-width">
-    <div class="calendar-container q-mt-md">
-      <q-date
-        class="vertical-top"
-        first-day-of-week="1"
-        v-model="state.selectedDate"
-        no-unset
-        mask="YYYY-MM-DD"
-        :events="highlightDays"
-        :event-color="colorPick"
-        today-btn
-      >
-      </q-date>
-    </div>
-
-    <q-intersection class="q-ma-md primaried" v-if="state.selectedDate">
-      <div class="cards-container q-mt-md q-flex q-flex-wrap q-justify-around">
-        <q-card
-          bordered
-          :class="cardClass(exam)"
-          v-for="exam in filteredExams"
-          :key="exam.id"
-        >
+  <q-page class="q-pa-md">
+    <div class="row q-col-gutter-lg">
+      <!-- Calendar Column -->
+      <div class="col-12 col-md-4">
+        <q-card class="calendar-card">
           <q-card-section>
-            <div class="text-h5">{{ exam.type }}</div>
-            <div class="text-h6">Location: {{ exam.location + ' - ' + exam.venue }}</div>
-            <div>Levels: {{ exam.levels.join(', ') }}</div>
-            <div>Start time: {{ formatTimeString(exam.startTime) }}</div>
-            <div>End time: {{ formatTimeString(exam.endTime) }}</div>
-            <div>
-              Note:
-              <span
-                v-if="shouldShowMoreLink(exam.note)"
-                @click="showFullNoteDialog()"
-              >
-                {{ truncatedNote(exam.note) }}
-                <span class="more-link">...more</span>
-              </span>
-              <span v-else>
-                {{ exam.note }}
-              </span>
-            </div>
-            <q-separator />
-            <div>
-              Supervisors:
-              <div v-if="exam.supervisors.length === 0">
-                No supervisors assigned
-              </div>
-
-              <div
-                v-else
-                v-for="supervisor in exam.supervisors"
-                :key="supervisor.id"
-              >
-                <b>{{ supervisor.firstName }} {{ supervisor.lastName }}</b>
-              </div>
-            </div>
-
-            <div>
-              Invigilators:
-              <div v-if="exam.invigilators.length === 0">
-                No invigilators assigned
-              </div>
-
-              <div
-                v-else
-                v-for="invigilator in exam.invigilators"
-                :key="invigilator.id"
-              >
-                <b>{{ invigilator.firstName }} {{ invigilator.lastName }}</b>
-              </div>
-            </div>
-
-            <div>
-              Examiners:
-              <div v-if="exam.examiners.length === 0">
-                No examiners assigned
-              </div>
-              <div v-else v-for="examiner in exam.examiners" :key="examiner.id">
-                <b>{{ examiner.firstName }} {{ examiner.lastName }}</b>
-              </div>
+            <div class="text-h5 q-mb-md">Exam Calendar</div>
+            <q-date
+              v-model="state.selectedDate"
+              first-day-of-week="1"
+              mask="YYYY-MM-DD"
+              :events="highlightDays"
+              :event-color="colorPick"
+              today-btn
+              no-unset
+              class="full-width"
+            />
+          </q-card-section>
+          <q-card-section>
+            <div class="text-subtitle1 q-mb-sm">Legend:</div>
+            <div class="row q-gutter-md items-center">
+              <q-chip color="red" size="large" label="Missing Exams" />
+              <q-chip color="orange" size="large" label="Exams Scheduled" />
+              <q-chip color="blue" size="large" label="All Exams Prepared" />
             </div>
           </q-card-section>
-          <q-card-actions>
-            <q-btn
-              color="primary"
-              label="Edit Exam"
-              @click="editExam(exam.id)"
-            />
-            <q-dialog v-model="showNoteDialog">
-              <q-card class="note-dialog-card">
-                <q-card-section>
-                  <div class="text-h6">Full Note</div>
-                  <div class="note-content">{{ exam?.note }}</div>
-                </q-card-section>
-                <q-card-actions align="right">
-                  <q-btn
-                    color="primary"
-                    label="Close"
-                    @click="showNoteDialog = false"
-                  />
-                </q-card-actions>
-              </q-card>
-            </q-dialog>
-          </q-card-actions>
         </q-card>
+      </div>
 
-        <div class="q-ma-md allign-bottom">
-          <q-btn
-            color="primary"
-            label="Create new Exam"
-            @click="state.showAddExam = true"
-          />
-        </div>
+      <!-- Exams List Column -->
+      <div class="col-12 col-md-8">
+        <q-card v-if="state.selectedDate" class="exam-list-card">
+          <q-card-section>
+            <div class="row items-center justify-between q-mb-lg">
+              <div class="text-h5">Exams for {{ formatDate(state.selectedDate) }}</div>
+              <q-btn color="primary" label="Create New Exam" @click="state.showAddExam = true" size="medium" />
+            </div>
+            <div v-if="filteredExams.length === 0" class="text-h6 text-center q-pa-xl">
+              No exams scheduled for this date.
+            </div>
+            <q-list separator>
+              <q-item v-for="exam in filteredExams" :key="exam.id" :class="cardClass(exam)" class="q-py-md">
+                <q-item-section>
+                  <q-item-label class="text-h6">{{ exam.type }}</q-item-label>
+                  <q-item-label class="text-subtitle1 q-mt-sm">{{ exam.location }} - {{ exam.venue }}</q-item-label>
+                  <q-item-label class="text-body q-mt-sm">Levels: {{ exam.levels.join(', ') }}</q-item-label>
+                  <q-item-label class="text-body q-mt-sm">Time: {{ formatTimeString(exam.startTime) }} - {{ formatTimeString(exam.endTime) }}</q-item-label>
+                  <q-item-label class="text-body q-mt-md">
+                    Note:
+                    <span v-if="shouldShowMoreLink(exam.note)" @click="showFullNoteDialog(exam.note)" class="cursor-pointer text-primary">
+                      {{ truncatedNote(exam.note) }}...more
+                    </span>
+                    <span v-else>{{ exam.note }}</span>
+                  </q-item-label>
+                </q-item-section>
+                <q-item-section side>
+                  <q-btn flat color="primary" label="Edit" @click="editExam(exam.id)" size="large" />
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-card-section>
+        </q-card>
+        <div v-else class="text-h5 text-center q-pa-xl">Select a date to view exams</div>
+      </div>
+    </div>
 
-        <q-dialog persistent v-model="state.showAddExam">
-          <q-card>
-            <q-card-section>
-              <div class="text-h6">Add new Exam</div>
-              <q-form>
+    <!-- Add New Exam Dialog -->
+    <q-dialog v-model="state.showAddExam" persistent>
+      <q-card style="width: 700px; max-width: 80vw;">
+        <q-card-section class="row items-center q-pb-none">
+          <div class="text-h6">Add New Exam</div>
+          <q-space />
+          <q-btn icon="close" flat round dense v-close-popup @click="resetInputExam" />
+        </q-card-section>
+
+        <q-card-section class="q-pt-sm">
+          <q-form @submit="addExam" class="q-gutter-md" ref="examForm">
+            <div class="row q-col-gutter-xs">
+              <div class="col-12 col-md-6">
                 <q-select
+                  dense
+                  filled
                   v-model="inputExam.location"
                   label="Location"
                   :options="examLocations"
-                  transition-show="scale"
-                  transition-hide="scale"
                   @update:model-value="updateExamVenues"
+                  :rules="[val => !!val || 'Location is required']"
                 />
+              </div>
+              <div class="col-12 col-md-6">
                 <q-select
-                  v-model="inputExam.type"
-                  label="Type"
-                  :options="examTypes"
-                  transition-show="scale"
-                  transition-hide="scale"
-                />
-                <q-select
+                  dense
+                  filled
                   v-model="inputExam.venue"
                   label="Venue"
                   :options="examVenues"
-                  transition-show="scale"
-                  transition-hide="scale"
+                  :rules="[val => !!val || 'Venue is required']"
                 />
+              </div>
+              <div class="col-12 col-md-6">
                 <q-select
+                  dense
+                  filled
+                  v-model="inputExam.type"
+                  label="Exam Type"
+                  :options="examTypes"
+                  :rules="[val => !!val || 'Exam type is required']"
+                />
+              </div>
+              <div class="col-12 col-md-6">
+                <q-select
+                  dense
+                  filled
                   v-model="inputExam.levels"
                   label="Levels"
                   :options="levelOptions"
-                  transition-show="scale"
-                  transition-hide="scale"
                   multiple
-                  counter
                   use-chips
+                  :rules="[val => val.length > 0 || 'At least one level must be selected']"
                 />
-
-                <q-input v-model="inputExam.startTime"
-                label="Start time"
-                type="time"
+              </div>
+              <div class="col-12 col-md-6">
+                <q-input
+                  dense
+                  filled
+                  v-model="inputExam.startTime"
+                  label="Start Time"
+                  type="time"
+                  :rules="[
+                    val => !!val || 'Start time is required',
+                    val => !inputExam.endTime || val < inputExam.endTime || 'Start time must be before end time'
+                  ]"
                 />
-
-                <q-input v-model="inputExam.endTime"
-                label="End time"
-                type="time"
+              </div>
+              <div class="col-12 col-md-6">
+                <q-input
+                  dense
+                  filled
+                  v-model="inputExam.endTime"
+                  label="End Time"
+                  type="time"
+                  :rules="[
+                    val => !!val || 'End time is required',
+                    val => !inputExam.startTime || val > inputExam.startTime || 'End time must be after start time'
+                  ]"
                 />
-                <q-input v-model="inputExam.note" label="Note" type="textarea" />
-              </q-form>
-            </q-card-section>
-            <q-card-actions align="right">
-              <q-btn
-                color="red"
-                label="Close"
-                @click="resetInputExam()"
-              />
-              <q-btn color="primary" label="Add" @click="addExam" />
-            </q-card-actions>
-          </q-card>
-        </q-dialog>
-      </div>
-    </q-intersection>
+              </div>
+              <div class="col-12">
+                <q-input
+                  dense
+                  filled
+                  v-model="inputExam.note"
+                  label="Note"
+                  type="text"
+                  rows="3"
+                />
+              </div>
+            </div>
+            <div class="row justify-end q-gutter-sm q-mt-md">
+              <q-btn label="Cancel" color="grey" flat @click="resetInputExam" />
+              <q-btn label="Add Exam" type="submit" color="primary" />
+            </div>
+          </q-form>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
 
-    <div v-else class="text-h4 flex-center">Choose date</div>
+    <!-- Full Note Dialog -->
+    <q-dialog v-model="showNoteDialog">
+      <q-card style="min-width: 350px; max-width: 80vw;">
+        <q-card-section>
+          <div class="text-h5">Full Note</div>
+        </q-card-section>
+        <q-card-section class="q-pt-none">
+          <p class="text-body1">{{ fullNote }}</p>
+        </q-card-section>
+        <q-card-actions align="right">
+          <q-btn flat label="Close" color="primary" v-close-popup size="large" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
@@ -213,6 +215,7 @@ const inputExam = reactive({
 });
 
 const showNoteDialog = ref(false);
+const fullNote = ref('');
 
 const examsRef = ref(exams);
 const currentDate = new Date();
@@ -382,8 +385,8 @@ const shouldShowMoreLink = (note: string | undefined) => {
   return note && note.length > maxLength;
 };
 
-// Function to open the dialog with the full note
-const showFullNoteDialog = () => {
+const showFullNoteDialog = (note: string) => {
+  fullNote.value = note;
   showNoteDialog.value = true;
 };
 
@@ -397,49 +400,69 @@ const cardClass = (exam: Exam) => {
   }
 };
 
+const formatDate = (dateString: string) => {
+  const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
+  return new Date(dateString).toLocaleDateString(undefined, options);
+};
+
 </script>
 
 <style lang="scss" scoped>
-.full-width {
-  width: 100%;
+.calendar-card, .exam-list-card {
+  height: 100%;
 }
 
-.calendar-container {
-  display: flex;
-  justify-content: center;
-}
+.exam-list-card {
+  .q-item {
+    border-left: 6px solid transparent;
+    transition: all 0.3s ease;
 
-.cards-container {
-  display: flex;
-}
-
-.border {
-  border: 1px solid black;
-  border-radius: 10px;
-}
-
-.allign-bottom {
-  align-self: flex-end;
-}
-
-.primaried {
-  background-color: #f0f0f0;
-  border-radius: 10px;
-}
-
-@media only screen and (max-width: 600px) {
-  .cards-container {
-    flex-direction: column;
-    align-items: center;
+    &:hover {
+      background-color: #f0f0f0;
+    }
   }
 }
 
 .positive-border {
-  border: 3px solid #CBE09D;
+  border-left-color: #21BA45 !important;
 }
 
 .complete-border {
-  border: 3px solid #FFD700;
+  border-left-color: #FFD700 !important;
+}
+
+// Global style to increase base font size
+.q-dialog__inner > div {
+  border-radius: 8px;
+}
+
+.q-card {
+  max-height: 90vh;
+  overflow-y: auto;
+  max-width: 90vw;
+}
+
+
+// Adjust input styles for better consistency
+:deep(.q-field) {
+  margin-bottom: 12px;
+}
+
+:deep(.q-field__control) {
+  height: 40px;
+}
+
+:deep(.q-field__native),
+:deep(.q-field__prefix),
+:deep(.q-field__suffix),
+:deep(.q-field__input) {
+  padding: 8px;
+  font-size: 14px !important;
+}
+
+// Adjust chip size in multi-select
+:deep(.q-chip) {
+  font-size: 12px;
+  height: 24px;
 }
 </style>
-

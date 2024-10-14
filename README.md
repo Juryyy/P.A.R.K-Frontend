@@ -42,9 +42,17 @@
 # - [?] Admin
 
 
-
-
-
 # - [ ] Add a description of the project
 # - [ ] Add a list of the technologies used
 # - [ ] Add a list of the features
+
+
+### --- RUN THE PROJECT ---
+# - [ ] Clone the repository - back-end and front-end
+# - [ ] Install the dependencies
+
+# - [ ] Quasar build
+# - [ ] sudo cp -r dist/spa/* /var/www/html/
+# - [ ] sudo chown -R www-data:www-data /var/www/html/
+# - [ ] sudo chmod -R 755 /var/www/html/
+# - [ ] sudo systemctl restart nginx

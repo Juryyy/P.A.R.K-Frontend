@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { api } from '../boot/axios';
 import { Notify } from 'quasar';
 import { ref } from 'vue';
-import { Exam } from '../db/types';
+import { AbsentCandidates, Exam, RoleEnum } from '../db/types';
 
 export const useExamStore = defineStore('exam', {
   state: () => ({
@@ -222,14 +222,15 @@ export const useExamStore = defineStore('exam', {
       }
     },
 
-    async uploadExamDayReport(examId: number, candidates: number, absent: number, comment: string, issues: string){
+    async uploadExamDayReport(examId: number, candidates: number, absent: number, comment: string, issues: string, absentCandidates : AbsentCandidates[]){
       try {
         await api.post('/exams/createDayReport', {
           examId,
           candidates,
           absent,
           comment,
-          issues
+          issues,
+          absentCandidates
         });
 
         Notify.create({
@@ -360,6 +361,31 @@ export const useExamStore = defineStore('exam', {
         Notify.create({
           color: 'negative',
           message: 'Error during getting exams for day',
+          position: 'bottom',
+          icon: 'report_problem',
+        });
+      }
+    },
+
+    async toggleExamConfirmation(examId: number, role : RoleEnum, isConfirmed : boolean) {
+      try {
+        await api.put('/exams/confirmation', {
+          examId,
+          role,
+          isConfirmed
+        });
+
+        Notify.create({
+          color: 'positive',
+          message: 'Confirmation status updated',
+          position: 'bottom',
+          icon: 'check',
+          textColor: 'black',
+        });
+      } catch (error) {
+        Notify.create({
+          color: 'negative',
+          message: 'Error during updating confirmation status',
           position: 'bottom',
           icon: 'report_problem',
         });

@@ -14,7 +14,7 @@
         <q-toolbar-title v-else></q-toolbar-title>
         <div v-if="!rightDrawerOpen" class="q-gutter-md row items-center">
           <q-avatar size="46px" class="q-pr-xl clickable-avatar" @click="viewUser(user)">
-            <img :src="userAvatar" alt="User Avatar" />
+            <q-img src="/testMan.jpg"/>
           </q-avatar>
           <div class="user-info row items-center">
             <q-icon
@@ -71,12 +71,13 @@
         </div>
       </q-drawer>
     </div>
-    <q-drawer show-if-above v-model="rightDrawerOpen" side="right" elevated>
-      <q-scroll-area class="fit">
+    <q-drawer show-if-above v-model="rightDrawerOpen" side="right" elevated class="right-drawer">
+      <div class="user-info-section">
         <q-img src="/background.jpg" style="height: 150px">
           <div class="bg-transparent absolute-center q-pa-md drawer-avatar-box">
             <q-avatar size="80px" class="q-mr-md clickable-avatar" @click="viewUser(user)">
-              <img :src="userAvatar" alt="User Avatar" />
+              <!--<img :src="userAvatar" alt="User Avatar" />-->
+              <q-img src="/testMan.jpg"/>
             </q-avatar>
             <div>
               <div class="text-weight-bold">
@@ -101,58 +102,51 @@
             </div>
           </div>
         </q-img>
+      </div>
 
+      <q-scroll-area class="exam-cards-scroll-area">
         <q-card-section class="q-pa-md">
           <q-card
-            :class="exam.isPrepared ? 'isPrepared' : 'isNotPrepared'"
-            bordered
             v-for="exam in usersExamsRef"
             :key="exam.id"
+            :class="['exam-card', 'q-mb-md', exam.isPrepared ? 'is-prepared' : 'is-not-prepared']"
+            bordered
           >
             <q-card-section>
-              <q-item-label>Location: <b>{{ exam.location }} - {{ exam.venue }}</b></q-item-label>
-              <q-item-label>Type: <b>{{ exam.type }}</b></q-item-label>
-              <q-item-label>Date: <b>{{ formatDateString(exam.startTime) }} </b></q-item-label>
-              <q-item-label>
-                Time:
-                <b>
-                  {{ formatTimeString(exam.startTime) + ' - ' + formatTimeString(exam.endTime) }}
-                </b>
-              </q-item-label>
-              <q-item-label>
-                Note:
-                <b v-if="shouldShowMoreLink(exam.note)" @click="showFullNoteDialog()">
+              <div class="row items-center justify-between q-mb-md">
+                <div class="text-h6">{{ exam.venue }} - {{ exam.location }}</div>
+                <q-chip :color="exam.isPrepared ? 'positive' : 'warning'" text-color="white">
+                  {{ exam.isPrepared ? 'Prepared' : 'Not Prepared' }}
+                </q-chip>
+              </div>
+              <div class="row q-gutter-sm">
+                <q-chip outline color="primary">
+                  <q-icon name="event" left />
+                  {{ formatDateString(exam.startTime) }}
+                </q-chip>
+                <q-chip outline color="secondary">
+                  <q-icon name="schedule" left />
+                  {{ formatTimeString(exam.startTime) }} - {{ formatTimeString(exam.endTime) }}
+                </q-chip>
+                <q-chip outline color="accent">
+                  <q-icon name="school" left />
+                  {{ exam.type }}
+                </q-chip>
+              </div>
+              <q-separator class="q-my-md" />
+              <div class="text-body2 q-mb-md">
+                <strong>Note:</strong>
+                <span v-if="shouldShowMoreLink(exam.note)" @click="showFullNoteDialog()" class="cursor-pointer">
                   {{ truncatedNote(exam.note) }}
-                  <span class="more-link">...more</span>
-                </b>
-                <b v-else>
-                  <b>{{ exam.note }}</b>
-                </b>
-              </q-item-label>
-              <q-item-label>
-              <q-dialog v-model="showNoteDialog">
-                <q-card class="note-dialog-card">
-                  <q-card-section>
-                    <div class="text-h6">Full Note</div>
-                    <div class="note-content">{{ exam?.note }}</div>
-                  </q-card-section>
-                  <q-card-actions align="right">
-                    <q-btn color="primary" label="Close" @click="showNoteDialog = false" />
-                  </q-card-actions>
-                </q-card>
-              </q-dialog>
-              </q-item-label>
-              <q-item-label class="absolute-top-right q-ma-sm button-container">
-                <q-btn
-                  color="secondary"
-                  label="View"
-                  round
-                  @click="() => {
-                    router.push(`/exam/${exam.id}`);
-                  }"
-                />
-                <q-btn color="secondary" round icon="map" @click="showVenue(exam.venueLink)" />
-              </q-item-label>
+                  <span class="text-primary">...more</span>
+                </span>
+                <span v-else>{{ exam.note }}</span>
+              </div>
+              <div class="row justify-end q-gutter-sm">
+                <q-btn color="primary" icon="visibility" @click="viewExam(exam.id)" />
+                <q-btn color="secondary" icon="map" @click="showVenue(exam.venueLink)" />
+                <q-btn color="accent" icon="event" @click="addToGoogleCalendar(exam)" />
+              </div>
             </q-card-section>
           </q-card>
         </q-card-section>
@@ -188,7 +182,8 @@ onBeforeMount(async () => {
     backgroundColor: 'black',
   });
   usersExamsRef.value = userStore.usersExams;
-  userAvatar.value = userStore.userAvatar;
+  //userAvatar.value = userStore.userAvatar;
+  userAvatar.value = ''
   Loading.hide();
 });
 
@@ -227,12 +222,17 @@ const essentialLinks: EssentialLinkProps[] = [
     icon: 'home',
   },
   {
-    title: 'Availability',
+    title: 'My Availability',
     link: '/availabilty-check',
     icon: 'calendar_today',
   },
   {
-    title: 'Users',
+    title: 'My Profile',
+    link: '/user/' + user.value?.id,
+    icon: 'person',
+  },
+  {
+    title: 'Other Users',
     link: '/users',
     icon: 'people',
   },
@@ -271,7 +271,6 @@ const rightDrawerOpen = ref(false);
 
 function toggleRightDrawer() {
   rightDrawerOpen.value = !rightDrawerOpen.value;
-  console.log(usersExamsRef.value);
 }
 
 const miniState = ref(true);
@@ -290,6 +289,34 @@ const isMobile = ref(false);
 const updateIsMobile = () => {
   isMobile.value = window.innerWidth <= 600;
 };
+
+const addToGoogleCalendar = (exam: ExamWithVenueLink) => {
+  const startDate = new Date(exam.startTime);
+  const endDate = new Date(exam.endTime);
+
+  // Adjust the time by subtracting one hour
+  startDate.setHours(startDate.getHours() - 1);
+  endDate.setHours(endDate.getHours() - 1);
+
+  const formattedStart = startDate.toISOString().replace(/-|:|\.\d\d\d/g, '');
+  const formattedEnd = endDate.toISOString().replace(/-|:|\.\d\d\d/g, '');
+
+  const eventDetails = {
+    action: 'TEMPLATE',
+    text: `${exam.type} Exam - ${exam.venue}`,
+    dates: `${formattedStart}/${formattedEnd}`,
+    details: `Exam Type: ${exam.type}\nLevels: ${exam.levels.join(', ')}\nNote: ${exam.note}`,
+    location: `${exam.venue}, ${exam.location}`
+  };
+
+  const googleCalendarUrl = `https://calendar.google.com/calendar/render?${new URLSearchParams(eventDetails).toString()}`;
+  window.open(googleCalendarUrl, '_blank');
+};
+
+const viewExam = (examId: number) => {
+  router.push(`/exam/${examId}`);
+};
+
 
 window.addEventListener('resize', updateIsMobile);
 updateIsMobile();
@@ -343,5 +370,46 @@ updateIsMobile();
   .mobile-header {
     display: flex;
   }
+}
+
+.exam-card {
+  transition: all 0.3s ease;
+  border-left: 5px solid $grey-5;
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(55, 230, 39, 0.795);
+  }
+
+  &.is-prepared {
+    border-left-color: $positive;
+  }
+}
+
+.text-h6 {
+  color: $primary;
+}
+
+.q-chip {
+  font-weight: 600;
+}
+
+.q-btn {
+  font-weight: 600;
+}
+
+.right-drawer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.user-info-section {
+  flex-shrink: 0;
+}
+
+.exam-cards-scroll-area {
+  flex-grow: 1;
+  height: calc(100% - 150px);
 }
 </style>
