@@ -14,7 +14,7 @@
         <q-toolbar-title v-else></q-toolbar-title>
         <div v-if="!rightDrawerOpen" class="q-gutter-md row items-center">
           <q-avatar size="46px" class="q-pr-xl clickable-avatar" @click="viewUser(user)">
-            <img :src="userAvatar" alt="User Avatar" />
+            <q-img src="/testMan.jpg"/>
           </q-avatar>
           <div class="user-info row items-center">
             <q-icon
@@ -76,7 +76,8 @@
         <q-img src="/background.jpg" style="height: 150px">
           <div class="bg-transparent absolute-center q-pa-md drawer-avatar-box">
             <q-avatar size="80px" class="q-mr-md clickable-avatar" @click="viewUser(user)">
-              <img :src="userAvatar" alt="User Avatar" />
+              <!--<img :src="userAvatar" alt="User Avatar" />-->
+              <q-img src="/testMan.jpg"/>
             </q-avatar>
             <div>
               <div class="text-weight-bold">
@@ -181,7 +182,8 @@ onBeforeMount(async () => {
     backgroundColor: 'black',
   });
   usersExamsRef.value = userStore.usersExams;
-  userAvatar.value = userStore.userAvatar;
+  //userAvatar.value = userStore.userAvatar;
+  userAvatar.value = ''
   Loading.hide();
 });
 

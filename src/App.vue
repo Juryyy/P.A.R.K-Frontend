@@ -25,7 +25,7 @@ onMounted(async () => {
     });
     state.isLoaded = false;
     await userStore.getUsersExams();
-    await userStore.getUsersAvatar();
+    //await userStore.getUsersAvatar(); for now
   }
   state.isLoaded = true;
   Loading.hide();
