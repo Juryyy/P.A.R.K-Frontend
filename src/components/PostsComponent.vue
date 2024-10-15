@@ -8,7 +8,8 @@
       v-if="user?.role?.includes('Office') || user?.role?.includes('Developer')"
     />
 
-    <q-card v-for="post in postsRef" :key="post.id" class="post-card q-mb-lg">
+    <q-card  v-for="post in postsRef" :key="post.id" class="post-card q-mb-lg">
+      <div v-if="post.id">
       <q-card-section v-if="!editingPost[post.id]">
         <div class="row items-center justify-between q-mb-sm">
           <div class="text-h6">{{ post.title }}</div>
@@ -109,6 +110,7 @@
         />
         <div v-if="post.files && post.files.length" class="q-mt-md">
           <div v-for="file in post.files" :key="file.id" class="q-mt-sm file-item">
+            <div v-if="file.id">
             <q-icon :name="getFileIcon(file.name)" size="24px" class="q-mr-sm" />
             <span class="file-name">{{ file.name }}</span>
             <q-btn
@@ -119,10 +121,12 @@
               @click="removeExistingFile(post.id, file.id)"
             />
           </div>
+          </div>
         </div>
         <q-file
           type="file"
           label="Add Files"
+          v-model="selectedFiles"
           multiple
           @update:model-value="(files) => onEditFileChange(files, post.id)"
           class="q-mb-md"
@@ -176,7 +180,9 @@
           />
         </template>
       </q-card-actions>
+    </div>
     </q-card>
+
 
     <q-dialog v-model="show" persistent>
       <q-card>
@@ -230,6 +236,7 @@
             @filter="filter"
           />
           <q-file
+          v-model="selectedFiles"
           type="file"
           label="Upload Files"
           multiple
@@ -442,22 +449,26 @@ const datesMatch = (date1: Date | undefined, date2: Date | undefined) => {
 };
 
 const startEditing = (post: Post) => {
-  editedPost.id = post.id;
-  editedPost.title = post.title;
-  editedPost.content = post.content;
-  editedPost.taggedRoles = Array.isArray(post.taggedRoles) ? [...post.taggedRoles] : [];
-  editedPost.users = Array.isArray(post.users) ? [...post.users] : [];
-  editingPost[post.id] = true;
-  editFileUploads[post.id] = [];
+  if (post.id !== undefined) {
+    editedPost.id = post.id;
+    editedPost.title = post.title;
+    editedPost.content = post.content;
+    editedPost.taggedRoles = Array.isArray(post.taggedRoles) ? [...post.taggedRoles] : [];
+    editedPost.users = Array.isArray(post.users) ? [...post.users] : [];
+    editingPost[post.id] = true;
+    editFileUploads[post.id] = [];
+  }
 };
 
-const cancelEdit = (postId: number) => {
-  editingPost[postId] = false;
-  editFileUploads[postId] = [];
+const cancelEdit = (postId: number | undefined) => {
+  if (postId !== undefined) {
+    editingPost[postId] = false;
+    editFileUploads[postId] = [];
+  }
 };
 
-const onEditFileChange = (files: FileList | null, postId: number) => {
-  if (files) {
+const onEditFileChange = (files: FileList | null, postId: number | undefined) => {
+  if (files && postId !== undefined) {
     editFileUploads[postId] = [...(editFileUploads[postId] || []), ...Array.from(files)];
   }
 };
@@ -466,16 +477,18 @@ const removeEditFile = (postId: number, index: number) => {
   editFileUploads[postId].splice(index, 1);
 };
 
-const removeExistingFile = (postId: number, fileId: number) => {
-  // Here you would typically call an API to remove the file
-  // For now, we'll just remove it from the local state
-  const post = postsRef.value.find(p => p.id === postId);
-  if (post && post.files) {
-    post.files = post.files.filter(f => f.id !== fileId);
+const removeExistingFile = (postId: number | undefined, fileId: number) => {
+  if (postId !== undefined) {
+    const post = postsRef.value.find(p => p.id === postId);
+    if (post && post.files) {
+      post.files = post.files.filter(f => f.id !== fileId);
+    }
   }
 };
 
-const saveEdit = async (postId: number) => {
+const saveEdit = async (postId: number | undefined) => {
+  if (postId === undefined) return;
+
   Loading.show({
     message: 'Updating post...',
     spinnerColor: 'primary',

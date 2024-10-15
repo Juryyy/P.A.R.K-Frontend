@@ -139,14 +139,6 @@ export const useUserStore = defineStore('user', {
     async getAllUsers() {
       try {
         const response = await api.get('/users/allUsers');
-        //response.data.forEach((user: UserInfo) => {
-        //  if (user.role?.includes('SeniorSupervisor') ) {
-        //    user.role = 'Senior Supervisor';
-        //  }
-        //  if (user.role === 'SeniorInvigilator') {
-        //    user.role = 'Senior Invigilator';
-        //  }
-        //});
         this.users = response.data;
       } catch (error) {
         Notify.create({

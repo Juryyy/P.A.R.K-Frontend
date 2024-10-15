@@ -111,6 +111,7 @@ const routes: RouteRecordRaw[] = [
     path: '/login',
     component: () => import('pages/LoginPage.vue'),
     name: 'Login',
+    beforeEnter: checkLogin,
     meta: {
       title: 'Login',
     },
@@ -189,6 +190,20 @@ function examCheck(
   } else {
     Notify.create('You are not authorized to access this page');
     next('/');
+  }
+}
+
+//if user is logged in, redirect to home when trying to access login page
+function checkLogin(
+  to: RouteLocationNormalized,
+  from: RouteLocationNormalized,
+  next: NavigationGuardNext
+) {
+  const user = useUserStore().getUserInfo();
+  if (user.email) {
+    next('/');
+  } else {
+    next();
   }
 }
 
