@@ -2,7 +2,7 @@
   <q-page class="page-container">
     <div class="q-pa-md content-container">
       <h4 v-if="userResponses.length === 0" class="text-center text-h5 text-weight-medium q-mb-xl">
-        No availability yet. Please wait for the Center Exam Manager to create some.
+        No availability yet. Please wait for the Head of Exams to create some.
       </h4>
       <q-card v-else class="availability-card">
         <q-card-section>

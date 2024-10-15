@@ -34,7 +34,17 @@
           <q-card-section>
             <div class="row items-center justify-between q-mb-lg">
               <div class="text-h5">Exams for {{ formatDate(state.selectedDate) }}</div>
-              <q-btn color="primary" label="Create New Exam" @click="state.showAddExam = true" size="medium" />
+              <q-btn
+                color="primary"
+                label="Create New Exam"
+                @click="state.showAddExam = true"
+                size="medium"
+                :disable="!state.isExamDayAvailable"
+              >
+              <q-tooltip v-if="!state.isExamDayAvailable">
+                There is not availability for this date. Please select a date with an existing availability to create a new exam.
+              </q-tooltip>
+            </q-btn>
             </div>
             <div v-if="filteredExams.length === 0" class="text-h6 text-center q-pa-xl">
               No exams scheduled for this date.
@@ -184,11 +194,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed } from 'vue';
+import { ref, reactive, computed, watch} from 'vue';
 import { useExamDayStore } from 'src/stores/examDayStore';
 import { useExamStore } from 'src/stores/examStore';
 import { useAdminStore } from 'src/stores/adminStore';
-import { Loading, Notify } from 'quasar';
+import { Loading, Notify, QForm } from 'quasar';
 import { DayOfExams, Exam, LevelEnum, ExamTypeEnum, Location, Venue } from 'src/db/types';
 import { router } from 'src/router/index';
 import { formatTimeString } from 'src/helpers/FormatTime';
@@ -223,6 +233,8 @@ const currentDate = new Date();
 const examVenues = ref(['']);
 const examLocations = ref(['']);
 
+const examForm = ref<QForm | null>(null);
+
 examLocations.value = adminStore.locationsWithVenues.map((location: Location) => location.name);
 const updateExamVenues = () => {
   inputExam.venue = '';
@@ -252,10 +264,54 @@ const state = reactive({
   selectedDate: `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}-${currentDate.getDate().toString().padStart(2, '0')}`,
   years: false,
   showAddExam: false,
+  isExamDayAvailable: false,
 });
+
+
+const checkExamDayAvailability = (date: string) => {
+  if (!date) return false;
+
+  const selectedDate = new Date(date);
+  const isAvailable = examDays.some(examDay => {
+    const examDayDate = new Date(examDay.date);
+    const result =
+      selectedDate.getDate() === examDayDate.getDate() &&
+      selectedDate.getMonth() === examDayDate.getMonth() &&
+      selectedDate.getFullYear() === examDayDate.getFullYear();
+    return result;
+  });
+
+  return isAvailable;
+};
+
+watch(() => state.selectedDate, (newDate) => {
+  state.isExamDayAvailable = checkExamDayAvailability(newDate);
+}, { immediate: true });
+
 
 const addExam = async () => {
   const selectedDate = state.selectedDate;
+
+  if (!state.isExamDayAvailable) {
+    Notify.create({
+      message: 'No exam day available for the selected date',
+      color: 'red',
+      icon: 'error'
+    });
+    return;
+  }
+
+  if (examForm.value) {
+    const isValid = await examForm.value.validate();
+    if (!isValid) {
+      Notify.create({
+        message: 'Please fill all required fields correctly',
+        color: 'red',
+        icon: 'error'
+      });
+      return;
+    }
+  }
 
   if (selectedDate) {
     const qDate = new Date(selectedDate);
@@ -298,14 +354,6 @@ const addExam = async () => {
       icon: 'report_problem',
     });
   }
-};
-
-const getExamDayId = (examId: number) => {
-  const exam = examsRef.value.find((exam) => exam.id === examId);
-  if (exam && exam.dayOfExamsId) {
-    return exam.dayOfExamsId;
-  }
-  return undefined;
 };
 
 const editExam = async (examId: number) => {
@@ -401,8 +449,14 @@ const cardClass = (exam: Exam) => {
 };
 
 const formatDate = (dateString: string) => {
-  const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
-  return new Date(dateString).toLocaleDateString(undefined, options);
+  const date = new Date(dateString);
+  const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+  const year = date.getFullYear();
+  const month = months[date.getMonth()];
+  const day = date.getDate();
+
+  return `${month} ${day}, ${year}`;
 };
 
 </script>

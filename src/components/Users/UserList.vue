@@ -1,5 +1,4 @@
 <template>
-  <div id="q-app">
     <div class="q-pa-xs q-gutter-sm">
       <q-page>
         <q-input
@@ -16,6 +15,7 @@
           :title="'Users: ' + filteredUsersCount"
           :rows="filteredUsersRef"
           :columns="columns"
+          v-model:pagination="pagination"
         >
           <template v-slot:body="props">
             <q-tr :props="props">
@@ -144,12 +144,25 @@
             </q-tr>
           </template>
           <template v-slot:bottom>
-            <q-btn
-              class="on right"
-              @click="state.newUser = true"
-              color="primary"
-              icon="person_add"
-            />
+            <div class="row items-center justify-between full-width q-px-sm">
+              <q-btn
+                @click="state.newUser = true"
+                color="primary"
+                icon="person_add"
+                label="Add User"
+              />
+              <q-pagination
+                v-model="pagination.page"
+                :max="maxPages"
+                boundary-numbers
+                boundary-links
+                direction-links
+                outline
+                color="primary"
+              />
+            </div>
+          </template>
+
             <q-dialog v-model="state.newUser" persistent>
               <q-card>
                 <q-card-section>
@@ -197,16 +210,14 @@
                 </q-card-section>
               </q-card>
             </q-dialog>
-          </template>
         </q-table>
       </q-page>
     </div>
-  </div>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive, computed, watch, nextTick } from 'vue';
-import { User, RoleEnum, LevelEnum, ExtendedUser } from 'src/db/types';
+import { RoleEnum, LevelEnum, ExtendedUser } from 'src/db/types';
 import { useUserStore } from 'src/stores/userStore';
 import { useAdminStore } from 'src/stores/adminStore';
 import { router } from 'src/router';
@@ -390,4 +401,13 @@ function submitForm() {
     console.log(errors);
   });
 }
+
+const pagination = ref({
+  page: 1,
+  rowsPerPage: 15,
+});
+
+const maxPages = computed(() => {
+  return Math.ceil(filteredUsersCount.value / pagination.value.rowsPerPage);
+});
 </script>
