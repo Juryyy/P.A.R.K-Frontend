@@ -17,6 +17,7 @@
     "@types/jwt-decode": "^3.1.0",
     "@vueuse/core": "^10.7.2",
     "axios": "^1.2.1",
+    "date-fns": "^4.1.0",
     "exceljs": "^4.4.0",
     "jwt-decode": "^4.0.0",
     "libphonenumber-js": "^1.10.51",
@@ -28,11 +29,13 @@
     "sass": "^1.77.8",
     "vite": "^2.9.17",
     "vue": "^3.0.0",
+    "vue-advanced-cropper": "^2.8.9",
     "vue-router": "^4.0.0",
     "vuedraggable": "^4.1.0"
   },
   "devDependencies": {
     "@quasar/app-vite": "^1.7.0",
+    "@types/date-fns": "^2.6.0",
     "@types/lodash": "^4.17.6",
     "@types/node": "^12.20.21",
     "@typescript-eslint/eslint-plugin": "^5.10.0",

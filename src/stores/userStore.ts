@@ -26,6 +26,10 @@ export const useUserStore = defineStore('user', {
       }
     },
 
+    setUserAvatar(newAvatarUrl: string) {
+      this.userAvatar = newAvatarUrl;
+    },
+
     getUserInfo() {
       const user = {} as UserInfo;
       user.id = Number(localStorage.getItem('id'));
@@ -126,6 +130,10 @@ export const useUserStore = defineStore('user', {
         const base64String = btoa(String.fromCharCode.apply(null, array));
 
         this.selectedUserAvatar = `data:image/jpeg;base64,${base64String}`;
+        const avatarUrl = `data:${response.headers['content-type']};base64,${base64String}`;
+        if (userId === this.user.id) {
+          this.setUserAvatar(avatarUrl);
+        }
       } catch (error) {
         Notify.create({
           message: 'Error loading avatar',
@@ -215,6 +223,34 @@ export const useUserStore = defineStore('user', {
       Notify.create({
         color: 'negative',
         message: 'Error updating admin note',
+        position: 'bottom',
+        icon: 'report_problem',
+      });
+    }
+  },
+
+  async uploadAvatar(file: File) {
+    const formData = new FormData();
+    formData.append('avatar', file);
+    try {
+      await api.post('/users/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      await this.getUsersAvatar();
+      Notify.create({
+        color: 'positive',
+        message: 'Avatar updated',
+        position: 'bottom',
+        icon: 'check',
+        closeBtn: 'X',
+        textColor: 'black',
+      });
+    } catch (error) {
+      Notify.create({
+        color: 'negative',
+        message: 'Error updating avatar',
         position: 'bottom',
         icon: 'report_problem',
       });

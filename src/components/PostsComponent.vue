@@ -24,7 +24,10 @@
         </div>
 
         <div class="row items-center q-mb-sm">
-          <q-avatar color="orange" text-color="black" size="28px">
+          <q-avatar size="35px" v-if="post.author.avatarData">
+            <img :src="post.author.avatarData" />
+          </q-avatar>
+          <q-avatar color="orange" text-color="black" size="35px" v-else>
             {{ post.author ? post.author.firstName[0] + post.author.lastName[0] : '' }}
           </q-avatar>
           <span class="q-ml-sm text-weight-bold">{{ post.author ? `${post.author.firstName} ${post.author.lastName}` : '' }}</span>
@@ -496,7 +499,6 @@ const saveEdit = async (postId: number | undefined) => {
     backgroundColor: 'black',
   });
 };
-
 </script>
 
 <style scoped>

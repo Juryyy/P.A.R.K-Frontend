@@ -1,4 +1,10 @@
 <template>
+  <div class="exam-detail-container q-pa-md">
+    <div class="exam-navigation q-mb-md">
+      <q-btn flat color="primary" icon="arrow_back" label="Previous Exam" @click="navigateExam('prev')" :disable="!hasPreviousExam" />
+      <div class="exam-counter text-subtitle1">Exam {{ currentExamIndex + 1 }} of {{ examsInDay.length }}</div>
+      <q-btn flat color="primary" icon-right="arrow_forward" label="Next Exam" @click="navigateExam('next')" :disable="!hasNextExam" />
+    </div>
   <div class="container">
     <q-card :class="['exam-card', 'q-ma-md', 'top-card', cardClass]" v-if="editableExam">
       <q-card-section>
@@ -333,6 +339,7 @@
             </div>
           </q-card-section>
         </q-card>
+        </div>
       </div>
     </div>
   </div>
@@ -366,6 +373,33 @@ const examTypes = Object.values(ExamTypeEnum);
 const levelOptions = Object.values(LevelEnum);
 const examLocations = ref<string[]>([]);
 const examVenues = ref<string[]>([]);
+const currentExamIndex = ref(0);
+const examsInDay = ref<Exam[]>([]);
+const hasPreviousExam = computed(() => currentExamIndex.value > 0);
+const hasNextExam = computed(() => currentExamIndex.value < examsInDay.value.length - 1);
+
+
+const fetchExamsForDay = async () => {
+  if (props.exam && props.exam.dayOfExamsId) {
+    await examStore.getExamsForDay(props.exam.dayOfExamsId);
+    examsInDay.value = examStore.pastExams;
+    currentExamIndex.value = examsInDay.value.findIndex(e => e.id === props.exam.id);
+  }
+};
+
+const navigateExam = async (direction: 'prev' | 'next') => {
+  if (direction === 'prev' && hasPreviousExam.value) {
+    currentExamIndex.value--;
+  } else if (direction === 'next' && hasNextExam.value) {
+    currentExamIndex.value++;
+  }
+  const newExam = examsInDay.value[currentExamIndex.value];
+  if (newExam) {
+    await router.push(`/admin/exams/${newExam.id}`);
+    await examStore.getExam(newExam.id);
+    initializeEditableExam();
+  }
+};
 
 const isExamLocked = computed(() => {
   return editableExam.value?.isPrepared || editableExam.value?.isCompleted;
@@ -401,6 +435,7 @@ const initializeEditableExam = () => {
   }
 };
 
+fetchExamsForDay();
 initializeLocations();
 initializeEditableExam();
 
@@ -792,5 +827,62 @@ const cardClass = computed(() => {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.exam-detail-container {
+  max-width: auto;
+  margin: 0 auto;
+}
+
+.exam-navigation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  padding: 8px 16px;
+}
+
+.exam-info-card, .staff-assignment-card {
+  height: 100%;
+}
+
+.exam-info-card {
+  border-left: 5px solid $grey-5;
+  transition: all 0.3s ease;
+
+  &.exam-ready {
+    border-left-color: $positive;
+  }
+}
+
+.response-card {
+  height: 100%;
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  }
+}
+
+.file-item {
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: $grey-2;
+  }
+}
+
+@media (max-width: 1023px) {
+  .exam-navigation {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .exam-counter {
+    order: -1;
+    text-align: center;
+    margin-bottom: 8px;
+  }
 }
 </style>

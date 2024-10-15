@@ -13,8 +13,8 @@
         <q-toolbar-title v-if="!isMobile"> P.A.R.K. App </q-toolbar-title>
         <q-toolbar-title v-else></q-toolbar-title>
         <div v-if="!rightDrawerOpen" class="q-gutter-md row items-center">
-          <q-avatar size="46px" class="q-pr-xl clickable-avatar" @click="viewUser(user)">
-            <q-img src="/testMan.jpg"/>
+          <q-avatar size="md" class="clickable-avatar" @click="viewUser(user)">
+            <img :src="userStore.userAvatar" alt="User Avatar" />
           </q-avatar>
           <div class="user-info row items-center">
             <q-icon
@@ -76,8 +76,7 @@
         <q-img src="/background.jpg" style="height: 150px">
           <div class="bg-transparent absolute-center q-pa-md drawer-avatar-box">
             <q-avatar size="80px" class="q-mr-md clickable-avatar" @click="viewUser(user)">
-              <!--<img :src="userAvatar" alt="User Avatar" />-->
-              <q-img src="/testMan.jpg"/>
+              <img :src="userStore.userAvatar" alt="User Avatar" />
             </q-avatar>
             <div>
               <div class="text-weight-bold">
@@ -182,8 +181,7 @@ onBeforeMount(async () => {
     backgroundColor: 'black',
   });
   usersExamsRef.value = userStore.usersExams;
-  //userAvatar.value = userStore.userAvatar;
-  userAvatar.value = ''
+  await userStore.getUsersAvatar();
   Loading.hide();
 });
 
@@ -195,7 +193,6 @@ const logout = async () => {
 const exams: ExamWithVenueLink[] = userStore.usersExams;
 const usersExamsRef = ref(exams);
 const user = computed(() => userStore.user);
-const userAvatar = ref('');
 const showNoteDialog = ref(false);
 
 const shouldShowMoreLink = (note: string | undefined) => {
