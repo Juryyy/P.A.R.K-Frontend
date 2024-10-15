@@ -146,23 +146,22 @@
           <template v-slot:bottom>
             <div class="row items-center justify-between full-width q-px-sm">
               <q-btn
-                @click="state.newUser = true"
-                color="primary"
-                icon="person_add"
-                label="Add User"
-              />
-              <q-pagination
-                v-model="pagination.page"
-                :max="maxPages"
-                boundary-numbers
-                boundary-links
-                direction-links
-                outline
-                color="primary"
-              />
+              class="on right"
+              @click="state.newUser = true"
+              color="primary"
+              icon="person_add"
+              label="Add user"
+            />
+            <q-pagination
+            v-model="pagination.page"
+            :max="maxPages"
+            boundary-numbers
+            boundary-links
+            direction-links
+            outline
+            color="primary"
+            />
             </div>
-          </template>
-
             <q-dialog v-model="state.newUser" persistent>
               <q-card>
                 <q-card-section>
@@ -210,6 +209,7 @@
                 </q-card-section>
               </q-card>
             </q-dialog>
+          </template>
         </q-table>
       </q-page>
     </div>
