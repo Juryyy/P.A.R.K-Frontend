@@ -6,14 +6,28 @@
       </q-banner>
 
       <q-card-section class="profile-header">
-        <q-avatar size="120px" class="shadow-3">
-          <q-img :src="userAvatar" v-if="userAvatar">
-            <template v-slot:error>
-              <div class="text-subtitle1 text-weight-bold">{{ getInitials(editableUser) }}</div>
-            </template>
-          </q-img>
-          <div v-else class="text-subtitle1 text-weight-bold">{{ getInitials(editableUser) }}</div>
-        </q-avatar>
+        <div class="avatar-container">
+          <q-avatar size="160px" class="shadow-3">
+            <q-img :src="avatarPreview ?? userAvatar ?? ''" v-if="avatarPreview || userAvatar">
+              <template v-slot:error>
+                <div class="text-subtitle1 text-weight-bold">{{ getInitials(editableUser) }}</div>
+              </template>
+            </q-img>
+            <div v-else class="text-subtitle1 text-weight-bold">{{ getInitials(editableUser) }}</div>
+          </q-avatar>
+          <div class="avatar-overlay" v-if="isCurrentUser">
+            <q-btn round color="grey-7" icon="camera_alt" size="sm" @click="triggerFileUpload">
+              <q-tooltip>Upload new avatar</q-tooltip>
+            </q-btn>
+          </div>
+          <input
+            type="file"
+            ref="fileInput"
+            accept="image/*"
+            style="display: none"
+            @change="onAvatarSelected"
+          >
+        </div>
         <div class="profile-name q-mt-sm">
           <div class="text-h5 text-weight-bold">{{ editableUser.firstName }} {{ editableUser.lastName }}</div>
           <div class="text-subtitle1">{{ editableUser.email }}</div>
@@ -27,19 +41,28 @@
           <template v-if="isCurrentUser">
             <!-- Editable User Info Section -->
             <div class="col-12">
-              <div class="text-h6 q-mb-sm">User Information</div>
+              <div class="text-h6">User Information</div>
             </div>
             <div class="col-12 col-sm-6" v-for="field in userInfoFields" :key="field.label">
               <q-input
                 :model-value="editableFields[field.key]"
                 @update:model-value="(value) => updateField(field.key, value)"
                 :label="field.label"
-                :type="field.type"
+                :type="field.key === 'dateOfBirth' ? 'text' : field.type"
+                :mask="field.key === 'dateOfBirth' ? '####-##-##' : undefined"
                 outlined
                 dense
-              />
+              >
+                <template v-if="field.key === 'dateOfBirth'" v-slot:append>
+                  <q-icon name="event" class="cursor-pointer">
+                    <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+                      <q-date v-model="editableFields[field.key]" mask="YYYY-MM-DD" />
+                    </q-popup-proxy>
+                  </q-icon>
+                </template>
+              </q-input>
             </div>
-            <div class="col-12 col-sm-6 q-pt-md">
+            <div class="col-12 col-sm-6" style="display: flex; align-items: center;">
               <q-checkbox
                 v-model="editableUser.drivingLicense"
                 label="Driving License"
@@ -151,17 +174,47 @@
       </q-card-actions>
     </q-card>
     <div v-else class="text-h6 text-center">No user information available.</div>
+    <q-dialog v-model="showCropper" persistent>
+      <q-card style="min-width: 300px; max-width: 80vw;">
+        <q-card-section class="row items-center q-pb-none">
+          <div class="text-h6">Crop Avatar</div>
+          <q-space />
+          <q-btn icon="close" flat round dense v-close-popup @click="cancelAvatarUpload" />
+        </q-card-section>
+
+        <q-card-section>
+          <Cropper
+            v-if="imageUrl"
+            class="cropper"
+            :src="imageUrl"
+            :stencil-props="{
+              aspectRatio: 1
+            }"
+            :stencil-component="CircleStencil"
+            ref="cropperRef"
+          />
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="Cancel" color="red" v-close-popup @click="cancelAvatarUpload" />
+          <q-btn flat label="Crop & Upload" color="primary" @click="cropAndUpload" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, watch, reactive } from 'vue';
-import { RoleEnum, User, LevelEnum } from 'src/db/types';
+import { RoleEnum, User} from 'src/db/types';
 import { defineProps } from 'vue';
 import { useUserStore } from 'src/stores/userStore';
 import { getRoleColor, getLevelColor } from 'src/helpers/Color';
 import { formatDateString } from 'src/helpers/FormatTime';
 import deepEqual from 'src/helpers/deepEqual';
+import { parseISO, format } from 'date-fns';
+import { Cropper, CircleStencil } from 'vue-advanced-cropper';
+import 'vue-advanced-cropper/dist/style.css';
 
 const props = defineProps<{
   user: User | null;
@@ -186,7 +239,7 @@ const userInfoFields: EditableUserField[] = [
 
 const availabilityFields: EditableUserField[] = [
   { key: 'note', label: 'Short Note (optional) - ex. "No fridays" ', type: 'text' },
-  { key: 'noteLonger', label: 'Detailed Note (optional) - Here you can describe the situation more precisly', type: 'textarea' },
+  { key: 'noteLonger', label: 'Detailed Note (optional) - Please give us more detailed information about your availability', type: 'textarea' },
 ];
 
 const editableUser = ref<User | null>(props.user ? { ...props.user } : null);
@@ -202,10 +255,16 @@ const editableFields = reactive({
   noteLonger: '',
 });
 
+
 const updateEditableFields = () => {
   if (editableUser.value) {
-    userInfoFields.forEach(field => {
-      editableFields[field.key] = editableUser.value?.[field.key] as string ?? '';
+    [...userInfoFields, ...availabilityFields].forEach(field => {
+      if (field.key === 'dateOfBirth' && editableUser.value?.[field.key]) {
+        const date = parseISO(editableUser.value[field.key] as string);
+        editableFields[field.key] = format(date, 'yyyy-MM-dd');
+      } else {
+        editableFields[field.key] = editableUser.value?.[field.key] as string ?? '';
+      }
     });
   }
 };
@@ -218,9 +277,17 @@ watch(() => props.user, (newUser) => {
 
 const updateField = (key: keyof typeof editableFields, value: string | number | null) => {
   if (value !== null) {
-    editableFields[key] = String(value);
-    if (editableUser.value) {
-      editableUser.value[key] = String(value);
+    if (key === 'dateOfBirth') {
+      const date = parseISO(value as string);
+      editableFields[key] = format(date, 'yyyy-MM-dd');
+      if (editableUser.value) {
+        editableUser.value[key] = format(date, 'yyyy-MM-dd');
+      }
+    } else {
+      editableFields[key] = String(value);
+      if (editableUser.value) {
+        editableUser.value[key] = String(value);
+      }
     }
   } else {
     editableFields[key] = '';
@@ -229,7 +296,6 @@ const updateField = (key: keyof typeof editableFields, value: string | number | 
     }
   }
 };
-
 const currentUser = userStore.user;
 
 const isCurrentUser = computed(() => currentUser?.id === editableUser.value?.id);
@@ -314,6 +380,72 @@ const updateAdminNote = async () => {
     isUpdating.value = false;
   }
 };
+
+const avatarFile = ref<File | null>(null);
+const avatarPreview = ref<string | null>(null);
+const showCropper = ref(false);
+const fileInput = ref<HTMLInputElement | null>(null);
+const cropperRef = ref<InstanceType<typeof Cropper> | null>(null);
+const imageUrl = ref<string | null>(null);
+
+const triggerFileUpload = () => {
+  fileInput.value?.click();
+};
+
+const cancelAvatarUpload = () => {
+  avatarFile.value = null;
+  avatarPreview.value = null;
+  imageUrl.value = null;
+  if (fileInput.value) {
+    fileInput.value.value = '';
+  }
+  showCropper.value = false;
+};
+
+const cropAndUpload = async () => {
+  if (cropperRef.value) {
+    const { canvas } = cropperRef.value.getResult();
+    if (canvas) {
+      canvas.toBlob(async (blob) => {
+        if (blob) {
+          const croppedFile = new File([blob], avatarFile.value?.name || 'avatar.jpg', { type: 'image/jpeg' });
+          avatarPreview.value = URL.createObjectURL(blob);
+
+          if (editableUser.value) {
+            try {
+              await userStore.uploadAvatar(croppedFile);
+              await userStore.getProfile(editableUser.value.id);
+              await userStore.getUserAvatarById(editableUser.value.id);
+            } catch (error) {
+              console.error('Error uploading avatar:', error);
+            }
+          }
+
+          showCropper.value = false;
+        }
+      }, 'image/jpeg');
+    }
+  }
+};
+
+
+const onAvatarSelected = (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  if (target.files && target.files.length > 0) {
+    const file = target.files[0];
+    avatarFile.value = file;
+    const reader = new FileReader();
+    reader.onload = (e: ProgressEvent<FileReader>) => {
+      if (typeof e.target?.result === 'string') {
+        imageUrl.value = e.target.result;
+        showCropper.value = true;
+      }
+    };
+    reader.readAsDataURL(file);
+  }
+};
+
+
 </script>
 
 <style lang="scss" scoped>

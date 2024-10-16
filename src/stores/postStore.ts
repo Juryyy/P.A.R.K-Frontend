@@ -2,21 +2,23 @@ import { defineStore } from 'pinia';
 import { api } from '../boot/axios';
 import { Notify } from 'quasar';
 import { ref } from 'vue';
-import { Post, RoleEnum } from 'src/db/types';
+import { Post, RoleEnum, PostWithAvatar } from 'src/db/types';
 
 export const usePostStore = defineStore('post', {
   state: () => ({
-    posts: ref<Post[]>([]),
-    newPost: ref<Post>(),
+    posts: ref<PostWithAvatar[]>([]),
+    newPost: ref<PostWithAvatar | null>(null),
   }),
   actions: {
     async addPost(formData: FormData) {
       try {
-        await api.post('/posts/create', formData, {
+        const response = await api.post('/posts/create', formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
         });
+        const newPost = response.data as PostWithAvatar;
+        this.posts.unshift(newPost);
         Notify.create({
           color: 'positive',
           message: 'Post added',
@@ -37,7 +39,8 @@ export const usePostStore = defineStore('post', {
     async getPosts() {
       try {
         const response = await api.get('/posts/posts');
-        this.posts = response.data;
+        console.log(response.data);
+        this.posts = response.data as PostWithAvatar[];
       } catch (error) {
         Notify.create({
           color: 'negative',
@@ -53,7 +56,7 @@ export const usePostStore = defineStore('post', {
         const response = await api.get(
           `/onedrive/files/post/download/${fileId}`,
           {
-            responseType: 'blob', // Important to specify blob response type
+            responseType: 'blob',
           }
         );
 
@@ -108,7 +111,7 @@ export const usePostStore = defineStore('post', {
     async deletePost(postId: number) {
       try {
         await api.delete(`/posts/delete/${postId}`);
-
+        this.posts = this.posts.filter(post => post.id !== postId);
         Notify.create({
           color: 'positive',
           message: 'Post deleted',
@@ -124,6 +127,11 @@ export const usePostStore = defineStore('post', {
           icon: 'report_problem',
         });
       }
+    },
+
+    getAvatarData(authorId: number): string | null {
+      const post = this.posts.find((post: PostWithAvatar) => post.author.id === authorId);
+      return post ? post.author.avatarData : null;
     }
   },
 });

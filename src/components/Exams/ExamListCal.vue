@@ -51,7 +51,7 @@
             </div>
             <q-list separator>
               <q-item v-for="exam in filteredExams" :key="exam.id" :class="cardClass(exam)" class="q-py-md">
-                <q-item-section>
+                <q-item-section @click="editExam(exam.id)">
                   <q-item-label class="text-h6">{{ exam.type }}</q-item-label>
                   <q-item-label class="text-subtitle1 q-mt-sm">{{ exam.location }} - {{ exam.venue }}</q-item-label>
                   <q-item-label class="text-body q-mt-sm">Levels: {{ exam.levels.join(', ') }}</q-item-label>
@@ -63,9 +63,6 @@
                     </span>
                     <span v-else>{{ exam.note }}</span>
                   </q-item-label>
-                </q-item-section>
-                <q-item-section side>
-                  <q-btn flat color="primary" label="Edit" @click="editExam(exam.id)" size="large" />
                 </q-item-section>
               </q-item>
             </q-list>

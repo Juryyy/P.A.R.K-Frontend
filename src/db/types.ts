@@ -187,6 +187,13 @@ export interface Location {
   venues: Venue[];
 }
 
+export interface Author {
+  id: number;
+  firstName: string;
+  lastName: string;
+  avatarUrl: string | null;
+}
+
 export interface Post {
   id?: number;
   title: string;
@@ -195,9 +202,15 @@ export interface Post {
   author?: Author;
   createdAt?: Date;
   updatedAt?: Date;
-  taggedRoles?: RoleEnum[],
-  users?: User[],
-  files?: File[],
+  taggedRoles?: RoleEnum[];
+  users?: User[];
+  files?: File[];
+}
+
+export interface PostWithAvatar extends Omit<Post, 'author'> {
+  author: User & {
+    avatarData: string | null;
+  };
 }
 
 export interface File{
@@ -209,13 +222,6 @@ export interface File{
   author?: User;
   post?: Post;
 }
-
-interface Author{
-  id: number;
-  firstName: string;
-  lastName: string;
-}
-
 
 export interface DayReport{
   id: number;

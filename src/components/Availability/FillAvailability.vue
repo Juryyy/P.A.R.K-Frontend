@@ -6,7 +6,7 @@
       </h4>
       <q-card v-else class="availability-card">
         <q-card-section>
-          <div class="text-h6 text-weight-bold q-mb-md">Availability Response</div>
+          <div class="text-h6 text-weight-bold q-mb-md absolute-center">Availability Responses</div>
         </q-card-section>
         <q-separator />
         <q-card-section>
@@ -156,7 +156,7 @@ const handleSubmit = async () => {
   .q-table__top,
   .q-table__bottom,
   thead tr:first-child th {
-    background-color: #f8f8f8;
+    background-color: #98c23b;
   }
 
   thead tr th {
