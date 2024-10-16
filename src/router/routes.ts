@@ -53,6 +53,14 @@ const routes: RouteRecordRaw[] = [
           title: 'Exam',
         },
       },
+      {
+        path: '/version',
+        component: () => import('pages/VersionPage.vue'),
+        name: 'Version',
+        meta: {
+          title: 'Version',
+        },
+      },
       // Admin routes
       {
         path: '/admin',
@@ -116,14 +124,14 @@ const routes: RouteRecordRaw[] = [
       title: 'Login',
     },
   },
-  {
+  /*{
     path: '/test',
     component: () => import('pages/TestPage.vue'),
     name: 'Test',
     meta: {
       title: 'Test',
     },
-  },
+  },*/
   {
     path: '/:catchAll(.*)*',
     component: () => import('pages/ErrorNotFound.vue'),

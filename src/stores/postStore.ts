@@ -39,7 +39,6 @@ export const usePostStore = defineStore('post', {
     async getPosts() {
       try {
         const response = await api.get('/posts/posts');
-        console.log(response.data);
         this.posts = response.data as PostWithAvatar[];
       } catch (error) {
         Notify.create({

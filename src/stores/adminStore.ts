@@ -56,7 +56,6 @@ export const useAdminStore = defineStore('admin', {
           textColor: 'black',
         });
       } catch (error : any) {
-        console.error(error);
         let errorMessage = 'Error during registration';
         if (error.response && error.response.data && error.response.data.error) {
           errorMessage = error.response.data.error;
