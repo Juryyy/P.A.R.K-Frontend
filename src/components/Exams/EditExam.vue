@@ -2,7 +2,8 @@
   <div class="exam-detail-container q-pa-md">
     <div class="exam-navigation q-mb-md">
       <q-btn flat color="primary" icon="arrow_back" label="Previous Exam" @click="navigateExam('prev')" :disable="!hasPreviousExam" />
-      <div class="exam-counter text-subtitle1">Exam {{ currentExamIndex + 1 }} of {{ examsInDay.length }}</div>
+      <div class="exam-counter text-subtitle1 text-bold">{{ today }}</div>
+      <div class="exam-counter text-subtitle1 text-bold">Exam {{ currentExamIndex + 1 }} of {{ examsInDay.length }}</div>
       <q-btn flat color="primary" icon-right="arrow_forward" label="Next Exam" @click="navigateExam('next')" :disable="!hasNextExam" />
     </div>
   <div class="container">
@@ -377,7 +378,7 @@ const currentExamIndex = ref(0);
 const examsInDay = ref<Exam[]>([]);
 const hasPreviousExam = computed(() => currentExamIndex.value > 0);
 const hasNextExam = computed(() => currentExamIndex.value < examsInDay.value.length - 1);
-
+const today = props.exam.startTime.split('T')[0].split('-').reverse().join('.');
 
 const fetchExamsForDay = async () => {
   if (props.exam && props.exam.dayOfExamsId) {
@@ -729,7 +730,7 @@ const deleteFile = async (fileId: number, fileName: string) => {
     },
   }).onOk(async () => {
     if (fileId) {
-      //await examStore.deleteExamFile(fileId);
+      await examStore.deleteExamFile(fileId);
       await examStore.getExam(props.exam.id);
       initializeEditableExam();
     }
@@ -765,11 +766,11 @@ const cardClass = computed(() => {
 .responsive-columns {
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 4rem;
 }
 
 .responsive-column {
-  flex: 1 1 calc(50% - 1rem);
+  flex: 1 1 calc(1% - 1rem);
 }
 
 .name-wrapper {

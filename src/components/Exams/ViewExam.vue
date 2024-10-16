@@ -428,7 +428,6 @@ const downloadFile = async (fileId: number, fileName: string) => {
 };
 
 const downloadExamDayReport = async () => {
-  console.log(editableExam.value);
   if (!editableExam.value) {
     console.error('Invalid editableExam: cannot be null or undefined');
     return;
