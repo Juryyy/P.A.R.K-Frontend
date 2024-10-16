@@ -58,7 +58,6 @@ export const useExamStore = defineStore('exam', {
     async getExam(id: number) {
       try {
         const response = await api.get(`/exams/${id}`);
-        console.log(response.data);
         this.selectedExam = response.data;
       } catch (error) {
         Notify.create({

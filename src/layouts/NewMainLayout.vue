@@ -32,19 +32,20 @@
     </q-header>
     <div v-if="user">
       <q-drawer
-        show-if-above
-        v-model="drawerLeft"
-        side="left"
-        elevated
-        :mini="miniState"
-        @mouseover="miniState = false"
-        @mouseout="miniState = true"
-        mini-to-overlay
-      >
-        <div class="mobile-header bg-primary q-px-md q-py-sm" v-if="isMobile">
-          <q-toolbar-title class="text-center">P.A.R.K. App</q-toolbar-title>
-        </div>
-        <div class="drawer-content">
+      show-if-above
+      v-model="drawerLeft"
+      side="left"
+      elevated
+      :mini="miniState"
+      @mouseover="miniState = false"
+      @mouseout="miniState = true"
+      mini-to-overlay
+    >
+      <div class="mobile-header bg-primary q-px-md q-py-sm" v-if="isMobile">
+        <q-toolbar-title class="text-center">P.A.R.K. App</q-toolbar-title>
+      </div>
+      <div class="drawer-content">
+        <div class="flex-grow">
           <q-list>
             <essential-link
               v-for="link in essentialLinks"
@@ -69,7 +70,17 @@
             />
           </q-list>
         </div>
-      </q-drawer>
+        <div class="bottom-section">
+          <q-list>
+            <essential-link
+              :title="versionLink.title"
+              :link="versionLink.link"
+              :icon="versionLink.icon"
+            />
+          </q-list>
+        </div>
+      </div>
+    </q-drawer>
     </div>
     <q-drawer show-if-above v-model="rightDrawerOpen" side="right" elevated class="right-drawer">
       <div class="user-info-section">
@@ -116,6 +127,15 @@
                 <div class="text-h6">{{ exam.venue }} - {{ exam.location }}</div>
                 <q-chip :color="exam.isPrepared ? 'positive' : 'warning'" text-color="white">
                   {{ exam.isPrepared ? 'Prepared' : 'Not Prepared' }}
+                <q-tooltip v-if="!exam.isPrepared">
+                    The exam is not prepared yet and all information may not be accurate
+                </q-tooltip>
+              </q-chip>
+                <q-chip v-if="exam.isPrepared" :color="getUserConfirmationStatus(exam).isConfirmed ? 'positive' : 'negative'" text-color="white">
+                  {{ getUserConfirmationStatus(exam).isConfirmed ? 'Confirmed' : 'Not Confirmed' }} - {{ getUserConfirmationStatus(exam).role }}
+                  <q-tooltip>
+                    Visit the exam page to confirm your attendance
+                  </q-tooltip>
                 </q-chip>
               </div>
               <div class="row q-gutter-sm">
@@ -258,6 +278,12 @@ const adminEssentialLinks: EssentialLinkProps[] = [
   },
 ];
 
+const versionLink: EssentialLinkProps = {
+  title: 'Version',
+  link: '/version',
+  icon: 'info',
+};
+
 const toggleLeftDrawer = () => {
   drawerLeft.value = !drawerLeft.value;
 };
@@ -312,6 +338,18 @@ const addToGoogleCalendar = (exam: ExamWithVenueLink) => {
 
 const viewExam = (examId: number) => {
   router.push(`/exam/${examId}`);
+};
+
+const getUserConfirmationStatus = (exam: ExamWithVenueLink) => {
+  const userId = userStore.user?.id;
+  const userConfirmation = exam.userConfirmations?.find(
+    (confirmation) => confirmation.userId === userId && confirmation.examId === exam.id
+  );
+
+  return {
+    isConfirmed: userConfirmation?.isConfirmed || false,
+    role: userConfirmation?.role || 'N/A'
+  };
 };
 
 
@@ -408,5 +446,20 @@ updateIsMobile();
 .exam-cards-scroll-area {
   flex-grow: 1;
   height: calc(100% - 150px);
+}
+
+.drawer-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.flex-grow {
+  flex-grow: 1;
+}
+
+.help-links {
+  margin-top: auto;
+  padding-bottom: 8px;
 }
 </style>
