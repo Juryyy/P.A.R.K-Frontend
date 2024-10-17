@@ -25,10 +25,10 @@ export const useAdminStore = defineStore('admin', {
           icon: 'check',
           textColor: 'black',
         });
-      } catch (error) {
+      } catch (error : any) {
         Notify.create({
           color: 'negative',
-          message: 'Error during updating user role',
+          message: error.response.data.error,
           position: 'bottom',
           icon: 'report_problem',
         });
@@ -56,13 +56,9 @@ export const useAdminStore = defineStore('admin', {
           textColor: 'black',
         });
       } catch (error : any) {
-        let errorMessage = 'Error during registration';
-        if (error.response && error.response.data && error.response.data.error) {
-          errorMessage = error.response.data.error;
-        }
         Notify.create({
           color: 'negative',
-          message: errorMessage,
+          message: error.response.data.error,
           position: 'bottom',
           icon: 'report_problem',
         });
@@ -73,10 +69,10 @@ export const useAdminStore = defineStore('admin', {
       try {
         const response = await api.get('/office/locationsWithVenues');
         this.locationsWithVenues = response.data as Location[];
-      } catch (error) {
+      } catch (error : any) {
         Notify.create({
           color: 'negative',
-          message: 'Error during getting locations with venues',
+          message: error.response.data.error,
           position: 'bottom',
           icon: 'report_problem',
         });
@@ -100,10 +96,10 @@ export const useAdminStore = defineStore('admin', {
           textColor: 'black',
         });
       }
-      catch (error) {
+      catch (error : any) {
         Notify.create({
           color: 'negative',
-          message: 'Error during adding location',
+          message: error.response.data.error,
           position: 'bottom',
           icon: 'report_problem',
         });
@@ -125,10 +121,10 @@ export const useAdminStore = defineStore('admin', {
           textColor: 'black',
         });
       }
-      catch (error) {
+      catch (error : any) {
         Notify.create({
           color: 'negative',
-          message: 'Error during adding venue',
+          message: error.response.data.error,
           position: 'bottom',
           icon: 'report_problem',
         });
@@ -146,10 +142,10 @@ export const useAdminStore = defineStore('admin', {
           textColor: 'black',
         });
       }
-      catch (error) {
+      catch (error : any) {
         Notify.create({
           color: 'negative',
-          message: 'Error during deleting location',
+          message: error.response.data.error,
           position: 'bottom',
           icon: 'report_problem',
           textColor: 'black',
@@ -168,10 +164,10 @@ export const useAdminStore = defineStore('admin', {
           textColor: 'black',
         });
       }
-      catch (error) {
+      catch (error : any) {
         Notify.create({
           color: 'negative',
-          message: 'Error during deleting venue',
+          message: error.response.data.error,
           position: 'bottom',
           icon: 'report_problem',
           textColor: 'black',
@@ -192,10 +188,10 @@ export const useAdminStore = defineStore('admin', {
           icon: 'check',
           textColor: 'black',
         });
-      } catch (error) {
+      } catch (error : any) {
         Notify.create({
           color: 'negative',
-          message: 'Error during updating user level',
+          message: error.response.data.error,
           position: 'bottom',
           icon: 'report_problem',
         });
@@ -215,10 +211,10 @@ export const useAdminStore = defineStore('admin', {
           icon: 'check',
           textColor: 'black',
         });
-      } catch (error) {
+      } catch (error : any) {
         Notify.create({
           color: 'negative',
-          message: 'Error during updating user seniority',
+          message: error.response.data.error,
           position: 'bottom',
           icon: 'report_problem',
         });

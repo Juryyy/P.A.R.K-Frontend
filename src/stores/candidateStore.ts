@@ -35,10 +35,10 @@ export const useCandidateStore = defineStore('candidateImportStore', {
           icon: 'check',
           textColor: 'black',
         });
-      }catch(error){
+      }catch(error : any){
         Notify.create({
           color: 'negative',
-          message: 'Error during uploading candidates',
+          message: error.response.data.error,
           position: 'bottom',
           icon: 'report_problem',
         });

@@ -1,41 +1,54 @@
 <template>
-    <div class="q-pa-xs q-gutter-sm">
-      <q-page>
-        <q-input
-          outlined
-          v-model="searchQuery"
-          placeholder="Search users..."
-          class="q-my-sm"
-          debounce="300"
-        />
+  <div class="p-4 bg-gray-100 q-ma-sm">
+    <q-page class="bg-white rounded-lg shadow-md">
+      <div class="p-4">
+
         <q-table
-          class="primary-header"
-          flat
           bordered
           :title="'Users: ' + filteredUsersCount"
           :rows="filteredUsersRef"
           :columns="columns"
           v-model:pagination="pagination"
+          row-key="id"
+          class="primary-header"
         >
+        <template v-slot:top>
+          <div class="row items-center justify-between q-pb-md">
+            <h5 class="q-my-none">Users: {{ filteredUsersCount }}</h5>
+            <q-input
+              v-model="searchQuery"
+              placeholder="Search users..."
+              class="col-grow q-ml-md"
+              outlined
+              dense
+              bg-color="white"
+              debounce="100"
+            >
+              <template v-slot:prepend>
+                <q-icon name="search" />
+              </template>
+            </q-input>
+          </div>
+        </template>
           <template v-slot:body="props">
-            <q-tr :props="props">
+            <q-tr :props="props" :class="props.rowIndex % 2 === 0 ? 'bg-gray-50' : 'bg-white'">
               <q-td key="firstName">{{ props.row.firstName }}</q-td>
               <q-td key="lastName">{{ props.row.lastName }}</q-td>
               <q-td key="email">{{ props.row.email }}</q-td>
               <q-td key="role">
-                <div>
+                <div class="flex flex-wrap gap-2">
                   <q-chip
                     v-for="role in sortRoles(props.row.role)"
                     :key="role"
                     :color="getRoleColor(role)"
+                    text-color="black"
+                    size="md"
+                    class="text-body1"
                   >
                     {{ role }}
                   </q-chip>
                 </div>
-                <q-popup-edit
-                  v-model="props.row.role"
-                  :disable="!canEditSenior"
-                >
+                <q-popup-edit v-model="props.row.role" :disable="!canEditSenior">
                   <q-select
                     label="Roles"
                     v-model="props.row.role"
@@ -44,27 +57,25 @@
                     emit-value
                     map-options
                     dense
-                    fill-input
-                    use-input
                     use-chips
                     @update:modelValue="handleRoleChange(props.row)"
                   />
                 </q-popup-edit>
               </q-td>
               <q-td key="level">
-                <div>
+                <div class="flex flex-wrap gap-2">
                   <q-chip
                     v-for="level in sortLevels(props.row.level)"
                     :key="level"
                     :color="getLevelColor(level)"
+                    text-color="black"
+                    size="md"
+                    class="text-body1"
                   >
                     {{ level }}
                   </q-chip>
                 </div>
-                <q-popup-edit
-                  v-model="props.row.level"
-                  :disable="!canEditSenior"
-                >
+                <q-popup-edit v-model="props.row.level" :disable="!canEditSenior">
                   <q-select
                     label="Levels"
                     v-model="props.row.level"
@@ -73,73 +84,61 @@
                     emit-value
                     map-options
                     dense
-                    fill-input
-                    use-input
                     use-chips
                     @update:modelValue="handleLevelChange(props.row)"
                   />
                 </q-popup-edit>
               </q-td>
               <q-td key="isSenior">
-                <q-icon v-if="canEditSenior"
-                  :color="props.row.isSenior ? 'red' : 'grey'"
+                <q-icon
+                  :color="props.row.isSenior ? 'red' : 'grey-5'"
                   name="stars"
-                  class="q-mr-sm"
                   size="md"
-                  @click="toggleIsSenior(props.row)"
-                />
-                <q-icon v-else
-                  :color="props.row.isSenior ? 'red' : 'grey'"
-                  name="stars"
-                  class="q-mr-sm"
-                  size="md"
-                />
+                  :class="{ 'cursor-pointer': canEditSenior }"
+                  @click="canEditSenior && toggleIsSenior(props.row)"
+                >
+                  <q-tooltip>{{ props.row.isSenior ? 'Senior' : 'Not Senior' }}</q-tooltip>
+                </q-icon>
               </q-td>
               <q-td key="Exams">
-                {{
-                  props.row._count.supervisedExams +
-                  ' | ' +
-                  props.row._count.invigilatedExams +
-                  ' | ' +
-                  props.row._count.examinedExams
-                }}
+                {{ `${props.row._count.supervisedExams} | ${props.row._count.invigilatedExams} | ${props.row._count.examinedExams}` }}
               </q-td>
               <q-td key="actions">
-                <q-btn-group>
+                <div class="flex gap-3">
                   <q-btn
                     v-if="canEditSenior"
                     @click="editUser(props.row)"
                     :color="props.row.isRoleChanged || props.row.isLevelChanged || props.row.isSeniorChanged ? 'blue' : 'grey'"
                     icon="manage_accounts"
+                    size="md"
+                    round
+                    flat
                     :disable="!(props.row.isRoleChanged || props.row.isLevelChanged || props.row.isSeniorChanged)"
                   >
-                    <q-tooltip v-if="props.row.isRoleChanged || props.row.isLevelChanged || props.row.isSeniorChanged" class="bg-blue" :delay="250">
-                      Update role/level/senior for <b>{{ props.row.firstName + ' ' + props.row.lastName}}</b>
-                    </q-tooltip>
-                    <q-tooltip v-else class="bg-grey" :delay="250">
-                      No changes to role/level/senior for <b>{{ props.row.firstName + ' ' + props.row.lastName}}</b>
-                    </q-tooltip>
+                    <q-tooltip>{{ props.row.isRoleChanged || props.row.isLevelChanged || props.row.isSeniorChanged ? `Update ${props.row.firstName} ${props.row.lastName}` : 'No changes' }}</q-tooltip>
                   </q-btn>
                   <q-btn
                     @click="viewUser(props.row)"
                     color="primary"
                     icon="person_search"
+                    size="md"
+                    round
+                    flat
                   >
-                    <q-tooltip class="bg-primary" :delay="250">
-                      View <b>{{ props.row.firstName + ' ' + props.row.lastName}}'s</b> profile
-                    </q-tooltip>
+                    <q-tooltip>View {{ props.row.firstName }} {{ props.row.lastName }}'s profile</q-tooltip>
                   </q-btn>
                   <q-btn
                     v-if="currentUserRole.includes(RoleEnum.Office)"
                     @click="deactivateUser(props.row)"
                     color="red"
                     icon="person_off"
+                    size="md"
+                    round
+                    flat
                   >
-                    <q-tooltip class="bg-red" :delay="250">
-                      Deactivate <b>{{ props.row.firstName + ' ' + props.row.lastName}}'s</b> account
-                    </q-tooltip>
+                    <q-tooltip>Deactivate {{ props.row.firstName }} {{ props.row.lastName }}'s account</q-tooltip>
                   </q-btn>
-                </q-btn-group>
+                </div>
               </q-td>
             </q-tr>
           </template>
@@ -211,8 +210,9 @@
             </q-dialog>
           </template>
         </q-table>
-      </q-page>
-    </div>
+      </div>
+    </q-page>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -220,13 +220,14 @@ import { ref, reactive, computed, watch, nextTick } from 'vue';
 import { RoleEnum, LevelEnum, ExtendedUser } from 'src/db/types';
 import { useUserStore } from 'src/stores/userStore';
 import { useAdminStore } from 'src/stores/adminStore';
-import { router } from 'src/router';
+import { useRouter } from 'vue-router';
 import _ from 'lodash';
 import { getRoleColor, getLevelColor } from 'src/helpers/Color';
 import { sortRoles, sortLevels } from 'src/helpers/FormatRole';
 
 const userStore = useUserStore();
 const adminStore = useAdminStore();
+const router = useRouter();
 
 const usersRef = ref<ExtendedUser[]>(userStore.users.map(user => ({
   ...user,
@@ -248,16 +249,13 @@ const filteredUsersRef = computed(() => {
     return usersRef.value;
   }
 
-  const queryParts = searchQuery.value.toLowerCase().split(' ');
-
+  const query = searchQuery.value.toLowerCase();
   return usersRef.value.filter(user =>
-    queryParts.every(part =>
-      user.firstName.toLowerCase().includes(part) ||
-      user.lastName.toLowerCase().includes(part) ||
-      user.email.toLowerCase().includes(part) ||
-      user.role.some(role => role.toLowerCase().includes(part)) ||
-      user.level.some(level => level.toLowerCase().includes(part))
-    )
+    user.firstName.toLowerCase().includes(query) ||
+    user.lastName.toLowerCase().includes(query) ||
+    user.email.toLowerCase().includes(query) ||
+    user.role.some(role => role.toLowerCase().includes(query)) ||
+    user.level.some(level => level.toLowerCase().includes(query))
   );
 });
 
@@ -411,3 +409,24 @@ const maxPages = computed(() => {
   return Math.ceil(filteredUsersCount.value / pagination.value.rowsPerPage);
 });
 </script>
+
+<style scoped>
+.q-table__container {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.q-table thead tr:first-child th:first-child {
+  border-top-left-radius: 8px;
+}
+
+.q-table thead tr:first-child th:last-child {
+  border-top-right-radius: 8px;
+}
+
+.q-chip {
+  font-size: 12px;
+  height: 28px;
+}
+
+</style>

@@ -267,81 +267,46 @@
       </q-card-section>
     </q-card>
 
-    <div class="override-section">
+    <div class="override-section q-mt-md">
       <q-toggle class="text-h6" v-model="isOverrideActive" :disable="isExamLocked">
         Switch to override responses
       </q-toggle>
-      <div v-for="(role, key) in roles" :key="key">
-        <q-card bordered class="q-ma-md">
-          <div class="text-h5 text-bold q-ml-md q-mt-md text-center">
-            {{ role.title }}
-          </div>
-          <q-card-section>
-            <div class="responsive-columns">
-              <div
-                v-for="answer in answers"
-                :key="answer"
-                class="responsive-column"
-              >
-                <q-card
-                  bordered
-                  class="q-ma-xs"
-                  :style="getAnswerStyle(answer)"
-                >
-                  <div class="text-h5 q-ma-sm text-center">
-                    {{ roleTitles[answer] }}
-                  </div>
-                  <q-separator class="q-mx-sm" />
-                  <q-card-section>
-                    <div
-                      v-for="response in filteredResponses(answer, [
-                        ...role.filterRoles,
-                      ])"
-                      :key="response.id"
-                    >
-                      <div
-                        v-if="!response.assigned"
-                        class="name-wrapper border"
-                      >
-                        <div class="text-h6 text-weight-bold">
-                          <span
-                            class="clickable-name q-pr-xs"
-                            @click="goToUserProfile(response.userId)"
-                          >
-                            {{ response.userName }}
-                          </span>
-                          <q-btn
-                            v-if="
-                              !response.assigned &&
-                              (isOverrideActive || response.response !== 'No')
-                            "
-                            @click="
-                              addToExam(
-                                exam.id,
-                                response.userId,
-                                isOverrideActive,
-                                response.dayOfExamsId,
-                                role.title
-                              )
-                            "
-                            icon="add"
-                            round
-                            color="primary"
-                            size="xs"
-                            :disable="isExamLocked"
-                          />
+      <div class="row q-col-gutter-md">
+        <div v-for="(role, key) in roles" :key="key" class="col-12">
+          <q-card bordered>
+            <q-card-section>
+              <div class="text-h5 text-bold text-center">{{ role.title }}</div>
+            </q-card-section>
+            <q-card-section>
+              <div class="row q-col-gutter-md">
+                <div v-for="answer in answers" :key="answer" class="col-xs-12 col-sm-6 col-md-3">
+                  <q-card bordered :class="['response-card', getAnswerClass(answer)]">
+                    <q-card-section>
+                      <div class="text-h6 text-center">{{ roleTitles[answer] }}</div>
+                    </q-card-section>
+                    <q-card-section class="response-list">
+                      <div v-for="response in filteredResponses(answer, [...role.filterRoles])" :key="response.id" class="response-item q-mb-sm">
+                        <div :class="['name-wrapper', 'q-pa-sm', 'rounded-borders', 'border']">
+                           <div class="text-subtitle1 text-weight-bold">
+                            <span :class="['clickable-name', getAnswerStyle(answer)]" @click="goToUserProfile(response.userId)">
+                              {{ response.userName }}
+                            </span>
+                            <q-btn v-if="!response.assigned && (isOverrideActive || response.response !== 'No')"
+                                   @click="addToExam(exam.id, response.userId, isOverrideActive, response.dayOfExamsId, role.title)"
+                                   icon="add" round color="primary" size="xs" :disable="isExamLocked" class="q-ml-sm" />
+                          </div>
+                          <div class="text-caption">{{ response.userNote }}</div>
                         </div>
-                        {{ response.userNote }}
                       </div>
-                    </div>
-                  </q-card-section>
-                </q-card>
+                    </q-card-section>
+                  </q-card>
+                </div>
               </div>
-            </div>
-          </q-card-section>
-        </q-card>
+            </q-card-section>
+          </q-card>
         </div>
       </div>
+    </div>
     </div>
   </div>
 </template>
@@ -747,6 +712,21 @@ const cardClass = computed(() => {
   }
 });
 
+const getAnswerClass = (answer: RoleTitleKey) => {
+  switch (answer) {
+    case 'Yes':
+      return 'bg-green-1';
+    case 'AM':
+      return 'bg-yellow-1';
+    case 'PM':
+      return 'bg-blue-1';
+    case 'No':
+      return 'bg-red-1';
+    default:
+      return '';
+  }
+};
+
 </script>
 <style scoped lang="scss">
 .container {
@@ -777,6 +757,35 @@ const cardClass = computed(() => {
   max-width: 100%;
   word-wrap: break-word;
   overflow-wrap: break-word;
+  transition: all 0.2s ease;
+
+  &.answer-yes {
+    background-color: rgba(76, 175, 80, 0.1);
+    border-left: 4px solid #4CAF50;
+  }
+
+  &.answer-am {
+    background-color: rgba(255, 235, 59, 0.1);
+    border-left: 4px solid #FFEB3B;
+  }
+
+  &.answer-pm {
+    background-color: rgba(33, 150, 243, 0.1);
+    border-left: 4px solid #2196F3;
+  }
+
+  &.answer-no {
+    background-color: rgba(244, 67, 54, 0.1);
+    border-left: 4px solid #F44336;
+  }
+
+}
+
+.clickable-name {
+  cursor: pointer;
+  &:hover {
+    text-decoration: underline;
+  }
 }
 
 @media (min-width: 600px) {
@@ -798,9 +807,11 @@ const cardClass = computed(() => {
     flex: 1 1 calc(25% - 1rem);
   }
 }
-
 .clickable-name {
   cursor: pointer;
+  &:hover {
+    text-decoration: underline;
+  }
 }
 
 .exam-card {
@@ -831,7 +842,7 @@ const cardClass = computed(() => {
 }
 
 .exam-detail-container {
-  max-width: auto;
+  max-width: 1600px;
   margin: 0 auto;
 }
 
@@ -842,6 +853,11 @@ const cardClass = computed(() => {
   background-color: #f5f5f5;
   border-radius: 8px;
   padding: 8px 16px;
+}
+
+.border{
+  border: 1.5px solid #adadad;
+  border-radius: 4px;
 }
 
 .exam-info-card, .staff-assignment-card {
@@ -857,9 +873,24 @@ const cardClass = computed(() => {
   }
 }
 
+.response-item {
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+}
+
+.response-list {
+  flex-grow: 1;
+  overflow-y: auto;
+  max-height: 300px;
+}
+
 .response-card {
   height: 100%;
-  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
 
   &:hover {
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);

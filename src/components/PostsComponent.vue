@@ -1,5 +1,17 @@
 <template>
   <div class="post-container q-pa-md">
+    <q-input
+      v-model="searchQuery"
+      label="Search posts"
+      class="q-mb-md"
+      clearable
+      debounce="100"
+    >
+      <template v-slot:append>
+        <q-icon name="search" />
+      </template>
+    </q-input>
+
     <q-btn
       class="add-post-btn q-mb-md"
       color="primary"
@@ -8,8 +20,8 @@
       v-if="user?.role?.includes('Office') || user?.role?.includes('Developer')"
     />
 
-    <q-card  v-for="post in postsRef" :key="post.id" class="post-card q-mb-lg">
-      <div v-if="post.id">
+  <q-card v-for="post in filteredPosts" :key="post.id" class="post-card q-mb-lg">
+    <div v-if="post.id">
       <q-card-section v-if="!editingPost[post.id]">
         <div class="row items-center justify-between q-mb-sm">
           <div class="text-h6">{{ post.title }}</div>
@@ -24,7 +36,7 @@
         </div>
 
         <div class="row items-center q-mb-sm">
-          <q-avatar size="35px" v-if="post.author.avatarData">
+          <q-avatar size="35px" v-if="post.author && post.author.avatarData">
             <img :src="post.author.avatarData" />
           </q-avatar>
           <q-avatar color="orange" text-color="black" size="35px" v-else>
@@ -68,25 +80,15 @@
         <q-editor
           v-model="editedPost.content"
           :toolbar="[
-            [
-              'bold',
-              'italic',
-              'strike',
-              'link',
-              'underline',
-              'subscript',
-              'superscript',
-            ],
+            ['bold', 'italic', 'strike', 'link', 'underline', 'subscript', 'superscript'],
             ['unordered', 'ordered'],
-            [
-              {
-                label: $q.lang.editor.align,
-                icon: $q.iconSet.editor.align,
-                fixedLabel: true,
-                list: 'only-icons',
-                options: ['left', 'center', 'right', 'justify'],
-              },
-            ],
+            [{
+              label: $q.lang.editor.align,
+              icon: $q.iconSet.editor.align,
+              fixedLabel: true,
+              list: 'only-icons',
+              options: ['left', 'center', 'right', 'justify'],
+            }],
           ]"
           class="q-mb-md"
         />
@@ -95,9 +97,11 @@
           label="Roles"
           multiple
           use-chips
-          :options="roles"
+          :options="filteredRoles"
           clearable
           use-input
+          input-debounce="0"
+          @filter="filterRoles"
           class="q-mb-md"
         />
         <q-select
@@ -105,12 +109,22 @@
           label="Users"
           multiple
           use-chips
-          :options="userOptions"
+          :options="filteredUsers"
           use-input
-          input-debounce="300"
-          @filter="filter"
+          input-debounce="0"
+          @filter="filterUsers"
+          option-value="id"
+          option-label="firstName"
           class="q-mb-md"
-        />
+        >
+          <template v-slot:option="scope">
+            <q-item v-bind="scope.itemProps">
+              <q-item-section>
+                <q-item-label>{{ scope.opt.firstName }} {{ scope.opt.lastName }}</q-item-label>
+              </q-item-section>
+            </q-item>
+          </template>
+        </q-select>
         <div v-if="post.files && post.files.length" class="q-mt-md">
           <div v-for="file in post.files" :key="file.id" class="q-mt-sm file-item">
             <div v-if="file.id">
@@ -275,10 +289,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onBeforeMount, computed } from 'vue';
+import { ref, reactive, onBeforeMount, computed} from 'vue';
 import { usePostStore } from 'src/stores/postStore';
 import { useUserStore } from 'src/stores/userStore';
-import { Post, RoleEnum, User } from 'src/db/types';
+import { Post, RoleEnum, User, PostWithAvatar } from 'src/db/types';
 import { Loading, Notify, Dialog } from 'quasar';
 import { getFileIcon } from 'src/helpers/FileType';
 
@@ -300,6 +314,19 @@ const editedPost = reactive<Post>({
   taggedRoles: [],
   users: [],
 });
+
+const searchQuery = ref('');
+const filteredPosts = computed(() => {
+  if (!searchQuery.value) return postsRef.value;
+
+  const query = searchQuery.value.toLowerCase();
+  return postsRef.value.filter((post) =>
+    (post.title ?? '').toLowerCase().includes(query) ||
+    (post.content ?? '').toLowerCase().includes(query) ||
+    (post.taggedRoles ?? []).some(role => (role ?? '').toLowerCase().includes(query))
+  );
+});
+
 const editFileUploads = reactive<{ [key: number]: File[] }>({});
 
 onBeforeMount(async () => {
@@ -317,6 +344,33 @@ const newPost = reactive<Post>({
 const selectedFiles = ref<File[]>([]);
 const show = ref(false);
 const roles = ref<RoleEnum[]>([]);
+
+const filteredRoles = ref<RoleEnum[]>([]);
+const filteredUsers = ref<User[]>([]);
+
+const filterRoles = (val: string, update: (callback: () => void) => void) => {
+  update(() => {
+    if (val === '') {
+      filteredRoles.value = roles.value;
+    } else {
+      const needle = val.toLowerCase();
+      filteredRoles.value = roles.value.filter(v => v.toLowerCase().includes(needle));
+    }
+  });
+};
+
+const filterUsers = (val: string, update: (callback: () => void) => void) => {
+  update(() => {
+    if (val === '') {
+      filteredUsers.value = usersRef.value;
+    } else {
+      const needle = val.toLowerCase();
+      filteredUsers.value = usersRef.value.filter(
+        user => `${user.firstName} ${user.lastName}`.toLowerCase().includes(needle)
+      );
+    }
+  });
+};
 
 const onFileChange = (files: FileList | null) => {
   if (files) {
@@ -499,6 +553,7 @@ const saveEdit = async (postId: number | undefined) => {
     backgroundColor: 'black',
   });
 };
+
 </script>
 
 <style scoped>

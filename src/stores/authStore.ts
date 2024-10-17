@@ -35,7 +35,7 @@ export const useAuthStore = defineStore('auth', {
           icon: 'check',
           textColor: 'black',
         });
-      } catch (error) {
+      } catch (error : any) {
         Notify.create({
           color: 'negative',
           message: 'The code is not valid or has expired',
@@ -59,7 +59,7 @@ export const useAuthStore = defineStore('auth', {
           icon: 'check',
           textColor: 'black',
         });
-      } catch (error) {
+      } catch (error : any) {
         Notify.create({
           color: 'negative',
           message: 'Email and password do not match',
@@ -102,10 +102,10 @@ export const useAuthStore = defineStore('auth', {
         } else {
           throw new Error('Logout failed');
         }
-      } catch (error) {
+      } catch (error : any) {
         Notify.create({
           color: 'negative',
-          message: 'Error during logout',
+          message: error.response.data.error,
           position: 'bottom',
           icon: 'report_problem',
         });
@@ -128,13 +128,9 @@ export const useAuthStore = defineStore('auth', {
           textColor: 'black',
         });
       } catch (error : any) {
-        let errorMessage = 'Error during registration';
-        if (error.response && error.response.data && error.response.data.error) {
-          errorMessage = error.response.data.error;
-        }
         Notify.create({
           color: 'negative',
-          message: errorMessage,
+          message: error.response.data.error,
           position: 'bottom',
           icon: 'report_problem',
         });
@@ -151,10 +147,10 @@ export const useAuthStore = defineStore('auth', {
           icon: 'check',
           textColor: 'black',
         });
-      } catch (error) {
+      } catch (error : any) {
         Notify.create({
           color: 'negative',
-          message: 'Error during password reset',
+          message: error.response.data.error,
           position: 'bottom',
           icon: 'report_problem',
         });
@@ -171,10 +167,10 @@ export const useAuthStore = defineStore('auth', {
           icon: 'check',
           textColor: 'black',
         });
-      } catch (error) {
+      } catch (error : any) {
           Notify.create({
           color: 'negative',
-          message: 'Error during password update',
+          message: error.response.data.error,
           position: 'bottom',
           icon: 'report_problem',
         });

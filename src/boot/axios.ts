@@ -44,7 +44,6 @@ api.interceptors.response.use(undefined, async error => {
     router.push('/login');
     Loading.hide()
   }
-  console.log('Axios: ', Promise.reject(error));
   return Promise.reject(error);
 });
 
