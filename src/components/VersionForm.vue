@@ -60,6 +60,16 @@ const versionNotes = ref<VersionNote[]>([
       'Updated right drawer exams to contain users confirmation status',
       'Fixed problems with viewing some data on users profile'
     ]
+  },
+  {
+    version: '0.1.3',
+    date: '17.10.2024',
+    updates: [
+      'Posts now contain search bar',
+      'Updated posts edit mode to filter out users/roles when typing',
+      'Users tables has been slighly updated',
+      'Create availability now has updated graphics'
+      ]
   }
 ]);
 

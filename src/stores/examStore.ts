@@ -16,10 +16,10 @@ export const useExamStore = defineStore('exam', {
       try {
         const response = await api.get('/exams/upcomingExams');
         this.upcomingExams = response.data;
-      } catch (error) {
+      } catch (error : any) {
         Notify.create({
           color: 'negative',
-          message: 'Error during getting upcoming exams',
+          message: error.response.data.error,
           position: 'bottom',
           icon: 'report_problem',
         });
@@ -45,10 +45,10 @@ export const useExamStore = defineStore('exam', {
           icon: 'check',
           textColor: 'black',
         });
-      } catch (error) {
+      } catch (error : any) {
         Notify.create({
           color: 'negative',
-          message: 'Error during creating exam',
+          message: error.response.data.error,
           position: 'bottom',
           icon: 'report_problem',
         });
@@ -59,10 +59,10 @@ export const useExamStore = defineStore('exam', {
       try {
         const response = await api.get(`/exams/${id}`);
         this.selectedExam = response.data;
-      } catch (error) {
+      } catch (error : any) {
         Notify.create({
           color: 'negative',
-          message: 'Error during getting exam',
+          message: error.response.data.error,
           position: 'bottom',
           icon: 'report_problem',
         });
@@ -79,10 +79,10 @@ export const useExamStore = defineStore('exam', {
           icon: 'check',
           textColor: 'black',
         });
-      } catch (error) {
+      } catch (error : any) {
         Notify.create({
           color: 'negative',
-          message: 'Error during updating exam',
+          message: error.response.data.error,
           position: 'bottom',
           icon: 'report_problem',
         });
@@ -104,10 +104,10 @@ export const useExamStore = defineStore('exam', {
           icon: 'check',
           textColor: 'black',
         });
-      } catch (error) {
+      } catch (error : any) {
         Notify.create({
           color: 'negative',
-          message: 'Error during adding worker',
+          message: error.response.data.error,
           position: 'bottom',
           icon: 'report_problem',
         });
@@ -128,10 +128,10 @@ export const useExamStore = defineStore('exam', {
           icon: 'check',
           textColor: 'black',
         });
-      } catch (error) {
+      } catch (error : any) {
         Notify.create({
           color: 'negative',
-          message: 'Error during removing worker',
+          message: error.response.data.error,
           position: 'bottom',
           icon: 'report_problem',
         });
@@ -157,10 +157,10 @@ export const useExamStore = defineStore('exam', {
           textColor: 'black',
           icon: 'check',
         });
-      } catch (error) {
+      } catch (error : any) {
         Notify.create({
           color: 'negative',
-          message: 'Error during file upload',
+          message: error.response.data.error,
           position: 'bottom',
           icon: 'report_problem',
         });
@@ -190,10 +190,10 @@ export const useExamStore = defineStore('exam', {
           icon: 'check',
           textColor: 'black',
         });
-      } catch (error) {
+      } catch (error : any) {
         Notify.create({
           color: 'negative',
-          message: 'Error during file download',
+          message: error.response.data.error,
           position: 'bottom',
           icon: 'report_problem',
         });
@@ -211,10 +211,10 @@ export const useExamStore = defineStore('exam', {
           icon: 'check',
           textColor: 'black',
         });
-      } catch (error) {
+      } catch (error : any) {
         Notify.create({
           color: 'negative',
-          message: 'Error during file deletion',
+          message: error.response.data.error,
           position: 'bottom',
           icon: 'report_problem',
         });
@@ -239,10 +239,10 @@ export const useExamStore = defineStore('exam', {
           icon: 'check',
           textColor: 'black',
         });
-      } catch (error) {
+      } catch (error : any) {
         Notify.create({
           color: 'negative',
-          message: 'Error during uploading report',
+          message: error.response.data.error,
           position: 'bottom',
           icon: 'report_problem',
         });
@@ -272,10 +272,10 @@ export const useExamStore = defineStore('exam', {
           icon: 'check',
           textColor: 'black',
         });
-      } catch (error) {
+      } catch (error : any) {
         Notify.create({
           color: 'negative',
-          message: 'Error during file download',
+          message: error.response.data.error,
           position: 'bottom',
           icon: 'report_problem',
         });
@@ -296,10 +296,10 @@ export const useExamStore = defineStore('exam', {
           icon: 'check',
           textColor: 'black',
         });
-      } catch (error) {
+      } catch (error : any) {
         Notify.create({
           color: 'negative',
-          message: 'Error during updating exam status',
+          message: error.response.data.error,
           position: 'bottom',
           icon: 'report_problem',
         });
@@ -320,10 +320,10 @@ export const useExamStore = defineStore('exam', {
           icon: 'check',
           textColor: 'black',
         });
-      } catch (error) {
+      } catch (error : any) {
         Notify.create({
           color: 'negative',
-          message: 'Error during updating exam status',
+          message: error.response.data.error,
           position: 'bottom',
           icon: 'report_problem',
         });
@@ -341,10 +341,10 @@ export const useExamStore = defineStore('exam', {
           icon: 'check',
           textColor: 'black',
         });
-      } catch (error) {
+      } catch (error : any) {
         Notify.create({
           color: 'negative',
-          message: 'Error during deleting exam',
+          message: error.response.data.error,
           position: 'bottom',
           icon: 'report_problem',
         });
@@ -356,10 +356,10 @@ export const useExamStore = defineStore('exam', {
         const response = await api.get(`/exams/day/${dayOfExamsId}`);
         this.pastExams = this.pastExams.filter(exam => exam.dayOfExamsId !== dayOfExamsId);
         this.pastExams = [...this.pastExams, ...response.data];
-      } catch (error) {
+      } catch (error : any) {
         Notify.create({
           color: 'negative',
-          message: 'Error during getting exams for day',
+          message: error.response.data.error,
           position: 'bottom',
           icon: 'report_problem',
         });
@@ -381,10 +381,10 @@ export const useExamStore = defineStore('exam', {
           icon: 'check',
           textColor: 'black',
         });
-      } catch (error) {
+      } catch (error : any) {
         Notify.create({
           color: 'negative',
-          message: 'Error during updating confirmation status',
+          message: error.response.data.error,
           position: 'bottom',
           icon: 'report_problem',
         });

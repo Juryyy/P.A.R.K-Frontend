@@ -15,10 +15,10 @@ export const useExamDayStore = defineStore('examDay', {
       try {
         const response = await api.get('/examDays/examDays');
         this.upcomingExamDays = response.data;
-      } catch (error) {
+      } catch (error : any ) {
         Notify.create({
           color: 'negative',
-          message: 'Error during getting exam days',
+          message: error.response.data.error,
           position: 'bottom',
           icon: 'report_problem',
         });
@@ -29,10 +29,10 @@ export const useExamDayStore = defineStore('examDay', {
       try {
         const response = await api.get('/examDays/all');
         this.allExamDays = response.data;
-      } catch (error) {
+      } catch (error : any ) {
         Notify.create({
           color: 'negative',
-          message: 'Error during getting exam days',
+          message: error.response.data.error,
           position: 'bottom',
           icon: 'report_problem',
         });
@@ -43,10 +43,10 @@ export const useExamDayStore = defineStore('examDay', {
       try {
         const response = await api.get(`/responses/responsesExamDay/${id}`);
         this.responsesForExamDay = response.data;
-      } catch (error) {
+      } catch (error : any ) {
         Notify.create({
           color: 'negative',
-          message: 'Error during getting responses',
+          message: error.response.data.error,
           position: 'bottom',
           icon: 'report_problem',
         });
@@ -71,10 +71,10 @@ export const useExamDayStore = defineStore('examDay', {
           icon: 'check',
           textColor: 'black',
         });
-      } catch (error) {
+      } catch (error : any ) {
         Notify.create({
           color: 'negative',
-          message: 'Error during adding exam day',
+          message: error.response.data.error,
           position: 'bottom',
           icon: 'report_problem',
         });
@@ -91,10 +91,10 @@ export const useExamDayStore = defineStore('examDay', {
           icon: 'check',
           textColor: 'black',
         });
-      } catch (error) {
+      } catch (error : any ) {
         Notify.create({
           color: 'negative',
-          message: 'Error during deleting exam day',
+          message: error.response.data.error,
           position: 'bottom',
           icon: 'report_problem',
         });
@@ -111,38 +111,41 @@ export const useExamDayStore = defineStore('examDay', {
           icon: 'check',
           textColor: 'black',
         });
-      } catch (error) {
+      } catch (error : any ) {
         Notify.create({
           color: 'negative',
-          message: 'Error during changing lock',
+          message: error.response.data.error,
           position: 'bottom',
           icon: 'report_problem',
         });
       }
     },
 
-    async informUsers(startDate : string, endDate : string, dateOfSubmits : string) {
-      try {
-        await api.post('/examDays/informUsers', {
-          startDate: startDate,
-          endDate: endDate,
-          dateOfSubmits: dateOfSubmits,
-        });
-        Notify.create({
-          color: 'positive',
-          message: 'Users informed',
-          position: 'bottom',
-          icon: 'check',
-          textColor: 'black',
-        });
-      } catch (error) {
-        Notify.create({
-          color: 'negative',
-          message: 'Error during informing users',
-          position: 'bottom',
-          icon: 'report_problem',
-        });
+      async informUsers(startDate : string, endDate : string, dateOfSubmits : string) {
+        try {
+          await api.post('/examDays/informUsers', {
+            startDate: startDate,
+            endDate: endDate,
+            dateOfSubmits: dateOfSubmits,
+          });
+          Notify.create({
+            color: 'positive',
+            message: 'Users informed',
+            position: 'bottom',
+            icon: 'check',
+            textColor: 'black',
+          });
+        } catch (error: any) {
+          let errorMessage = 'Error during informing users';
+          errorMessage = error.response.data.error;
+
+          Notify.create({
+            color: 'negative',
+            message: errorMessage,
+            position: 'bottom',
+            icon: 'report_problem',
+          });
+        }
       }
-    }
-  },
+    },
 });

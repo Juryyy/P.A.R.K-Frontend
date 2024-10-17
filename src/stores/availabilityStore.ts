@@ -13,10 +13,10 @@ export const useAvailabilityStore = defineStore('availability', {
       try {
         const response = await api.get('/responses/responses');
         this.userResponses = response.data;
-      } catch (error) {
+      } catch (error : any) {
         Notify.create({
           color: 'negative',
-          message: 'Error during getting invigilators days',
+          message: error.response.data.error,
           position: 'bottom',
           icon: 'report_problem',
         });
@@ -33,10 +33,10 @@ export const useAvailabilityStore = defineStore('availability', {
           icon: 'check',
           textColor: 'black',
         });
-      } catch (error) {
+      } catch (error : any) {
         Notify.create({
           color: 'negative',
-          message: 'Error during updating responses',
+          message: error.response.data.error,
           position: 'bottom',
           icon: 'report_problem',
         });

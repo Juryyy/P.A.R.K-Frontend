@@ -26,10 +26,10 @@ export const usePostStore = defineStore('post', {
           icon: 'check',
           textColor: 'black',
         });
-      } catch (error) {
+      } catch (error : any) {
         Notify.create({
           color: 'negative',
-          message: 'Error during adding post',
+          message: error.response.data.error,
           position: 'bottom',
           icon: 'report_problem',
         });
@@ -40,10 +40,10 @@ export const usePostStore = defineStore('post', {
       try {
         const response = await api.get('/posts/posts');
         this.posts = response.data as PostWithAvatar[];
-      } catch (error) {
+      } catch (error : any) {
         Notify.create({
           color: 'negative',
-          message: 'Error during getting posts',
+          message: error.response.data.error,
           position: 'bottom',
           icon: 'report_problem',
         });
@@ -76,10 +76,10 @@ export const usePostStore = defineStore('post', {
           icon: 'check',
           textColor: 'black',
         });
-      } catch (error) {
+      } catch (error : any) {
         Notify.create({
           color: 'negative',
-          message: 'Error downloading file',
+          message: error.response.data.error,
           position: 'bottom',
           icon: 'report_problem',
         });
@@ -97,10 +97,10 @@ export const usePostStore = defineStore('post', {
           icon: 'check',
           textColor: 'black',
         });
-      } catch (error) {
+      } catch (error : any) {
         Notify.create({
           color: 'negative',
-          message: 'Error during file deletion',
+          message: error.response.data.error,
           position: 'bottom',
           icon: 'report_problem',
         });
@@ -118,10 +118,10 @@ export const usePostStore = defineStore('post', {
           icon: 'check',
           textColor: 'black',
         });
-      } catch (error) {
+      } catch (error : any) {
         Notify.create({
           color: 'negative',
-          message: 'Error during post deletion',
+          message: error.response.data.error,
           position: 'bottom',
           icon: 'report_problem',
         });

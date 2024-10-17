@@ -68,9 +68,9 @@ export const useUserStore = defineStore('user', {
       try {
         const response = await api.get('/users/usersExams');
         this.usersExams = response.data;
-      } catch (error) {
+      } catch (error : any) {
         Notify.create({
-          message: 'Error getting users exams',
+          message: error.response.data.error,
           color: 'red',
           icon: 'report_problem',
           position: 'bottom',
@@ -92,9 +92,9 @@ export const useUserStore = defineStore('user', {
         const base64String = btoa(String.fromCharCode.apply(null, array));
 
         this.userAvatar = `data:image/jpeg;base64,${base64String}`;
-      } catch (error) {
+      } catch (error : any) {
         Notify.create({
-          message: 'Error loading avatar',
+          message: error.response.data.error,
           color: 'red',
           icon: 'report_problem',
           position: 'bottom',
@@ -106,9 +106,9 @@ export const useUserStore = defineStore('user', {
       try {
         const response = await api.get(`/users/profile/${userId}`);
         this.selectedUser = response.data;
-      } catch (error) {
+      } catch (error : any) {
         Notify.create({
-          message: 'Error loading profile',
+          message: error.response.data.error,
           color: 'red',
           icon: 'report_problem',
           position: 'bottom',
@@ -134,9 +134,9 @@ export const useUserStore = defineStore('user', {
         if (userId === this.user.id) {
           this.setUserAvatar(avatarUrl);
         }
-      } catch (error) {
+      } catch (error : any) {
         Notify.create({
-          message: 'Error loading avatar',
+          message: error.response.data.error,
           color: 'red',
           icon: 'report_problem',
           position: 'bottom',
@@ -148,10 +148,10 @@ export const useUserStore = defineStore('user', {
       try {
         const response = await api.get('/users/allUsers');
         this.users = response.data;
-      } catch (error) {
+      } catch (error : any) {
         Notify.create({
           color: 'negative',
-          message: 'Error during getting users',
+          message: error.response.data.error,
           position: 'bottom',
           icon: 'report_problem',
         });
@@ -163,10 +163,10 @@ export const useUserStore = defineStore('user', {
         const response = await api.get('/users/userInfo');
         this.updateUserInfo(response.data);
         this.user = response.data;
-      } catch (error) {
+      } catch (error : any) {
         Notify.create({
           color: 'negative',
-          message: 'Error fetching user info',
+          message: error.response.data.error,
           position: 'bottom',
           icon: 'report_problem',
         });
@@ -195,10 +195,10 @@ export const useUserStore = defineStore('user', {
         textColor: 'black',
       });
       }
-      catch (error) {
+      catch (error : any) {
         Notify.create({
           color: 'negative',
-          message: 'Error updating user',
+          message: error.response.data.error,
           position: 'bottom',
           icon: 'report_problem',
         });
@@ -219,10 +219,10 @@ export const useUserStore = defineStore('user', {
         closeBtn: 'X',
         textColor: 'black',
       });
-    } catch (error) {
+    } catch (error : any) {
       Notify.create({
         color: 'negative',
-        message: 'Error updating admin note',
+        message: error.response.data.error,
         position: 'bottom',
         icon: 'report_problem',
       });
@@ -247,10 +247,10 @@ export const useUserStore = defineStore('user', {
         closeBtn: 'X',
         textColor: 'black',
       });
-    } catch (error) {
+    } catch (error : any) {
       Notify.create({
         color: 'negative',
-        message: 'Error updating avatar',
+        message: error.response.data.error,
         position: 'bottom',
         icon: 'report_problem',
       });
