@@ -336,7 +336,8 @@ const addToGoogleCalendar = (exam: ExamWithVenueLink) => {
   window.open(googleCalendarUrl, '_blank');
 };
 
-const viewExam = (examId: number) => {
+const viewExam = async (examId: number) => {
+  await nextTick();
   router.push(`/exam/${examId}`);
 };
 

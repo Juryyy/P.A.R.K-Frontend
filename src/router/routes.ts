@@ -173,27 +173,51 @@ function checkOfficeTrue(): boolean {
   return (user.role && (user.role.includes('Office') || user.role.includes('Developer'))) ?? false;
 }
 
-function checkIfAssigned(): boolean {
-  const user = useUserStore().getUserInfo();
-  const exam = useExamStore().selectedExam;
+async function checkIfAssigned(to: RouteLocationNormalized): Promise<boolean> {
+  const examStore = useExamStore();
+  const userStore = useUserStore();
+  const examId = Number(to.params.id);
 
-  if (!exam) {
+  if (!examId) {
     return false;
   }
 
-  return exam.supervisors.some(supervisor => supervisor.id === user.id) ||
-    exam.invigilators.some(invigilator => invigilator.id === user.id) ||
-    exam.examiners.some(examiner => examiner.id === user.id);
+  try {
+    if (!examStore.selectedExam) {
+      await examStore.getExam(examId);
+    }
+
+    const user = userStore.getUserInfo();
+    const exam = examStore.selectedExam;
+
+    if (!exam) {
+      return false;
+    }
+
+    const hasAccess = exam.supervisors.some(supervisor => supervisor.id === user.id) ||
+      exam.invigilators.some(invigilator => invigilator.id === user.id) ||
+      exam.examiners.some(examiner => examiner.id === user.id);
+
+    if (!hasAccess) {
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    console.error('Error checking exam access:', error);
+    return false;
+  }
 }
 
-function examCheck(
+
+async function examCheck(
   to: RouteLocationNormalized,
   from: RouteLocationNormalized,
   next: NavigationGuardNext
 ) {
   if (checkOfficeTrue()) {
     next();
-  } else if (checkIfAssigned()) {
+  } else if (await checkIfAssigned(to)) {
     next();
   } else {
     Notify.create('You are not authorized to access this page');
