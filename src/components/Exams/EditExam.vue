@@ -174,7 +174,6 @@
           label="Schedule URL"
           type="url"
           :rules="[
-            val => !!val || 'URL is required',
             val => /^https?:\/\/.+/.test(val) || 'Must be a valid URL'
           ]"
         >
@@ -193,14 +192,14 @@
     </template>
     <template v-else>
       <div class="row items-center q-gutter-x-md">
-        <p class="text-h6 q-mt-sm">Schedule:</p>
         <a
           :href="editableExam.schedule"
           target="_blank"
           rel="noopener noreferrer"
-          class="schedule-link col-grow"
+          class="schedule-link col-grow text-bold text-h6"
         >
-          {{ editableExam.schedule }}
+        Exam Schedule
+        <q-tooltip class="bg-primary">Opens exam schedule in new window</q-tooltip>
         </a>
         <q-btn
           icon="delete"
@@ -213,7 +212,7 @@
       </div>
     </template>
     </div>
-      <q-separator class="q-mt-sm" />
+      <q-separator class="q-mt-sm" v-if="editableExam.schedule" />
         <div>
           <q-file
             class="q-mt-md"
@@ -242,8 +241,8 @@
             @remove="removeFile(index)"
           />
         </div>
-        <p class="text-h6 q-mt-sm">Files:</p>
         <div v-if="exam.files && exam.files.length > 0">
+          <p class="text-h6 q-mt-sm">Files:</p>
           <div v-for="file in exam.files" :key="file.id" class="q-mt-sm file-item">
             <q-icon :name="getFileIcon(file.name)" size="24px" class="q-mr-sm" />
             <span class="file-name">{{ file.name }}</span>
@@ -296,7 +295,6 @@
             @click="deleteFile(editableExam.dayReport.id, editableExam.dayReport.name)"
           />
         </div>
-        <q-separator class="q-my-sm" />
         <q-btn
           :color="editableExam.isPrepared ? 'warning' : 'blue'"
           icon="event_available"
@@ -631,7 +629,7 @@ const prepareExam = async () => {
   if(!editableExam.value?.isPrepared)
   Dialog.create({
     title: 'Prepare Exam',
-    message: 'You want to inform all workers about this exam? It is recommended to not edit the exam after preparing it.',
+    message: 'You want to inform all workers about this exam? You won\'t be able to edit the exam if it\'s prepared.',
     ok: {
       label: 'Inform',
       color: 'positive',
@@ -641,10 +639,10 @@ const prepareExam = async () => {
       color: 'negative',
     },
   }).onOk(async () => {
-    if(!editableExam.value?.files || editableExam.value?.files.length === 0 && !editableExam.value.isPrepared) {
+    if(!editableExam.value?.schedule && !editableExam.value?.isPrepared) {
       Dialog.create({
-        title: 'No Files',
-        message: 'You need to upload files before preparing the exam.',
+        title: 'No Schedule',
+        message: 'You need to input schedule before preparing the exam.',
         ok: {
           label: 'OK',
           color: 'warning',
@@ -821,6 +819,13 @@ const removeSchedule = async () => {
 };
 </script>
 <style scoped lang="scss">
+.schedule-section {
+  .schedule-link {
+    color: $primary;
+    word-break: break-all;
+
+  }
+}
 .container {
   display: flex;
   flex-direction: column;
@@ -1008,5 +1013,9 @@ const removeSchedule = async () => {
     text-align: center;
     margin-bottom: 8px;
   }
+}
+
+.note-dialog-card{
+  min-width: 250px
 }
 </style>
