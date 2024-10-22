@@ -23,9 +23,7 @@ onMounted(async () => {
     messageColor: 'amber',
     backgroundColor: 'black',
   });
-  if(availabilityStore.userResponses.length === 0){
-    await availabilityStore.loadResponsesForUser();
-  }
+  await availabilityStore.loadResponsesForUser();
   state.loaded = true;
   Loading.hide();
 });
