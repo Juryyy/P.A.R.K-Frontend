@@ -244,8 +244,6 @@ export const useUserStore = defineStore('user', {
         message: 'Avatar updated',
         position: 'bottom',
         icon: 'check',
-        closeBtn: 'X',
-        textColor: 'black',
       });
     } catch (error : any) {
       Notify.create({

@@ -19,8 +19,8 @@
       @click="show = true"
       v-if="user?.role?.includes('Office') || user?.role?.includes('Developer')"
     />
-
-  <q-card v-for="post in filteredPosts" :key="post.id" class="post-card q-mb-lg">
+    <div v-if="filteredPosts.length !==0">
+  <q-card  v-for="post in filteredPosts" :key="post.id" class="post-card q-mb-lg">
     <div v-if="post.id">
       <q-card-section v-if="!editingPost[post.id]">
         <div class="row items-center justify-between q-mb-sm">
@@ -285,6 +285,7 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+  </div>
   </div>
 </template>
 
