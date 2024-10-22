@@ -516,6 +516,7 @@ const toggleConfirmation = async (userId: number, roleKey: string) => {
     );
 
     await examStore.getExam(editableExam.value.id);
+    await userStore.getUsersExams();
 
     if (examStore.selectedExam) {
       editableExam.value = examStore.selectedExam;

@@ -133,8 +133,11 @@
               </q-chip>
                 <q-chip v-if="exam.isPrepared" :color="getUserConfirmationStatus(exam).isConfirmed ? 'positive' : 'negative'" text-color="white">
                   {{ getUserConfirmationStatus(exam).isConfirmed ? 'Confirmed' : 'Not Confirmed' }} - {{ getUserConfirmationStatus(exam).role }}
-                  <q-tooltip>
+                  <q-tooltip v-if="exam.isPrepared && !getUserConfirmationStatus(exam).isConfirmed">
                     Visit the exam page to confirm your attendance
+                  </q-tooltip>
+                  <q-tooltip v-if="exam.isPrepared && getUserConfirmationStatus(exam).isConfirmed">
+                    You have confirmed your attendance. Thank you!
                   </q-tooltip>
                 </q-chip>
               </div>
@@ -194,19 +197,22 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeMount, ref, nextTick } from 'vue';
+import { computed, onBeforeMount, ref, nextTick, watch, onMounted } from 'vue';
 import EssentialLink, { EssentialLinkProps } from 'components/Auth_nav/EssentialLink.vue';
 import { useUserStore } from 'src/stores/userStore';
 import { useAuthStore } from 'src/stores/authStore';
+import { useExamStore } from 'src/stores/examStore';
 import { router } from 'src/router/index';
 import { ExamWithVenueLink, RoleEnum } from 'src/db/types';
 import { Loading } from 'quasar';
 import { getRoleColor } from 'src/helpers/Color';
 import { sortRoles } from 'src/helpers/FormatRole';
 import { formatDateString, formatTimeString } from 'src/helpers/FormatTime';
+import { storeToRefs } from 'pinia';
 
 const userStore = useUserStore();
 const authStore = useAuthStore();
+const examStore = useExamStore();
 
 onBeforeMount(async () => {
   Loading.show({
@@ -215,26 +221,21 @@ onBeforeMount(async () => {
     messageColor: 'amber',
     backgroundColor: 'black',
   });
-  usersExamsRef.value = userStore.usersExams;
+  usersExamsRef.value = userStore.usersExams as ExamWithVenueLink[];
   await userStore.getUsersAvatar();
   Loading.hide();
-  loading.value = true;
-  await new Promise((resolve) => setTimeout(resolve, 10000));
-  loading.value = false;
 });
 
 const logout = async () => {
   await authStore.logout();
   router.push('/login');
 };
-
-const exams: ExamWithVenueLink[] = userStore.usersExams;
-const usersExamsRef = ref(exams);
+const { usersExams, refreshTrigger} = storeToRefs(userStore);
+const usersExamsRef = ref<ExamWithVenueLink[]>([]);
 const user = computed(() => userStore.user);
 const showNoteDialog = ref(false);
 const selectedNote = ref('');
-
-const loading = ref(false);
+const isInitialMount = ref(true);
 
 const shouldShowMoreLink = (note: string | undefined) => {
   const maxLength = 19;
@@ -374,6 +375,27 @@ const getUserConfirmationStatus = (exam: ExamWithVenueLink) => {
     role: userConfirmation?.role || 'N/A'
   };
 };
+
+watch(
+  () => refreshTrigger.value,
+  async () => {
+    if (isInitialMount.value) {
+      isInitialMount.value = false;
+      return;
+    }
+    const updatedExams = await userStore.getUsersExams();
+    if (updatedExams) {
+      usersExamsRef.value = updatedExams;
+    }
+  }
+);
+
+onMounted(async () => {
+  const updatedExams = await userStore.getUsersExams();
+  if (updatedExams) {
+    usersExamsRef.value = updatedExams;
+  }
+});
 
 
 window.addEventListener('resize', updateIsMobile);

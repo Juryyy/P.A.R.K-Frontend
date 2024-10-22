@@ -10,8 +10,10 @@ export const useExamStore = defineStore('exam', {
     pastExams: ref<Exam[]>([]),
     selectedExam: ref<Exam>(),
     selectedExamDay: ref(),
+    refreshTrigger: ref(0),
   }),
   actions: {
+
     async loadUpcomingExams() {
       try {
         const response = await api.get('/exams/upcomingExams');

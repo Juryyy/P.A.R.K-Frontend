@@ -80,6 +80,8 @@ const versionNotes = ref<VersionNote[]>([
       'Fixed issue with viewing exam without having role office',
       'Fixed issue with allowing changes of availability after day lock',
       'In edit exam declined has been renamed to Unavailable',
+      'Now exam schedule is URL link, files are now in separate tab',
+      'When changing confirmation, rightside exams now updates, resulting in less confusion',
   ]
   }
 ]);

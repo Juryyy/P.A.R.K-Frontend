@@ -12,8 +12,14 @@ export const useUserStore = defineStore('user', {
     selectedUser: ref(),
     selectedUserAvatar: ref(''),
     users : ref([] as User[]),
+    refreshTrigger: ref(0),
+    lastRefreshTime: ref(0)
   }),
   actions: {
+    triggerExamRefresh(){
+      this.refreshTrigger+=1;
+    },
+
     async updateUserInfo(userInfo: UserInfo) {
       // Add update user info on backend
       this.user = userInfo;
@@ -66,8 +72,14 @@ export const useUserStore = defineStore('user', {
 
     async getUsersExams() {
       try {
+        const currentTime = Date.now();
+        if (currentTime - this.lastRefreshTime < 100) {
+          return this.usersExams;
+        }
+        this.lastRefreshTime = currentTime;
         const response = await api.get('/users/usersExams');
         this.usersExams = response.data;
+        this.triggerExamRefresh()
       } catch (error : any) {
         Notify.create({
           message: error.response.data.error,
