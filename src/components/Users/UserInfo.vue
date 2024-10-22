@@ -52,6 +52,7 @@
                 :mask="field.key === 'dateOfBirth' ? '####-##-##' : undefined"
                 outlined
                 dense
+                stack-label
               >
                 <template v-if="field.key === 'dateOfBirth'" v-slot:append>
                   <q-icon name="event" class="cursor-pointer">
@@ -66,6 +67,7 @@
               <q-checkbox
                 v-model="editableUser.drivingLicense"
                 label="Driving License"
+                stack-label
               />
             </div>
 
@@ -81,6 +83,7 @@
                 :type="field.type"
                 outlined
                 dense
+                stack-label
               />
             </div>
           </template>
@@ -116,6 +119,7 @@
           type="textarea"
           outlined
           class="q-mt-md"
+          stack-label
         />
 
         <div class="q-mt-md">

@@ -248,7 +248,14 @@ const deleteExamDay = async (id: number) => {
   $q.dialog({
     title: 'Confirm Deletion',
     message: 'Are you sure you want to delete this exam day?',
-    cancel: true,
+    ok: {
+      label: 'Inform',
+      color: 'positive',
+    },
+    cancel: {
+      label: 'Go back',
+      color: 'negative',
+    },
     persistent: true
   }).onOk(async () => {
     $q.loading.show();

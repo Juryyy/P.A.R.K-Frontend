@@ -5,6 +5,7 @@
       <q-input
         v-model="state.password"
         label="Old Password"
+        stack-label
         :type="state.passwordHidden ? 'password' : 'text'"
         :rules="[(val) => !!val || 'Password is required']"
         autocomplete="current-password"
@@ -21,6 +22,7 @@
       <q-input
         v-model="state.newPassword"
         label="New Password"
+        stack-label
         :type="state.newPasswordHidden ? 'password' : 'text'"
         :rules="[
           (val) => !!val || 'Password is required',
@@ -46,6 +48,7 @@
       <q-input
         v-model="state.newPasswordCheck"
         label="Confirm New Password"
+        stack-label
         :type="state.newPasswordCheckHidden ? 'password' : 'text'"
         :rules="[
           (val) => !!val || 'Password confirmation is required',

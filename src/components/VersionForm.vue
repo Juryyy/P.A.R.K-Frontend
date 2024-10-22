@@ -70,6 +70,17 @@ const versionNotes = ref<VersionNote[]>([
       'Users tables has been slighly updated',
       'Create availability now has updated graphics'
       ]
+  },
+  {
+    version: '0.1.4',
+    date: '22.10.2024',
+    updates: [
+      'Fixed issues with updating profile (thanks David)',
+      'Updated labels on profile to be always on top and smaller',
+      'Fixed issue with viewing exam without having role office',
+      'Fixed issue with allowing changes of availability after day lock',
+      'In edit exam declined has been renamed to Unavailable',
+  ]
   }
 ]);
 

@@ -499,7 +499,7 @@ const uploadFiles = async () => {
 const downloadExamDayReport = async (fileId: number, fileName: string) => {
   if (fileId === undefined) {
     Notify.create({
-      message: 'Invalid fileId: cannot be undefined',
+      message: 'Invalid file',
       color: 'negative',
     });
     return;
@@ -583,11 +583,11 @@ const prepareExam = async () => {
     title: 'Prepare Exam',
     message: 'You want to inform all workers about this exam? It is recommended to not edit the exam after preparing it.',
     ok: {
-      label: 'Yes',
+      label: 'Inform',
       color: 'positive',
     },
     cancel: {
-      label: 'No',
+      label: 'Go back',
       color: 'negative',
     },
   }).onOk(async () => {
@@ -597,7 +597,7 @@ const prepareExam = async () => {
         message: 'You need to upload files before preparing the exam.',
         ok: {
           label: 'OK',
-          color: 'positive',
+          color: 'warning',
         },
       });
     }
@@ -607,7 +607,7 @@ const prepareExam = async () => {
         message: 'You need to assign workers before preparing the exam.',
         ok: {
           label: 'OK',
-          color: 'positive',
+          color: 'warning',
         },
       });
     }
@@ -623,11 +623,11 @@ const prepareExam = async () => {
       title: 'Unprepare Exam',
       message: 'You want to unprepare this exam? When you will prepare it again, all workers will be informed again.',
       ok: {
-        label: 'Yes',
+        label: 'Unprepare',
         color: 'positive',
       },
       cancel: {
-        label: 'No',
+        label: 'Go back',
         color: 'negative',
       },
     }).onOk(async () => {
@@ -666,11 +666,11 @@ const deleteExam = async () => {
     title: 'Delete Exam',
     message: 'You want to delete this exam? This action cannot be undone!',
     ok: {
-      label: 'Yes',
+      label: 'Delete',
       color: 'positive',
     },
     cancel: {
-      label: 'No',
+      label: 'Go back',
       color: 'negative',
     },
   }).onOk(async () => {
@@ -686,12 +686,12 @@ const deleteFile = async (fileId: number, fileName: string) => {
     title: 'Delete File',
     message: `You want to delete ${fileName} file?`,
     ok: {
-      label: 'Yes',
-      color: 'negative',
+      label: 'Delete',
+      color: 'positive',
     },
     cancel: {
-      label: 'No',
-      color: 'primary',
+      label: 'Go back',
+      color: 'negative',
     },
   }).onOk(async () => {
     if (fileId) {

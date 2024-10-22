@@ -168,8 +168,10 @@ function checkOffice(
   }
 }
 
-function checkOfficeTrue(): boolean {
+async function checkOfficeTrue(to: RouteLocationNormalized): Promise<boolean> {
   const user = useUserStore().getUserInfo();
+  const examId = Number(to.params.id);
+  await useExamStore().getExam(examId);
   return (user.role && (user.role.includes('Office') || user.role.includes('Developer'))) ?? false;
 }
 
@@ -215,7 +217,7 @@ async function examCheck(
   from: RouteLocationNormalized,
   next: NavigationGuardNext
 ) {
-  if (checkOfficeTrue()) {
+  if (await checkOfficeTrue(to)) {
     next();
   } else if (await checkIfAssigned(to)) {
     next();

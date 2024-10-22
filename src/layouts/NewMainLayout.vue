@@ -203,6 +203,9 @@ onBeforeMount(async () => {
   usersExamsRef.value = userStore.usersExams;
   await userStore.getUsersAvatar();
   Loading.hide();
+  loading.value = true;
+  await new Promise((resolve) => setTimeout(resolve, 10000));
+  loading.value = false;
 });
 
 const logout = async () => {
@@ -214,6 +217,8 @@ const exams: ExamWithVenueLink[] = userStore.usersExams;
 const usersExamsRef = ref(exams);
 const user = computed(() => userStore.user);
 const showNoteDialog = ref(false);
+
+const loading = ref(false);
 
 const shouldShowMoreLink = (note: string | undefined) => {
   const maxLength = 19;
