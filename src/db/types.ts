@@ -95,6 +95,7 @@ export interface Exam {
   files: File[];
   isPrepared: boolean;
   isCompleted: boolean;
+  schedule?: string;
   dayReportId?: number | null;
   dayReport?: DayReport | null;
   userConfirmations: userConfirmations[];

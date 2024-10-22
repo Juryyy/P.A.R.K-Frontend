@@ -155,7 +155,7 @@
               <q-separator class="q-my-md" />
               <div class="text-body2 q-mb-md">
                 <strong>Note:</strong>
-                <span v-if="shouldShowMoreLink(exam.note)" @click="showFullNoteDialog()" class="cursor-pointer">
+                <span v-if="shouldShowMoreLink(exam.note)" @click="showFullNoteDialog(exam.note)" class="cursor-pointer">
                   {{ truncatedNote(exam.note) }}
                   <span class="text-primary">...more</span>
                 </span>
@@ -173,6 +173,21 @@
     </q-drawer>
 
     <q-page-container>
+      <q-dialog v-model="showNoteDialog">
+        <q-card class="note-dialog-card">
+          <q-card-section>
+            <div class="text-h6">Full Note</div>
+            <div class="note-content">{{ selectedNote }}</div>
+          </q-card-section>
+          <q-card-actions align="right">
+            <q-btn
+              color="primary"
+              label="Close"
+              @click="showNoteDialog = false"
+            />
+          </q-card-actions>
+        </q-card>
+      </q-dialog>
       <router-view />
     </q-page-container>
   </q-layout>
@@ -217,6 +232,7 @@ const exams: ExamWithVenueLink[] = userStore.usersExams;
 const usersExamsRef = ref(exams);
 const user = computed(() => userStore.user);
 const showNoteDialog = ref(false);
+const selectedNote = ref('');
 
 const loading = ref(false);
 
@@ -225,7 +241,8 @@ const shouldShowMoreLink = (note: string | undefined) => {
   return note && note.length > maxLength;
 };
 
-const showFullNoteDialog = () => {
+const showFullNoteDialog = (note: string) => {
+  selectedNote.value = note;
   showNoteDialog.value = true;
 };
 
@@ -364,6 +381,17 @@ updateIsMobile();
 </script>
 
 <style lang="scss" scoped>
+
+.note-dialog-card {
+  min-width: 300px;
+  max-width: 500px;
+  .note-content {
+    margin-top: 16px;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+}
+
 .drawer-avatar-box {
   display: flex;
   align-items: center;
