@@ -286,7 +286,7 @@
                     </q-card-section>
                     <q-card-section class="response-list">
                       <div v-for="response in filteredResponses(answer, [...role.filterRoles])" :key="response.id" class="response-item q-mb-sm">
-                        <div :class="['name-wrapper', 'q-pa-sm', 'rounded-borders', 'border']">
+                        <div v-if="!response.assigned" :class="['name-wrapper', 'q-pa-sm', 'rounded-borders', 'border']">
                            <div class="text-subtitle1 text-weight-bold">
                             <span :class="['clickable-name', getAnswerStyle(answer)]" @click="goToUserProfile(response.userId)">
                               {{ response.userName }}
@@ -425,7 +425,7 @@ const roleTitles = {
   Yes: 'Confirmed',
   AM: 'Morning',
   PM: 'Afternoon',
-  No: 'Declined',
+  No: 'Unavailable',
 } as const;
 
 type RoleTitleKey = keyof typeof roleTitles;
