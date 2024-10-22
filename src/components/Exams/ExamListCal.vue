@@ -51,14 +51,23 @@
             </div>
             <q-list separator>
               <q-item v-for="exam in filteredExams" :key="exam.id" :class="cardClass(exam)" class="q-py-md">
-                <q-item-section @click="editExam(exam.id)">
-                  <q-item-label class="text-h6">{{ exam.type }}</q-item-label>
-                  <q-item-label class="text-subtitle1 q-mt-sm">{{ exam.location }} - {{ exam.venue }}</q-item-label>
-                  <q-item-label class="text-body q-mt-sm">Levels: {{ exam.levels.join(', ') }}</q-item-label>
-                  <q-item-label class="text-body q-mt-sm">Time: {{ formatTimeString(exam.startTime) }} - {{ formatTimeString(exam.endTime) }}</q-item-label>
-                  <q-item-label class="text-body q-mt-md">
+                <q-item-section>
+                  <!-- Clickable content -->
+                  <div @click="editExam(exam.id)" class="cursor-pointer">
+                    <q-item-label class="text-h6">{{ exam.type }}</q-item-label>
+                    <q-item-label class="text-subtitle1 q-mt-sm">{{ exam.location }} - {{ exam.venue }}</q-item-label>
+                    <q-item-label class="text-body q-mt-sm">Levels: {{ exam.levels.join(', ') }}</q-item-label>
+                    <q-item-label class="text-body q-mt-sm">Time: {{ formatTimeString(exam.startTime) }} - {{ formatTimeString(exam.endTime) }}</q-item-label>
+                  </div>
+
+                  <!-- Note section -->
+                  <q-item-label class="text-body q-mt-xs">
                     Note:
-                    <span v-if="shouldShowMoreLink(exam.note)" @click="showFullNoteDialog(exam.note)" class="cursor-pointer text-primary">
+                    <span
+                      v-if="shouldShowMoreLink(exam.note)"
+                      @click.stop="showFullNoteDialog(exam.note)"
+                      class="cursor-pointer text-primary note-link"
+                    >
                       {{ truncatedNote(exam.note) }}...more
                     </span>
                     <span v-else>{{ exam.note }}</span>

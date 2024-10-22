@@ -165,16 +165,65 @@
         </div>
       </div>
       <q-separator class="q-mt-sm" />
-
+  <div class="schedule-section q-mt-sm">
+    <template v-if="!editableExam.schedule">
+      <div class="row items-center">
+        <q-input
+          v-model="scheduleUrl"
+          class="col-grow"
+          label="Schedule URL"
+          type="url"
+          :rules="[
+            val => !!val || 'URL is required',
+            val => /^https?:\/\/.+/.test(val) || 'Must be a valid URL'
+          ]"
+        >
+          <template v-slot:append>
+            <q-btn
+              icon="save"
+              round
+              size="sm"
+              color="primary"
+              @click="saveScheduleUrl"
+              :disable="!scheduleUrl || !scheduleUrl.trim()"
+            />
+          </template>
+        </q-input>
+      </div>
+    </template>
+    <template v-else>
+      <div class="row items-center q-gutter-x-md">
+        <p class="text-h6 q-mt-sm">Schedule:</p>
+        <a
+          :href="editableExam.schedule"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="schedule-link col-grow"
+        >
+          {{ editableExam.schedule }}
+        </a>
+        <q-btn
+          icon="delete"
+          round
+          size="sm"
+          color="negative"
+          @click="removeSchedule"
+          :disable="isExamLocked"
+        />
+      </div>
+    </template>
+    </div>
+      <q-separator class="q-mt-sm" />
         <div>
           <q-file
             class="q-mt-md"
             flat
             multiple
-            label="Select schedule files"
+            label="Select files"
             color="primary"
             v-model="selectedFiles"
             @change="onFileChange"
+            :disable="isExamLocked"
           />
           <q-btn
             v-if="selectedFiles.length"
@@ -344,6 +393,7 @@ const examsInDay = ref<Exam[]>([]);
 const hasPreviousExam = computed(() => currentExamIndex.value > 0);
 const hasNextExam = computed(() => currentExamIndex.value < examsInDay.value.length - 1);
 const today = props.exam.startTime.split('T')[0].split('-').reverse().join('.');
+const scheduleUrl = ref('');
 
 const fetchExamsForDay = async () => {
   if (props.exam && props.exam.dayOfExamsId) {
@@ -727,6 +777,48 @@ const getAnswerClass = (answer: RoleTitleKey) => {
   }
 };
 
+const saveScheduleUrl = async () => {
+  if (!scheduleUrl.value || !editableExam.value) return;
+
+  try {
+    // Validate URL
+    const url = new URL(scheduleUrl.value);
+    if (!['http:', 'https:'].includes(url.protocol)) {
+      throw new Error('Invalid URL protocol');
+    }
+
+    editableExam.value = {
+      ...editableExam.value,
+      schedule: scheduleUrl.value
+    };
+
+    await examStore.updateExam(editableExam.value);
+    await examStore.getExam(editableExam.value.id);
+    initializeEditableExam();
+
+    scheduleUrl.value = ''; // Clear the input
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+const removeSchedule = async () => {
+  if (!editableExam.value || isExamLocked.value) return;
+
+  try {
+    editableExam.value = {
+      ...editableExam.value,
+      schedule: undefined
+    };
+
+    await examStore.updateExam(editableExam.value);
+    await examStore.getExam(editableExam.value.id);
+    initializeEditableExam();
+
+  } catch (error) {
+    console.error(error);
+  }
+};
 </script>
 <style scoped lang="scss">
 .container {
