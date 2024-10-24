@@ -34,6 +34,7 @@ onBeforeMount(async () => {
   });
   loaded.value = false;
   await examStore.getExam(Number(exam.value));
+  await adminStore.getLocationsWithVenues();
   if (examStore.selectedExam) {
     await examDayStore.loadResponsesForExamDay(Number(examStore.selectedExam.dayOfExamsId));
   }
