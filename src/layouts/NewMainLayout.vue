@@ -475,6 +475,10 @@ updateIsMobile();
   &.is-prepared {
     border-left-color: $positive;
   }
+
+  &.is-completed {
+    border-left: 5px solid #FFA000 !important;
+  }
 }
 
 .text-h6 {
