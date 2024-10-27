@@ -16,8 +16,9 @@ export interface User {
   dateOfBirth: string;
   responses: Response[];
   isSenior: boolean;
-  totaraDate?: string | null;
+  totaraDate: string | null;
   totaraDone: boolean;
+  insperaAccount: boolean;
 
   supervisedExams: Exam[];
   invigilatedExams: Exam[];
@@ -46,8 +47,9 @@ export interface UserInfo {
   activatedAccount: boolean | null;
   deactivated: boolean | null;
   isSenior: boolean | null;
-  totaraDate?: string | null;
+  totaraDate: string | null;
   totaraDone: boolean | null;
+  insperaAccount: boolean;
 }
 
 export interface DayOfExams {

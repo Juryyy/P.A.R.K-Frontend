@@ -118,7 +118,6 @@ export const useUserStore = defineStore('user', {
       try {
         const response = await api.get(`/users/profile/${userId}`);
         this.selectedUser = response.data;
-        console.log(response.data.totaraDate);
       } catch (error : any) {
         Notify.create({
           message: error.response.data.error,
@@ -186,7 +185,7 @@ export const useUserStore = defineStore('user', {
       }
     },
 
-    async updateProfile(id: number, email: string, firstName: string, lastName: string, dateOfBirth : string, note : string | null, noteLonger : string | null, drivingLicense : boolean, phone : string | null, totaraDate: string | undefined, totaraDone: boolean) {
+    async updateProfile(id: number, email: string, firstName: string, lastName: string, dateOfBirth : string, note : string | null, noteLonger : string | null, drivingLicense : boolean, phone : string | null, totaraDate: string | undefined, totaraDone: boolean, insperaAccount: boolean) {
       try {
       await api.put('/users/update', {
         id,
@@ -199,7 +198,8 @@ export const useUserStore = defineStore('user', {
         drivingLicense,
         phone,
         totaraDate,
-        totaraDone
+        totaraDone,
+        insperaAccount,
       });
       Notify.create({
         color: 'positive',
@@ -259,6 +259,30 @@ export const useUserStore = defineStore('user', {
         message: 'Avatar updated',
         position: 'bottom',
         icon: 'check',
+      });
+    } catch (error : any) {
+      Notify.create({
+        color: 'negative',
+        message: error.response.data.error,
+        position: 'bottom',
+        icon: 'report_problem',
+      });
+    }
+  },
+
+  async updateInsperaAccount(id: number, insperaAccount: boolean) {
+    try {
+      await api.put('/users/updateInspera', {
+        id,
+        insperaAccount,
+      });
+      Notify.create({
+        color: 'positive',
+        message: 'Inspera account updated',
+        position: 'bottom',
+        icon: 'check',
+        closeBtn: 'X',
+        textColor: 'black',
       });
     } catch (error : any) {
       Notify.create({

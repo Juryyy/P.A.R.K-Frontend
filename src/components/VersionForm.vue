@@ -14,7 +14,7 @@
               </q-item-label>
               <q-item-label caption>
                 <ul>
-                  <li v-for="update in note.updates" :key="update">{{ update }}</li>
+                  <li class="text-bold" v-for="update in note.updates" :key="update">{{ update }}</li>
                 </ul>
               </q-item-label>
             </q-item-section>
@@ -83,6 +83,18 @@ const versionNotes = ref<VersionNote[]>([
       'Now exam schedule is URL link, files are now in separate tab',
       'When changing confirmation, rightside exams now updates, resulting in less confusion',
   ]
+  },
+  {
+    version: '0.1.5',
+    date: '27.10.2024',
+    updates: [
+      'Totara information is now displayed on user profile',
+      'Inspera information is now displayed on user profile',
+      'Improved visual for creating/editing exam',
+      'Improved visual for viewing exam',
+      'Changing attendance is now visible on right drawer (Only for new exams)',
+      'Admin panel contains list of exams'
+    ]
   }
 ]);
 
@@ -94,7 +106,7 @@ const sortedVersionNotes = computed(() => {
       const numA = versionA[i] || 0;
       const numB = versionB[i] || 0;
       if (numA !== numB) {
-        return numB - numA; // Descending order
+        return numB - numA;
       }
     }
     return 0;
@@ -103,5 +115,4 @@ const sortedVersionNotes = computed(() => {
 </script>
 
 <style scoped>
-/* Add any custom styles here */
 </style>
