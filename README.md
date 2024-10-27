@@ -56,3 +56,4 @@ sudo cp -r dist/spa/* /var/www/html/
 sudo chown -R www-data:www-data /var/www/html/
 sudo chmod -R 755 /var/www/html/
 sudo systemctl restart nginx
+194.182.77.166

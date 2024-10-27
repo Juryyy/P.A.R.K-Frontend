@@ -9,7 +9,7 @@ export const useUserStore = defineStore('user', {
     user: ref({} as UserInfo),
     usersExams: ref([]),
     userAvatar: ref(''),
-    selectedUser: ref(),
+    selectedUser: ref({} as User),
     selectedUserAvatar: ref(''),
     users : ref([] as User[]),
     refreshTrigger: ref(0),
@@ -185,7 +185,7 @@ export const useUserStore = defineStore('user', {
       }
     },
 
-    async updateProfile(id: number, email: string, firstName: string, lastName: string, dateOfBirth : string, note : string | null, noteLonger : string | null, drivingLicense : boolean, phone : string | null) {
+    async updateProfile(id: number, email: string, firstName: string, lastName: string, dateOfBirth : string, note : string | null, noteLonger : string | null, drivingLicense : boolean, phone : string | null, totaraDate: string | undefined, totaraDone: boolean, insperaAccount: boolean) {
       try {
       await api.put('/users/update', {
         id,
@@ -197,6 +197,9 @@ export const useUserStore = defineStore('user', {
         noteLonger,
         drivingLicense,
         phone,
+        totaraDate,
+        totaraDone,
+        insperaAccount,
       });
       Notify.create({
         color: 'positive',
@@ -267,8 +270,32 @@ export const useUserStore = defineStore('user', {
     }
   },
 
+  async updateInsperaAccount(id: number, insperaAccount: boolean) {
+    try {
+      await api.put('/users/updateInspera', {
+        id,
+        insperaAccount,
+      });
+      Notify.create({
+        color: 'positive',
+        message: 'Inspera account updated',
+        position: 'bottom',
+        icon: 'check',
+        closeBtn: 'X',
+        textColor: 'black',
+      });
+    } catch (error : any) {
+      Notify.create({
+        color: 'negative',
+        message: error.response.data.error,
+        position: 'bottom',
+        icon: 'report_problem',
+      });
+    }
+  },
+
     clearSelectedUserInfo() {
-      this.selectedUser = undefined;
+      this.selectedUser = {} as User;
       this.selectedUserAvatar = '';
     }
   }
