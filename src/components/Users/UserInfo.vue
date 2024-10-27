@@ -45,7 +45,7 @@
             </div>
             <div class="col-12 col-sm-6" v-for="field in userInfoFields" :key="field.label">
               <q-input
-                :model-value="editableFields[field.key]"
+                :model-value="editableFields[field.key as keyof typeof editableFields]"
                 @update:model-value="(value) => updateField(field.key, value)"
                 :label="field.label"
                 :type="field.key === 'dateOfBirth' ? 'text' : field.type"
@@ -57,7 +57,7 @@
                 <template v-if="field.key === 'dateOfBirth'" v-slot:append>
                   <q-icon name="event" class="cursor-pointer">
                     <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-                      <q-date v-model="editableFields[field.key]" mask="YYYY-MM-DD" />
+                      <q-date v-model="editableFields[field.key as keyof typeof editableFields]" mask="YYYY-MM-DD" />
                     </q-popup-proxy>
                   </q-icon>
                 </template>
@@ -77,7 +77,7 @@
             </div>
             <div class="col-12" v-for="field in availabilityFields" :key="field.label">
               <q-input
-                :model-value="editableFields[field.key]"
+                :model-value="editableFields[field.key as keyof typeof editableFields]"
                 @update:model-value="(value) => updateField(field.key, value)"
                 :label="field.label"
                 :type="field.type"
@@ -129,7 +129,7 @@
             </div>
             <div class="col-12 col-sm-6" v-for="field in userInfoFields" :key="field.label">
               <div class="text-subtitle2">{{ field.label }}</div>
-              <div class="text-body1 q-mb-sm">{{ formatFieldValue(editableUser[field.key], field.type) }}</div>
+              <div class="text-body1 q-mb-sm">{{ formatFieldValue(editableUser[field.key as keyof typeof editableFields], field.type) }}</div>
             </div>
             <div class="col-12 col-sm-6">
               <div class="text-subtitle2">Driving License</div>
@@ -142,7 +142,7 @@
             </div>
             <div class="col-12" v-for="field in availabilityFields" :key="field.label">
               <div class="text-subtitle2">{{ field.label }}</div>
-              <div class="text-body1 q-mb-sm">{{ formatFieldValue(editableUser[field.key], field.type) }}</div>
+              <div class="text-body1 q-mb-sm">{{ formatFieldValue(editableUser[field.key as keyof typeof editableFields], field.type) }}</div>
             </div>
           </template>
         </div>
