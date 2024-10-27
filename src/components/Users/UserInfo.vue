@@ -86,7 +86,42 @@
                 stack-label
               />
             </div>
+
+            <!--Exam Administration Section -->
+            <div class="col-12">
+              <div class="row items-center q-mb-sm">
+                <div class="text-body1 q-mr-md">Totara Training Status:</div>
+                <q-toggle
+                  v-model="editableUser.totaraDone"
+                  color="green"
+                  :label="editableUser.totaraDone ? 'Completed' : 'Not Completed'"
+                />
+              </div>
+              <q-input
+                v-model="editableFields.totaraDate"
+                label="Completion Date"
+                outlined
+                dense
+                stack-label
+                :disable="!editableUser.totaraDone"
+                mask="####-##-##"
+              >
+                <template v-slot:append>
+                  <q-icon name="event" class="cursor-pointer">
+                    <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+                      <q-date
+                        v-model="editableFields.totaraDate"
+                        mask="YYYY-MM-DD"
+                        :disable="!editableUser.totaraDone"
+                      />
+                    </q-popup-proxy>
+                  </q-icon>
+                </template>
+              </q-input>
+            </div>
           </template>
+
+
           <template v-else>
             <!-- View Only User Info Section -->
             <div class="col-12">
@@ -227,11 +262,17 @@ const props = defineProps<{
 
 const userStore = useUserStore();
 
-type EditableUserField = {
-  key: keyof Pick<User, 'firstName' | 'lastName' | 'email' | 'dateOfBirth' | 'phone' | 'note' | 'noteLonger'>;
+type EditableFieldKey = 'firstName' | 'lastName' | 'email' | 'dateOfBirth' | 'phone' | 'note' | 'noteLonger' | 'totaraDate';
+
+type EditableFields = {
+  [K in EditableFieldKey]: string;
+};
+
+interface EditableUserField {
+  key: EditableFieldKey;
   label: string;
   type: 'text' | 'date' | 'email' | 'tel' | 'textarea';
-};
+}
 
 const userInfoFields: EditableUserField[] = [
   { key: 'firstName', label: 'First Name', type: 'text' },
@@ -241,6 +282,7 @@ const userInfoFields: EditableUserField[] = [
   { key: 'phone', label: 'Phone', type: 'tel' },
 ];
 
+
 const availabilityFields: EditableUserField[] = [
   { key: 'note', label: 'Short Note (optional) - ex. "No fridays" ', type: 'text' },
   { key: 'noteLonger', label: 'Detailed Note (optional) - Please give us more detailed information about your availability', type: 'textarea' },
@@ -249,7 +291,7 @@ const availabilityFields: EditableUserField[] = [
 const editableUser = ref<User | null>(props.user ? { ...props.user } : null);
 const initialUser = ref<User | null>(props.user ? { ...props.user } : null);
 
-const editableFields = reactive({
+const editableFields = reactive<EditableFields>({
   firstName: '',
   lastName: '',
   email: '',
@@ -257,17 +299,18 @@ const editableFields = reactive({
   phone: '',
   note: '',
   noteLonger: '',
+  totaraDate: '',
 });
-
 
 const updateEditableFields = () => {
   if (editableUser.value) {
-    [...userInfoFields, ...availabilityFields].forEach(field => {
-      if (field.key === 'dateOfBirth' && editableUser.value?.[field.key]) {
-        const date = parseISO(editableUser.value[field.key] as string);
-        editableFields[field.key] = format(date, 'yyyy-MM-dd');
+    [...userInfoFields, ...availabilityFields].forEach((field) => {
+      const key = field.key;
+      if (key === 'dateOfBirth' && editableUser.value?.[key]) {
+        const date = parseISO(editableUser.value[key] as string);
+        editableFields[key] = format(date, 'yyyy-MM-dd');
       } else {
-        editableFields[field.key] = editableUser.value?.[field.key] as string ?? '';
+        editableFields[key] = (editableUser.value?.[key] as string) ?? '';
       }
     });
   }
@@ -279,7 +322,7 @@ watch(() => props.user, (newUser) => {
   updateEditableFields();
 }, { immediate: true });
 
-const updateField = (key: keyof typeof editableFields, value: string | number | null) => {
+const updateField = (key: EditableFieldKey, value: string | number | null) => {
   if (value !== null) {
     if (key === 'dateOfBirth') {
       const date = parseISO(value as string);
@@ -300,6 +343,7 @@ const updateField = (key: keyof typeof editableFields, value: string | number | 
     }
   }
 };
+
 const currentUser = userStore.user;
 
 const isCurrentUser = computed(() => currentUser?.id === editableUser.value?.id);
@@ -351,7 +395,9 @@ const updateProfile = async () => {
       editableFields.note,
       editableFields.noteLonger,
       editableUser.value.drivingLicense,
-      editableFields.phone
+      editableFields.phone,
+      editableFields.totaraDate,
+      editableUser.value.totaraDone
     );
 
     await userStore.getProfile(editableUser.value.id);

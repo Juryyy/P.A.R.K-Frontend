@@ -16,7 +16,7 @@ export interface User {
   dateOfBirth: string;
   responses: Response[];
   isSenior: boolean;
-  totaraDate?: string | null;
+  totaraDate: string | null;
   totaraDone: boolean;
 
   supervisedExams: Exam[];
@@ -46,7 +46,7 @@ export interface UserInfo {
   activatedAccount: boolean | null;
   deactivated: boolean | null;
   isSenior: boolean | null;
-  totaraDate?: string | null;
+  totaraDate: string | null;
   totaraDone: boolean | null;
 }
 
