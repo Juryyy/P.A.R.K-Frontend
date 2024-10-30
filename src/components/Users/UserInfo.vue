@@ -11,6 +11,20 @@
         This user has not completed the Totara training yet.
       </q-banner>
 
+      <q-banner v-if="!editableUser.activatedAccount && currentUser" class="text-white bg-orange-6">
+        Please setup your profile to gain access to whole app by:
+        <ul>
+          <li>Filing in your personal information such as phone</li>
+          <li>Update your password</li>
+          <li>Update your Totara information</li>
+          <li>(Optional) Update your avatar</li>
+        </ul>
+      </q-banner>
+
+      <q-banner v-if="!editableUser.activatedAccount && !currentUser" class="text-white bg-orange-6">
+        <b>This user has not activated their account yet.</b>
+      </q-banner>
+
       <q-card-section class="profile-header">
         <div class="avatar-container">
           <q-avatar size="160px" class="shadow-3">

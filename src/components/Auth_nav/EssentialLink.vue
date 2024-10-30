@@ -21,6 +21,7 @@ export interface EssentialLinkProps {
   caption?: string;
   link?: string;
   icon?: string;
+  isActiveBlocked?: boolean;
 }
 
 const props = withDefaults(defineProps<EssentialLinkProps>(), {

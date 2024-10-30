@@ -147,12 +147,28 @@ function checkAuth(
   from: RouteLocationNormalized,
   next: NavigationGuardNext
 ) {
-  const user = useUserStore().getUserInfo();
+  const userStore = useUserStore();
+  const user = userStore.getUserInfo();
+
   if (!user.email) {
     next('/login');
-  } else {
-    next();
+    return;
   }
+
+  if (!user.activatedAccount) {
+    console.log('User is not activated');
+    // Allow access to own profile page
+    if (to.name === 'UserProfile' && to.params.id === user.id?.toString()) {
+      next();
+      return;
+    }
+
+    Notify.create('Your account is not activated');
+    next('/user/' + user.id);
+    return;
+  }
+
+  next();
 }
 
 function checkOffice(
@@ -238,6 +254,20 @@ function checkLogin(
     next('/');
   } else {
     next();
+  }
+}
+
+function checkIfUserIsActivated(
+  to: RouteLocationNormalized,
+  from: RouteLocationNormalized,
+  next: NavigationGuardNext
+) {
+  const user = useUserStore().getUserInfo();
+  if (user.activatedAccount) {
+    next();
+  } else {
+    Notify.create('Your account is not activated');
+    next('/user/' + user.id);
   }
 }
 

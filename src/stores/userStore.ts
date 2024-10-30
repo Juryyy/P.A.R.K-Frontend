@@ -210,7 +210,7 @@ export const useUserStore = defineStore('user', {
         closeBtn: 'X',
         textColor: 'black',
       });
-      this.updated = true;
+      this.updatedCheck = true;
       }
       catch (error : any) {
         Notify.create({
