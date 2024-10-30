@@ -7,7 +7,7 @@
       <q-banner v-if="!editableUser.totaraDone && currentUser" class="text-white bg-red-6">
         Please complete the Totara training before you can attend exams.
       </q-banner>
-      <q-banner v-if="!editableUser.totaraDone && isCurrentUserAdmin && !currentUser" class="text-white bg-red-6">
+      <q-banner v-if="!editableUser.totaraDone && isCurrentUserAdmin && !currentUser && !editableUser.deactivated" class="text-white bg-red-6">
         This user has not completed the Totara training yet.
       </q-banner>
 
