@@ -4,6 +4,12 @@
       <q-banner v-if="editableUser.deactivated" class="text-white bg-red-6">
         This account has been deactivated!
       </q-banner>
+      <q-banner v-if="!editableUser.totaraDone && currentUser" class="text-white bg-red-6">
+        Please complete the Totara training before you can attend exams.
+      </q-banner>
+      <q-banner v-if="!editableUser.totaraDone && isCurrentUserAdmin && !currentUser" class="text-white bg-red-6">
+        This user has not completed the Totara training yet.
+      </q-banner>
 
       <q-card-section class="profile-header">
         <div class="avatar-container">
@@ -374,7 +380,7 @@ const availabilityFields: EditableUserField[] = [
 ];
 
 const administrationFields: EditableUserField[] = [
-  { key: 'totaraDate', label: 'Completion Date', type: 'date' },
+  { key: 'totaraDate', label: 'Totara Completion Date', type: 'date' },
 ];
 
 const editableUser = ref<User | null>(props.user ? { ...props.user } : null);
@@ -493,12 +499,14 @@ const updateProfile = async () => {
       editableUser.value.insperaAccount
     );
 
+    if(userStore.updatedCheck){
     await userStore.getProfile(editableUser.value.id);
     if (userStore.selectedUser) {
       editableUser.value = { ...userStore.selectedUser };
       initialUser.value = { ...userStore.selectedUser };
       updateEditableFields();
     }
+  }
   } finally {
     isUpdating.value = false;
   }

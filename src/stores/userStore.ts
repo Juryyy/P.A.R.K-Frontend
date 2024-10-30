@@ -13,7 +13,8 @@ export const useUserStore = defineStore('user', {
     selectedUserAvatar: ref(''),
     users : ref([] as User[]),
     refreshTrigger: ref(0),
-    lastRefreshTime: ref(0)
+    lastRefreshTime: ref(0),
+    updatedCheck: ref(false)
   }),
   actions: {
     triggerExamRefresh(){
@@ -209,6 +210,7 @@ export const useUserStore = defineStore('user', {
         closeBtn: 'X',
         textColor: 'black',
       });
+      this.updated = true;
       }
       catch (error : any) {
         Notify.create({
