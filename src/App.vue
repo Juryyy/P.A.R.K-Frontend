@@ -25,7 +25,6 @@ onMounted(async () => {
       backgroundColor: 'black',
     });
     state.isLoaded = false;
-    console.log(userStore.user.activatedAccount)
     await userStore.getUsersExams();
     await userStore.getUsersAvatar();
   }

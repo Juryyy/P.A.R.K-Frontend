@@ -15,8 +15,8 @@
         Please setup your profile to gain access to whole app by doing those steps:
         <ul>
           <li v-if="!editableUser.phone">Filing in your personal information</li>
-          <li v-if="!editableUser.passwordUpdated">Update your password</li>
           <li v-if="!editableUser.totaraDone">Update your Totara information</li>
+          <li>(Optional but recommended) Update your password</li>
           <li>(Optional) Update your avatar</li>
         </ul>
       </q-banner>
