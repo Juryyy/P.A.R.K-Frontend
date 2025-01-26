@@ -12,11 +12,11 @@
       </q-banner>
 
       <q-banner v-if="!editableUser.activatedAccount && currentUser" class="text-white bg-orange-6">
-        Please setup your profile to gain access to whole app by:
+        Please setup your profile to gain access to whole app by doing those steps:
         <ul>
-          <li>Filing in your personal information such as phone</li>
-          <li>Update your password</li>
-          <li>Update your Totara information</li>
+          <li v-if="!editableUser.phone">Filing in your personal information</li>
+          <li v-if="!editableUser.totaraDone">Update your Totara information</li>
+          <li>(Optional but recommended) Update your password</li>
           <li>(Optional) Update your avatar</li>
         </ul>
       </q-banner>
@@ -348,6 +348,7 @@ import { parseISO, format } from 'date-fns';
 import { Cropper, CircleStencil } from 'vue-advanced-cropper';
 import 'vue-advanced-cropper/dist/style.css';
 import { useQuasar } from 'quasar';
+import { useAuthStore } from 'src/stores/authStore';
 
 
 
@@ -358,6 +359,7 @@ const props = defineProps<{
 
 const $q = useQuasar();
 const userStore = useUserStore();
+const authStore = useAuthStore();
 
 const adaptiveLabel = computed(() => {
   if ($q.screen.lt.sm) {
@@ -513,13 +515,15 @@ const updateProfile = async () => {
       editableUser.value.insperaAccount
     );
 
-    if(userStore.updatedCheck){
-    await userStore.getProfile(editableUser.value.id);
-    if (userStore.selectedUser) {
-      editableUser.value = { ...userStore.selectedUser };
-      initialUser.value = { ...userStore.selectedUser };
-      updateEditableFields();
-    }
+    if(userStore.updateConfirmation){
+      userStore.changeConfirmation(false);
+      await userStore.getProfile(editableUser.value.id);
+      await authStore.getToken();
+      if (userStore.selectedUser) {
+        editableUser.value = { ...userStore.selectedUser };
+        initialUser.value = { ...userStore.selectedUser };
+        updateEditableFields();
+      }
   }
   } finally {
     isUpdating.value = false;

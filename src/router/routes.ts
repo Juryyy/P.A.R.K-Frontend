@@ -14,6 +14,7 @@ const routes: RouteRecordRaw[] = [
         path: '',
         component: () => import('pages/IndexPage.vue'),
         name: 'Home',
+        beforeEnter: checkIfUserIsActivated,
         meta: {
           title: 'Home',
         },
@@ -22,6 +23,7 @@ const routes: RouteRecordRaw[] = [
         path: 'availabilty-check',
         component: () => import('pages/AvailabilityCheck.vue'),
         name: 'AvailabiltyCheck',
+        beforeEnter: checkIfUserIsActivated,
         meta: {
           title: 'Availability',
         },
@@ -30,6 +32,7 @@ const routes: RouteRecordRaw[] = [
         path: 'user/:id',
         component: () => import('pages/UserProfilePage.vue'),
         name: 'UserProfile',
+        beforeEnter: checkIfUserIsActivated,
         props: true,
         meta: {
           title: 'Profile',
@@ -39,6 +42,7 @@ const routes: RouteRecordRaw[] = [
         path: 'users',
         component: () => import('pages/admin/UsersPage.vue'),
         name: 'Users',
+        beforeEnter: checkIfUserIsActivated,
         meta: {
           title: 'Users',
         },
@@ -47,8 +51,8 @@ const routes: RouteRecordRaw[] = [
         path: 'exam/:id',
         component: () => import('pages/ViewExamPage.vue'),
         name: 'ViewExam',
+        beforeEnter: [checkIfUserIsActivated, examCheck],
         props: true,
-        beforeEnter: examCheck,
         meta: {
           title: 'Exam',
         },
@@ -69,7 +73,7 @@ const routes: RouteRecordRaw[] = [
         path: 'import-candidates',
         component: () => import('pages/admin/CandidatesImport.vue'),
         name: 'ImportCandidates',
-        beforeEnter: checkOffice,
+        beforeEnter: [checkOffice, checkIfUserIsActivated],
         meta: {
           title: 'Import Candidates',
         },
@@ -78,7 +82,7 @@ const routes: RouteRecordRaw[] = [
         path: 'exams',
         component: () => import('pages/admin/ExamsPage.vue'),
         name: 'Exams',
-        beforeEnter: checkOffice,
+        beforeEnter: [checkOffice, checkIfUserIsActivated],
         meta: {
           title: 'Exams',
         },
@@ -87,7 +91,7 @@ const routes: RouteRecordRaw[] = [
         path: 'exams/:id',
         component: () => import('pages/admin/ExamPage.vue'),
         name: 'Exam',
-        beforeEnter: checkOffice,
+        beforeEnter: [checkOffice, checkIfUserIsActivated],
         props: true,
         meta: {
           title: 'Exam',
@@ -97,7 +101,7 @@ const routes: RouteRecordRaw[] = [
         path: 'create-availability',
         component: () => import('pages/admin/CreateAvailabilityPage.vue'),
         name: 'CreateAvailability',
-        beforeEnter: checkOffice,
+        beforeEnter: [checkOffice, checkIfUserIsActivated],
         meta: {
           title: 'Create Availability',
         },
@@ -106,7 +110,7 @@ const routes: RouteRecordRaw[] = [
         path: 'admin-panel',
         component: () => import('pages/admin/AdminPanel.vue'),
         name: 'AdminPanel',
-        beforeEnter: checkOffice,
+        beforeEnter: [checkOffice, checkIfUserIsActivated],
         meta: {
           title: 'Admin Panel',
         },
@@ -156,14 +160,19 @@ function checkAuth(
   }
 
   if (!user.activatedAccount) {
-    console.log('User is not activated');
-    // Allow access to own profile page
     if (to.name === 'UserProfile' && to.params.id === user.id?.toString()) {
       next();
       return;
     }
 
-    Notify.create('Your account is not activated');
+    Notify.create(
+      {
+        message: 'Your account is not activated',
+        position: 'bottom',
+        icon: 'report_problem',
+        color: 'warning',
+      }
+    );
     next('/user/' + user.id);
     return;
   }
@@ -238,7 +247,13 @@ async function examCheck(
   } else if (await checkIfAssigned(to)) {
     next();
   } else {
-    Notify.create('You are not authorized to access this page');
+    Notify.create(
+      {
+        message: 'You are not authorized to access this page',
+        position: 'bottom',
+        color: 'warning',
+      }
+    );
     next('/');
   }
 }
@@ -262,13 +277,30 @@ function checkIfUserIsActivated(
   from: RouteLocationNormalized,
   next: NavigationGuardNext
 ) {
-  const user = useUserStore().getUserInfo();
-  if (user.activatedAccount) {
-    next();
-  } else {
-    Notify.create('Your account is not activated');
+  const userStore = useUserStore();
+  const user = userStore.getUserInfo();
+
+  if (!user.activatedAccount) {
+    if (to.name === 'UserProfile' && to.params.id === user.id?.toString()) {
+      next();
+      return;
+    }
+
+    Notify.create(
+      {
+        message: 'Your account is not activated',
+        position: 'bottom',
+        icon: 'report_problem',
+        color: 'orange-6',
+      }
+    );
+    if(from.name === 'UserProfile'){
+      return;
+    }
     next('/user/' + user.id);
+    return;
   }
+  next();
 }
 
 export default routes;

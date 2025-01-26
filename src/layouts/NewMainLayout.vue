@@ -260,13 +260,11 @@ const essentialLinks: EssentialLinkProps[] = [
     title: 'Home',
     link: '/',
     icon: 'home',
-    isActiveBlocked: true,
   },
   {
     title: 'My Availability',
     link: '/availabilty-check',
     icon: 'calendar_today',
-    isActiveBlocked: true,
   },
   {
     title: 'My Profile',
@@ -277,7 +275,6 @@ const essentialLinks: EssentialLinkProps[] = [
     title: 'Other Users',
     link: '/users',
     icon: 'people',
-    isActiveBlocked: true,
   },
 ];
 
@@ -291,19 +288,16 @@ const adminEssentialLinks: EssentialLinkProps[] = [
     title: 'Create Availability',
     link: 'create-availability',
     icon: 'event_note',
-    isActiveBlocked: true,
   },
   {
     title: 'Exams',
     link: 'exams',
     icon: 'assignment',
-    isActiveBlocked: true,
   },
   {
     title: 'Admin Panel',
     link: 'admin-panel',
     icon: 'admin_panel_settings',
-    isActiveBlocked: true,
   },
 ];
 

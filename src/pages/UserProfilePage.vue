@@ -15,7 +15,11 @@
         <UserInfo v-if="state.loaded && user" :user="user" :user-avatar="userAvatar" />
       </q-tab-panel>
       <q-tab-panel name="Password" v-if="state.loaded && currentUser?.id?.toString() === userId">
-        <PasswordReset v-if="state.loaded && user" :user="user" />
+        <PasswordReset
+          v-if="state.loaded && user"
+          :user="user"
+          @password-updated="handlePasswordUpdate"
+        />
       </q-tab-panel>
       <!--<q-tab-panel name="Exams" v-if="state.loaded">
         <UserExams v-if="state.loaded && user" :user="user" />
@@ -33,9 +37,11 @@ import { Loading, Dialog } from 'quasar';
 import UserInfo from 'src/components/Users/UserInfo.vue';
 import { User } from 'src/db/types';
 import PasswordReset from 'src/components/Users/PasswordReset.vue';
+import { useAuthStore } from 'src/stores/authStore';
 
 const tab = ref('User');
 const userStore = useUserStore();
+const authStore = useAuthStore();
 
 const route = useRoute();
 const userId = ref(route.params.id);
@@ -46,6 +52,12 @@ const currentUser = userStore.user;
 const state = reactive({
   loaded: false,
 });
+
+const handlePasswordUpdate = async () => {
+  await authStore.getToken();
+  userStore.getUserInfo();
+  tab.value = 'User';
+};
 
 onMounted(async () => {
   try {
@@ -84,4 +96,3 @@ onUnmounted(() => {
   userStore.clearSelectedUserInfo();
 });
 </script>
-src/db/types

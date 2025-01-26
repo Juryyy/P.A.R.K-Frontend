@@ -19,6 +19,7 @@ export interface User {
   totaraDate: string | null;
   totaraDone: boolean;
   insperaAccount: boolean;
+  passwordUpdated: boolean;
 
   supervisedExams: Exam[];
   invigilatedExams: Exam[];
@@ -31,25 +32,8 @@ export interface User {
 }
 
 export interface UserInfo {
-  id: number | null;
-  email: string | null;
-  firstName: string | null;
-  lastName: string | null;
-  phone: string | null;
-  dateOfBirth: string | null;
-  drivingLicense: boolean | null;
-  note: string | null;
-  noteLonger: string | null;
-  adminNote: string | null;
-  role: string[] | null;
-  level: string[] | null;
-  avatarUrl: string | null;
-  activatedAccount: boolean | null;
-  deactivated: boolean | null;
-  isSenior: boolean | null;
-  totaraDate: string | null;
-  totaraDone: boolean | null;
-  insperaAccount: boolean;
+  role: string[];
+  [key: string]: any;
 }
 
 export interface DayOfExams {

@@ -6,16 +6,17 @@
 import { onMounted, reactive } from 'vue';
 import { useUserStore } from 'src/stores/userStore';
 import { Loading } from 'quasar';
+import { useAuthStore } from './stores/authStore';
 
 const userStore = useUserStore();
+const authStore = useAuthStore();
 const state = reactive({
   isLoaded: false,
 });
 
 onMounted(async () => {
-  if (userStore.user.email || localStorage.getItem('email')) {
-    await userStore.fetchUserInfo();
-    userStore.updateUserInfo(userStore.user);
+  if (userStore.user.email || localStorage.getItem('token')) {
+    await authStore.getToken();
     userStore.getUserInfo();
     Loading.show({
       message: 'Loading data...',
