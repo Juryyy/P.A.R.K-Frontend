@@ -169,7 +169,7 @@ const validate = async (event: Event) => {
   loading.value = true;
   try {
     await authStore.verifyUser(state.email, verificationCode.value);
-    if (localStorage.getItem('id')) {
+    if (localStorage.getItem('token')) {
       await loadUserData();
     }
   } catch (error) {

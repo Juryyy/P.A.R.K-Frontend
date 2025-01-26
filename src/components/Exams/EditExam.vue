@@ -343,7 +343,7 @@
                     <q-card bordered :class="['response-card', getAnswerClass(answer)]">
                       <q-card-section class="q-py-sm">
                         <div class="text-subtitle1 text-center text-weight-medium">
-                          {{ roleTitles[answer] }}
+                          {{ roleTitles[answer as RoleTitleKey] }}
                         </div>
                       </q-card-section>
 

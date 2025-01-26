@@ -85,8 +85,12 @@
 import { ref, reactive, computed } from 'vue';
 import { useAuthStore } from '../../stores/authStore';
 import { QForm, Notify, Loading } from 'quasar';
+import { useUserStore } from 'src/stores/userStore';
+
+const emit = defineEmits(['password-updated']);
 
 const authStore = useAuthStore();
+const userStore = useUserStore();
 const passwordForm = ref<QForm | null>(null);
 
 const state = reactive({
@@ -105,12 +109,13 @@ const commonPasswordCheck = (password: string): boolean => {
 
 const isPasswordStrong = computed(() => {
   const { newPassword } = state;
-  return newPassword.length >= 12 &&
+  const password = newPassword.length >= 8 &&
          /[A-Z]/.test(newPassword) &&
          /[a-z]/.test(newPassword) &&
          /[0-9]/.test(newPassword) &&
          /[^A-Za-z0-9]/.test(newPassword) &&
          !commonPasswordCheck(newPassword);
+  return password;
 });
 
 const update = async () => {
@@ -134,6 +139,15 @@ const update = async () => {
     state.password = '';
     state.newPassword = '';
     state.newPasswordCheck = '';
+    // Emit event to notify parent to switch tabs
+    await authStore.getToken();
+    userStore.getUserInfo();
+    await userStore.getProfile(Number(userStore.user.id));
+    if (userStore.user?.id) {
+      userStore.updatePasswordStatus();
+      await userStore.getProfile(Number(userStore.user.id));
+    }
+    emit('password-updated');
   } catch (error) {
     console.error(error);
     Notify.create({

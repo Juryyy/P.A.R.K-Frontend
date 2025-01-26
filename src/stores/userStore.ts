@@ -3,6 +3,8 @@ import { api } from '../boot/axios';
 import { UserInfo, User } from '../db/types';
 import { ref } from 'vue';
 import { Notify } from 'quasar';
+import { jwtDecode } from 'jwt-decode';
+
 
 export const useUserStore = defineStore('user', {
   state: () => ({
@@ -14,23 +16,12 @@ export const useUserStore = defineStore('user', {
     users : ref([] as User[]),
     refreshTrigger: ref(0),
     lastRefreshTime: ref(0),
-    updatedCheck: ref(false)
+    updateConfirmation: ref(false),
+    isActivated: ref(false)
   }),
   actions: {
     triggerExamRefresh(){
       this.refreshTrigger+=1;
-    },
-
-    async updateUserInfo(userInfo: UserInfo) {
-      // Add update user info on backend
-      this.user = userInfo;
-      for (const [key, value] of Object.entries(userInfo)) {
-        if (key === 'role' && Array.isArray(value)) {
-          localStorage.setItem(key, JSON.stringify(value)); // Serialize array
-        } else {
-          localStorage.setItem(key, String(value));
-        }
-      }
     },
 
     setUserAvatar(newAvatarUrl: string) {
@@ -38,37 +29,22 @@ export const useUserStore = defineStore('user', {
     },
 
     getUserInfo() {
-      const user = {} as UserInfo;
-      user.id = Number(localStorage.getItem('id'));
-      user.email = localStorage.getItem('email');
-      user.firstName = localStorage.getItem('firstName');
-      user.lastName = localStorage.getItem('lastName');
-      user.drivingLicense = localStorage.getItem('drivingLicense') === 'true';
-      user.note = localStorage.getItem('note');
-      user.adminNote = localStorage.getItem('adminNote');
-
-      // Deserialize the roles array
-      const roles = localStorage.getItem('role');
-      user.role = roles ? JSON.parse(roles) : [];
-
-      user.avatarUrl = localStorage.getItem('avatarUrl');
-      user.activatedAccount = localStorage.getItem('activatedAccount') === 'true';
-      user.deactivated = localStorage.getItem('deactivated') === 'true';
-      user.dateOfBirth = localStorage.getItem('dateOfBirth');
-      user.isSenior = localStorage.getItem('isSenior') === 'true';
-      user.phone = localStorage.getItem('phone');
-
-      this.user = user;
+      // Decode jwt token from local storage and set user info
+      const token = localStorage.getItem('token');
+      if (token) {
+        const decode = jwtDecode(token) as UserInfo;
+        this.user = decode.user;
+      }
       return this.user;
     },
 
     getUserRole() {
-      const roles = localStorage.getItem('role');
+      const roles = this.user.roles;
       return roles ? JSON.parse(roles) : [];
     },
 
     getUserId() {
-      return localStorage.getItem('id');
+      return this.user.id;
     },
 
     async getUsersExams() {
@@ -171,21 +147,6 @@ export const useUserStore = defineStore('user', {
       }
     },
 
-    async fetchUserInfo(){
-      try {
-        const response = await api.get('/users/userInfo');
-        this.updateUserInfo(response.data);
-        this.user = response.data;
-      } catch (error : any) {
-        Notify.create({
-          color: 'negative',
-          message: error.response.data.error,
-          position: 'bottom',
-          icon: 'report_problem',
-        });
-      }
-    },
-
     async updateProfile(id: number, email: string, firstName: string, lastName: string, dateOfBirth : string, note : string | null, noteLonger : string | null, drivingLicense : boolean, phone : string | null, totaraDate: string | undefined, totaraDone: boolean, insperaAccount: boolean) {
       try {
       await api.put('/users/update', {
@@ -210,7 +171,7 @@ export const useUserStore = defineStore('user', {
         closeBtn: 'X',
         textColor: 'black',
       });
-      this.updatedCheck = true;
+      this.updateConfirmation = true;
       }
       catch (error : any) {
         Notify.create({
@@ -299,7 +260,15 @@ export const useUserStore = defineStore('user', {
     clearSelectedUserInfo() {
       this.selectedUser = {} as User;
       this.selectedUserAvatar = '';
-    }
+    },
+
+    changeConfirmation(bool: boolean) {
+      this.updateConfirmation = bool;
+    },
+
+    updatePasswordStatus() {
+      this.user.passwordUpdated = true;
+  },
   }
 
 });

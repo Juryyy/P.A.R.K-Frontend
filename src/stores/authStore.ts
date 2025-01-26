@@ -6,28 +6,17 @@ import { useUserStore } from './userStore';
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
-    user: undefined as User | undefined,
     verification : false as boolean,
     email : '' as string,
   }),
   actions: {
 
-    setUserInfo(userInfo: User) {
-      this.user = userInfo;
-      for (const [key, value] of Object.entries(userInfo)) {
-        if (key === 'role' && Array.isArray(value)) {
-          localStorage.setItem(key, JSON.stringify(value)); // Serialize array to JSON
-        } else {
-          localStorage.setItem(key, String(value));
-        }
-      }
-    },
-
     async verifyUser(email : string, code : string){ {
       try {
         const response = await api.post('/auth/verify', { email, code });
-        const userInfo = response.data as User;
-        this.setUserInfo(userInfo);
+        const token = await api.get('/auth/token');
+        console.log(token.data);
+        localStorage.setItem('token', token.data);
         Notify.create({
           color: 'positive',
           message: 'Verification successful',
@@ -75,23 +64,9 @@ export const useAuthStore = defineStore('auth', {
         if (!user) {
           return;
         }
-
         const response = await api.delete('/auth/logout');
         if (response.status === 200) {
-          // Explicitly remove known keys
-          //const keysToRemove = [
-          //  'id', 'email', 'firstName', 'lastName', 'phone', 'drivingLicense', 'note',
-          //  'adminNote', 'role', 'avatarUrl', 'activatedAccount', 'deactivated', 'isSenior', 'dateOfBirth',
-          //];
-          //keysToRemove.forEach(key => {
-          //  if (localStorage.getItem(key) !== null) {
-          //    localStorage.removeItem(key);
-          //  }
-          //});
-          // Optionally, clear the entire localStorage if it is safe to do so
           localStorage.clear();
-
-          this.user = undefined;
           Notify.create({
             color: 'positive',
             message: 'Successfully logged out',
@@ -169,6 +144,21 @@ export const useAuthStore = defineStore('auth', {
         });
       } catch (error : any) {
           Notify.create({
+          color: 'negative',
+          message: error.response.data.error,
+          position: 'bottom',
+          icon: 'report_problem',
+        });
+      }
+    },
+
+    async getToken() {
+      try {
+        const response = await api.get('/auth/token');
+        localStorage.removeItem('token');
+        localStorage.setItem('token', response.data);
+      } catch (error : any) {
+        Notify.create({
           color: 'negative',
           message: error.response.data.error,
           position: 'bottom',

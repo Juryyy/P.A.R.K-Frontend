@@ -15,7 +15,11 @@
         <UserInfo v-if="state.loaded && user" :user="user" :user-avatar="userAvatar" />
       </q-tab-panel>
       <q-tab-panel name="Password" v-if="state.loaded && currentUser?.id?.toString() === userId">
-        <PasswordReset v-if="state.loaded && user" :user="user" />
+        <PasswordReset
+          v-if="state.loaded && user"
+          :user="user"
+          @password-updated="handlePasswordUpdate"
+        />
       </q-tab-panel>
       <!--<q-tab-panel name="Exams" v-if="state.loaded">
         <UserExams v-if="state.loaded && user" :user="user" />
@@ -46,6 +50,10 @@ const currentUser = userStore.user;
 const state = reactive({
   loaded: false,
 });
+
+const handlePasswordUpdate = () => {
+  tab.value = 'User';
+};
 
 onMounted(async () => {
   try {
@@ -84,4 +92,3 @@ onUnmounted(() => {
   userStore.clearSelectedUserInfo();
 });
 </script>
-src/db/types
