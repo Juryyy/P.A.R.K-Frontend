@@ -1,6 +1,6 @@
 <template>
   <div class="p-4 bg-gray-100 q-ma-sm">
-    <q-page class="bg-white rounded-lg shadow-md">
+    <q-page class="rounded-lg shadow-md">
       <div class="p-4">
 
         <q-table
@@ -145,6 +145,7 @@
           <template v-slot:bottom>
             <div class="row items-center justify-between full-width q-px-sm">
               <q-btn
+              :disable="!currentUserRole.includes(RoleEnum.Office)"
               class="on right"
               @click="state.newUser = true"
               color="primary"
@@ -196,6 +197,18 @@
                       :rules="[(val) => !!val.length || 'At least one role is required']"
                       lazy-rules
                     />
+                    <q-select
+                      v-model="newUser.centre"
+                      :options="Centres"
+                      multiple
+                      emit-value
+                      map-options
+                      fill-input
+                      label="Centres"
+                      use-chips
+                      :rules="[(val) => !!val.length || 'At least one centre is required']"
+                      lazy-rules
+                    />
                   </q-form>
                   <q-card-actions align="right">
                     <q-btn
@@ -217,7 +230,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, watch, nextTick } from 'vue';
-import { RoleEnum, LevelEnum, ExtendedUser } from 'src/db/types';
+import { RoleEnum, LevelEnum, ExtendedUser, CentreEnum } from 'src/db/types';
 import { useUserStore } from 'src/stores/userStore';
 import { useAdminStore } from 'src/stores/adminStore';
 import { useRouter } from 'vue-router';
@@ -283,6 +296,10 @@ const Roles = computed(() => {
   return Object.entries(RoleEnum).map(([key, value]) => ({ label: value, value: key as RoleEnum }));
 });
 
+const Centres = computed(() => {
+  return Object.entries(CentreEnum).map(([key, value]) => ({ label: value, value: key as CentreEnum }));
+});
+
 const Levels = computed(() => {
   return Object.entries(LevelEnum).map(([key, value]) => ({ label: value, value: key as LevelEnum }));
 });
@@ -302,14 +319,15 @@ const newUser = ref({
   email: '',
   role: [] as RoleEnum[],
   level: [] as LevelEnum[],
-  isSenior: false
+  isSenior: false,
+  centre: [] as CentreEnum[],
 });
 
 const newUserForm = ref(null);
 
 async function addUser() {
-  await adminStore.registerUser(newUser.value.firstName, newUser.value.lastName, newUser.value.email, newUser.value.role);
-  newUser.value = { firstName: '', lastName: '', email: '', role: [], level: [], isSenior: false };
+  await adminStore.registerUser(newUser.value.firstName, newUser.value.lastName, newUser.value.email, newUser.value.role, newUser.value.centre);
+  newUser.value = { firstName: '', lastName: '', email: '', role: [], level: [], isSenior: false, centre: [] };
   state.newUser = false;
   await userStore.getAllUsers();
   usersRef.value = userStore.users.map(user => ({

@@ -103,6 +103,11 @@ export enum RoleEnum {
   Examiner = 'Examiner',
 }
 
+export enum CentreEnum{
+  Prague = 'Prague',
+  Brno = 'Brno',
+}
+
 export interface ExtendedUser extends User {
   originalRoles: RoleEnum[];
   isRoleChanged: boolean;

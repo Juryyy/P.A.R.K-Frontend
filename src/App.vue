@@ -41,6 +41,8 @@ const initializeApp = async () => {
       router.push('/login');
       state.isLoaded = true;
       return;
+    }else{
+      await authStore.getToken();
     }
 
     try {

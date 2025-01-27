@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { api } from '../boot/axios';
 import { ref } from 'vue';
 import { Notify } from 'quasar';
-import { RoleEnum } from '../db/types';
+import { CentreEnum, RoleEnum } from '../db/types';
 import { removeSpaces } from '../helpers/RemoveSpaces';
 import { Location } from 'src/db/types';
 
@@ -38,7 +38,8 @@ export const useAdminStore = defineStore('admin', {
       firstName: string,
       lastName: string,
       email: string,
-      role: RoleEnum[]
+      role: RoleEnum[],
+      centre: CentreEnum[]
     ) {
       try {
         // Backend does not accept spaces in role
@@ -47,6 +48,7 @@ export const useAdminStore = defineStore('admin', {
           lastName,
           email,
           role,
+          centre
         });
         Notify.create({
           color: 'positive',

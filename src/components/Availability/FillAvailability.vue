@@ -136,7 +136,6 @@ const handleSubmit = async () => {
   justify-content: center;
   align-items: flex-start;
   min-height: 100vh;
-  background-color: #f5f5f5;
   padding: 2rem 1rem;
 }
 
