@@ -1,59 +1,37 @@
-# TODO:
+# Změny:
 
-# - [?] Posts
-- fix download buttons
-- filtering
-- search
-- pagination
+### Profil:
 
-- todo upload file from post screen
+- [x] vytvoření profilu
+- [ ] úprava profilu (adminem)
 
+### Availability:
 
-# - [?] Availability
-- comments ?
-- autolock
+- [ ] vytváření availability
+- [ ] response byly nastaveny ku jednotlivým lidem, kontrola zda Praha nezadává availability pro Brno.
+- [ ] v případě že uživatel má vícero center, ukázat jaká availability je pro jaké centrum.
+- [ ] Date lock fix
 
-- zrušit maybe
-- yes/no/am/pm
-- note z profilu
+### Location:
+- [ ] atribut při vytváření, rozdělení na ty podsekce, filtry?
 
-
-# - [?] Profile
-- edit profile
-- change password
-- deactivation/activation
-- 2FA modification
-- avatar upload
-
-- levels
-- multiple roles
-
-# - [?] Exams
-- [] exam creation
-- [] exam edit
-- [] exam delete
-- [] exam validation
-- [] exam candidates
-- [] exam schedule
-- [] exam files + upload
-
-# - [!] Candidates
-
-# - [?] Admin
-
-
-# - [ ] Add a description of the project
-# - [ ] Add a list of the technologies used
-# - [ ] Add a list of the features
+### Exams:
+- [ ] vytváření nové exam má atribut centre (automaticky předvyplněný)
+- [ ] alokace lidí na základě jejich profilu
 
 
 ### --- RUN THE PROJECT ---
-# - [ ] Clone the repository - back-end and front-end
-# - [ ] Install the dependencies
+- Clone the repository - back-end and front-end
+- Install the dependencies
 
 Quasar build
+
 sudo cp -r dist/spa/* /var/www/html/
+
 sudo chown -R www-data:www-data /var/www/html/
+
 sudo chmod -R 755 /var/www/html/
+
 sudo systemctl restart nginx
+
 194.182.77.166
