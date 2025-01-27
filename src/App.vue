@@ -1,34 +1,91 @@
 <template>
-  <router-view :key="$route.fullPath" v-if="state.isLoaded" />
+  <div>
+    <router-view v-if="state.isLoaded" :key="$route.fullPath" />
+    <div v-else-if="state.error" class="error-state">
+      {{ state.error }}
+      <button @click="initializeApp">Retry</button>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { onMounted, reactive } from 'vue';
 import { useUserStore } from 'src/stores/userStore';
-import { Loading } from 'quasar';
 import { useAuthStore } from './stores/authStore';
+import { Loading, Notify } from 'quasar';
+import { useRouter } from 'vue-router';
 
 const userStore = useUserStore();
 const authStore = useAuthStore();
+const router = useRouter();
+
 const state = reactive({
   isLoaded: false,
+  error: null as string | null,
 });
 
-onMounted(async () => {
-  if (userStore.user.email || localStorage.getItem('token')) {
-    await authStore.getToken();
-    userStore.getUserInfo();
+const initializeApp = async () => {
+  try {
     Loading.show({
       message: 'Loading data...',
       spinnerColor: 'amber',
       messageColor: 'amber',
       backgroundColor: 'black',
     });
+
+    state.error = null;
     state.isLoaded = false;
-    await userStore.getUsersExams();
-    await userStore.getUsersAvatar();
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+      router.push('/login');
+      state.isLoaded = true;
+      return;
+    }
+
+    try {
+      const user = userStore.getUserInfo();
+
+      if (!user.email) {
+        router.push('/login');
+        state.isLoaded = true;
+        return;
+      }
+
+      await Promise.all([
+        userStore.getUsersExams(),
+        userStore.getUsersAvatar()
+      ]);
+
+    } catch (error) {
+      try {
+        await authStore.getToken();
+        userStore.getUserInfo();
+
+        await Promise.all([
+          userStore.getUsersExams(),
+          userStore.getUsersAvatar()
+        ]);
+      } catch (refreshError) {
+        router.push('/login');
+        throw refreshError;
+      }
+    }
+
+    state.isLoaded = true;
+  } catch (error: any) {
+    console.error(error);
+    state.error = 'Failed to load application data. Please try again.';
+    Notify.create({
+      color: 'negative',
+      message: 'Failed to initialize application',
+      position: 'bottom',
+      icon: 'report_problem',
+    });
+  } finally {
+    Loading.hide();
   }
-  state.isLoaded = true;
-  Loading.hide();
-});
+};
+
+onMounted(initializeApp);
 </script>

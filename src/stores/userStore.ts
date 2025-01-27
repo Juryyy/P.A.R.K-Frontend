@@ -39,8 +39,8 @@ export const useUserStore = defineStore('user', {
     },
 
     getUserRole() {
-      const roles = this.user.roles;
-      return roles ? JSON.parse(roles) : [];
+      const roles = this.user.role;
+      return roles;
     },
 
     getUserId() {

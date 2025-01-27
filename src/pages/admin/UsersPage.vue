@@ -24,6 +24,7 @@ onBeforeMount(async () => {
   });
   loaded.value = false;
   await userStore.getAllUsers();
+  userStore.getUserInfo();
   await adminStore.getLocationsWithVenues();
   loaded.value = true;
   Loading.hide();

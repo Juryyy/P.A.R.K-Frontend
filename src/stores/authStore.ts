@@ -10,13 +10,15 @@ export const useAuthStore = defineStore('auth', {
     email : '' as string,
   }),
   actions: {
-
     async verifyUser(email : string, code : string){ {
       try {
         const response = await api.post('/auth/verify', { email, code });
         const token = await api.get('/auth/token');
-        console.log(token.data);
+
         localStorage.setItem('token', token.data);
+        const userStore = useUserStore();
+        userStore.getUserInfo();
+
         Notify.create({
           color: 'positive',
           message: 'Verification successful',
@@ -67,13 +69,6 @@ export const useAuthStore = defineStore('auth', {
         const response = await api.delete('/auth/logout');
         if (response.status === 200) {
           localStorage.clear();
-          Notify.create({
-            color: 'positive',
-            message: 'Successfully logged out',
-            position: 'bottom',
-            icon: 'check_circle',
-            textColor: 'black',
-          });
         } else {
           throw new Error('Logout failed');
         }
@@ -157,6 +152,8 @@ export const useAuthStore = defineStore('auth', {
         const response = await api.get('/auth/token');
         localStorage.removeItem('token');
         localStorage.setItem('token', response.data);
+        const userStore = useUserStore();
+        userStore.getUserInfo();
       } catch (error : any) {
         Notify.create({
           color: 'negative',
