@@ -12,7 +12,7 @@
     </q-tabs>
     <q-tab-panels v-model="tab">
       <q-tab-panel name="User" v-if="state.loaded">
-        <UserInfo v-if="state.loaded && user" :user="user" :user-avatar="userAvatar" />
+        <UserInfoNew v-if="state.loaded && user" :user="user" :user-avatar="userAvatar" />
       </q-tab-panel>
       <q-tab-panel name="Password" v-if="state.loaded && currentUser?.id?.toString() === userId">
         <PasswordReset
@@ -38,6 +38,7 @@ import UserInfo from 'src/components/Users/UserInfo.vue';
 import { User } from 'src/db/types';
 import PasswordReset from 'src/components/Users/PasswordReset.vue';
 import { useAuthStore } from 'src/stores/authStore';
+import UserInfoNew from 'src/components/Users/UserInfoNew.vue';
 
 const tab = ref('User');
 const userStore = useUserStore();

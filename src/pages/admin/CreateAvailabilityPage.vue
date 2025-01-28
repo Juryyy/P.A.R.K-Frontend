@@ -47,6 +47,7 @@ const state = reactive({
 });
 
 onMounted(async () => {
+  userStore.getUserInfo();
   Loading.show({
     message: 'Loading exam days...',
     spinnerColor: 'amber',

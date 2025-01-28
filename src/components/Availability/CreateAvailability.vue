@@ -4,7 +4,7 @@
       <div class="col-12 col-lg-4">
         <q-card class="my-card">
           <q-card-section>
-            <div class="text-h6 q-mb-md">Date Selection</div>
+            <div class="text-h6 q-mb-md"> {{ props.centre }} Date Selection</div>
             <q-date
               v-model="state.date"
               first-day-of-week="1"
@@ -49,7 +49,7 @@
       <div class="col-12 col-lg-8">
         <q-card class="my-card">
           <q-card-section>
-            <div class="text-h6 q-mb-md">Exam Days</div>
+            <div class="text-h6 q-mb-md">{{ props.centre }} Exam Days</div>
             <q-input
               v-model="search"
               placeholder="Search exam days"

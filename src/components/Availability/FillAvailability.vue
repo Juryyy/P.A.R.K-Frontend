@@ -1,105 +1,128 @@
 <template>
-  <q-page class="page-container">
-    <div class="q-pa-md content-container">
-      <h4 v-if="userResponses.length === 0" class="text-center text-h5 text-weight-medium q-mb-xl">
-        No availability yet. Please wait for the Head of Exams to create some.
-      </h4>
-      <q-card v-else class="availability-card">
-        <q-card-section>
-          <div class="text-h6 text-weight-bold q-mb-md absolute-center">Availability Responses</div>
-        </q-card-section>
-        <q-separator />
-        <q-card-section>
-          <q-table
-            class="availability-table"
-            :rows="userResponses"
-            :columns="columns"
-            row-key="date"
-            :hide-pagination="true"
-            :rows-per-page-options="[0]"
-            flat
-            bordered
-          >
-            <template v-slot:header="props">
-              <q-tr :props="props">
-                <q-th v-for="col in props.cols" :key="col.name" :props="props" class="text-weight-bold">
-                  {{ col.label }}
-                </q-th>
-              </q-tr>
-            </template>
-            <template v-slot:body-cell-date="props">
-              <q-td :props="props" class="text-weight-medium">
-                {{ formatDate(props.row.date) }}
-              </q-td>
-            </template>
-            <template v-slot:body-cell-action="props">
-              <q-td :props="props">
-                <div class="response-layout q-gutter-y-sm">
-                  <q-option-group
-                    v-model="props.row.response"
-                    :options="options"
-                    type="radio"
-                    inline
-                    :disable="props.row.isLocked"
-                    dense
-                    class="response-group"
-                  >
-                    <template v-slot:label="{ label, value }">
-                      <q-chip
-                        :color="getChipColor(value)"
-                        text-color="black"
-                        :label="label"
-                        size="md"
-                        :class="{ 'q-chip--selected': props.row.response === value }"
-                      />
-                    </template>
-                  </q-option-group>
-                </div>
-              </q-td>
-            </template>
-          </q-table>
-        </q-card-section>
-        <q-separator />
-        <q-card-actions align="right" class="q-pa-md">
-          <q-btn
-            unelevated
-            color="primary"
-            label="Submit Responses"
-            @click="handleSubmit"
-            :loading="submitting"
-          />
-        </q-card-actions>
-      </q-card>
-    </div>
-  </q-page>
+  <div class="q-pa-md content-container">
+    <h4 v-if="!hasResponses" class="text-center text-h5 text-weight-medium q-mb-xl">
+      No availability yet. Please wait for the Head of Exams to create some.
+    </h4>
+    <q-card v-else class="availability-card">
+      <q-card-section>
+        <div class="text-h6 text-weight-bold q-mb-md text-center">
+          {{ props.centre }} Availability Responses
+        </div>
+      </q-card-section>
+      <q-separator />
+      <q-card-section>
+        <q-table
+          class="availability-table"
+          :rows="centreResponses"
+          :columns="columns"
+          row-key="date"
+          :hide-pagination="true"
+          :rows-per-page-options="[0]"
+          flat
+          bordered
+        >
+          <template v-slot:header="props">
+            <q-tr :props="props">
+              <q-th
+                v-for="col in props.cols"
+                :key="col.name"
+                :props="props"
+                class="text-weight-bold"
+              >
+                {{ col.label }}
+              </q-th>
+            </q-tr>
+          </template>
+          <template v-slot:body-cell-date="props">
+            <q-td :props="props" class="text-weight-medium">
+              {{ formatDate(props.row.date) }}
+            </q-td>
+          </template>
+          <template v-slot:body-cell-action="props">
+            <q-td :props="props">
+              <div class="response-layout q-gutter-y-sm">
+                <q-option-group
+                  v-model="props.row.response"
+                  :options="options"
+                  type="radio"
+                  inline
+                  :disable="props.row.isLocked"
+                  dense
+                  class="response-group"
+                >
+                  <template v-slot:label="{ label, value }">
+                    <q-chip
+                      :color="getChipColor(value)"
+                      text-color="black"
+                      :label="label"
+                      size="md"
+                      :class="{ 'q-chip--selected': props.row.response === value }"
+                    />
+                  </template>
+                </q-option-group>
+              </div>
+            </q-td>
+          </template>
+        </q-table>
+      </q-card-section>
+      <q-separator />
+      <q-card-actions align="right" class="q-pa-md">
+        <q-btn
+          unelevated
+          color="primary"
+          label="Submit Responses"
+          @click="handleSubmit"
+          :loading="submitting"
+        />
+      </q-card-actions>
+    </q-card>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import { useAvailabilityStore } from '../../stores/availabilityStore'
-import { UserAnswers, UserResponses } from 'src/db/types';
+import { ref, computed } from 'vue';
+import { useAvailabilityStore } from '../../stores/availabilityStore';
+import { storeToRefs } from 'pinia';
+import { UserResponses, UserAnswers } from 'src/db/types';
 
-const { userResponses }: { userResponses: UserResponses[] } = useAvailabilityStore();
+const props = defineProps<{
+  centre: string;
+}>();
+
+const availabilityStore = useAvailabilityStore();
+const { userResponses } = storeToRefs(availabilityStore);
+
 const submitting = ref(false);
 
-const columns: any = [
+const centreResponses = computed<UserResponses[]>(() => {
+  return (userResponses.value as UserResponses[]).filter(response => response.centre === props.centre);
+});
+
+const hasResponses = computed(() => centreResponses.value.length > 0);
+
+const columns = [
   {
     name: 'date',
     required: true,
     label: 'Available Dates',
-    align: 'left',
+    align: 'left' as const,
     field: 'date',
     sortable: true,
   },
-  { name: 'action', align: 'center', label: 'Your Response', field: 'response' },
+  {
+    name: 'action',
+    align: 'center' as const,
+    label: 'Your Response',
+    field: 'response'
+  },
 ];
 
-const options = [
+const options: { label: string; value: string }[] = [
   { label: 'YES', value: 'Yes' },
   { label: 'AM', value: 'AM' },
   { label: 'PM', value: 'PM' },
   { label: 'NO', value: 'No' },
-];
+] as const;
 
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
@@ -119,11 +142,12 @@ const getChipColor = (value: string) => {
 const handleSubmit = async () => {
   submitting.value = true;
   try {
-    const answers: UserAnswers[] = userResponses.map((day) => ({
+    const answers: UserAnswers[] = centreResponses.value.map((day) => ({
       id: day.id,
       response: day.response,
+      centre: day.centre,
     }));
-    await useAvailabilityStore().submitResponses(answers);
+    await availabilityStore.submitResponses(answers);
   } finally {
     submitting.value = false;
   }
@@ -131,14 +155,6 @@ const handleSubmit = async () => {
 </script>
 
 <style scoped lang="scss">
-.page-container {
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  min-height: 100vh;
-  padding: 2rem 1rem;
-}
-
 .content-container {
   width: 100%;
   max-width: 800px;
@@ -183,8 +199,8 @@ const handleSubmit = async () => {
 
 .q-chip {
   transition: all 0.3s ease;
-  font-size: 14px; // Increased font size
-  font-weight: 500; // Medium font weight for better readability
+  font-size: 14px;
+  font-weight: 500;
 
   &--selected {
     transform: scale(1.05);
@@ -193,10 +209,6 @@ const handleSubmit = async () => {
 }
 
 @media (max-width: 600px) {
-  .page-container {
-    padding: 1rem 0.5rem;
-  }
-
   .response-layout {
     flex-direction: column;
   }

@@ -262,6 +262,21 @@
           </div>
         </div>
 
+        <div class="q-mt-md">
+          <div class="text-subtitle1 q-mb-sm">Centres:</div>
+          <div class="row q-gutter-xs">
+            <q-chip
+              v-for="centre in editableUser.adminCentre"
+              :key="centre"
+              color="purple-2"
+              text-color="black"
+              size="md"
+            >
+              {{ centre }}
+            </q-chip>
+          </div>
+        </div>
+
         <div v-if="editableUser.level" class="q-mt-md">
           <div class="text-subtitle1 q-mb-sm">Levels:</div>
           <div class="row q-gutter-xs">
@@ -401,6 +416,8 @@ const administrationFields: EditableUserField[] = [
 
 const editableUser = ref<User | null>(props.user ? { ...props.user } : null);
 const initialUser = ref<User | null>(props.user ? { ...props.user } : null);
+
+console.log(editableUser.value);
 
 const editableFields = reactive<EditableFields>({
   firstName: '',
@@ -633,16 +650,16 @@ const onAvatarSelected = (event: Event) => {
   justify-content: center;
   align-items: flex-start;
   min-height: 100vh;
+  padding: 2rem;
 }
 
 .profile-card {
   width: 100%;
-  max-width: 600px;
-  border-radius: 8px;
+  max-width: 800px;
+  border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
-
 .profile-header {
   display: flex;
   flex-direction: column;
@@ -658,7 +675,12 @@ const onAvatarSelected = (event: Event) => {
 @media (max-width: 599px) {
   .profile-card {
     max-width: 100%;
-    margin: 0 16px;
+    margin: 0;
+    border-radius: 0;
+  }
+
+  .profile-container {
+    padding: 0;
   }
 }
 
@@ -668,6 +690,15 @@ const onAvatarSelected = (event: Event) => {
 
 .q-chip {
   font-weight: 600;
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: translateY(-1px);
+  }
+}
+
+.q-card-section {
+  padding: 1.5rem;
 }
 
 .responsive-input {

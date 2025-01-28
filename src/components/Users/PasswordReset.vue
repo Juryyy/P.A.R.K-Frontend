@@ -133,13 +133,14 @@ const update = async () => {
     await authStore.updatePassword(state.password, state.newPassword);
     Notify.create({
       type: 'positive',
-      message: 'Password updated successfully'
+      message: 'Password updated successfully',
+      textColor: 'black'
     });
     // Clear the form after successful update
     state.password = '';
     state.newPassword = '';
     state.newPasswordCheck = '';
-    // Emit event to notify parent to switch tabs
+
     await authStore.getToken();
     userStore.getUserInfo();
     await userStore.getProfile(Number(userStore.user.id));
@@ -152,7 +153,8 @@ const update = async () => {
     console.error(error);
     Notify.create({
       type: 'negative',
-      message: 'Failed to update password. Please try again.'
+      message: 'Failed to update password. Please try again.',
+      textColor: 'black'
     });
   } finally {
     Loading.hide();

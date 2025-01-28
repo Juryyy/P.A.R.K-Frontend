@@ -4,12 +4,13 @@
 
 - [x] vytvoření profilu
 - [ ] úprava profilu (adminem)
+- [x] zobrazení center na profilu
 
 ### Availability:
 
 - [x] vytváření availability
 - [x] rozdělení na jednotlivé centra
-- [ ] v případě že uživatel má vícero center, ukázat jaká availability je pro jaké centrum.
+- [x] v případě že uživatel má vícero center, ukázat jaká availability je pro jaké centrum.
 - [x] Date lock fix
 
 ### Location:

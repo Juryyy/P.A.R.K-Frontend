@@ -20,6 +20,7 @@ export interface User {
   totaraDone: boolean;
   insperaAccount: boolean;
   passwordUpdated: boolean;
+  adminCentre: CentreEnum;
 
   supervisedExams: Exam[];
   invigilatedExams: Exam[];
@@ -121,17 +122,14 @@ export interface UserResponses {
   id: number;
   response: string;
   date: string;
+  isLocked: boolean;
+  centre: CentreEnum;
 }
 
 export interface UserAnswers {
   id: number;
   response: string;
-}
-
-export interface UserResponses {
-  id: number;
-  response: string;
-  date: string;
+  centre: CentreEnum;
 }
 
 export interface UserResponsesWithType {
