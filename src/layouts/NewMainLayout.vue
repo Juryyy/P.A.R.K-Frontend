@@ -12,7 +12,7 @@
         />
         <q-toolbar-title v-if="!isMobile"> P.A.R.K. App </q-toolbar-title>
         <q-toolbar-title v-else></q-toolbar-title>
-        <div v-if="!rightDrawerOpen" class="q-gutter-md row items-center">
+        <div v-if="!userStore.rightDrawerOpen" class="q-gutter-md row items-center">
           <q-avatar size="md" class="clickable-avatar" @click="viewUser(user)">
             <img :src="userStore.userAvatar" alt="User Avatar" />
           </q-avatar>
@@ -82,7 +82,7 @@
       </div>
     </q-drawer>
     </div>
-    <q-drawer show-if-above v-model="rightDrawerOpen" side="right" elevated class="right-drawer">
+    <q-drawer show-if-above v-model="userStore.rightDrawerOpen" side="right" elevated class="right-drawer">
       <div class="user-info-section">
         <q-img src="/background.jpg" style="height: 150px">
           <div class="bg-transparent absolute-center q-pa-md drawer-avatar-box">
@@ -313,10 +313,9 @@ const toggleLeftDrawer = () => {
 
 const drawerLeft = ref(false);
 
-const rightDrawerOpen = ref(false);
 
 function toggleRightDrawer() {
-  rightDrawerOpen.value = !rightDrawerOpen.value;
+  userStore.toggleRightDrawer();
 }
 
 const miniState = ref(true);

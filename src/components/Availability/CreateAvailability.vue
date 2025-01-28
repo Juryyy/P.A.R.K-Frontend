@@ -1,106 +1,131 @@
 <template>
   <div class="exam-schedule q-pa-md">
-    <div class="row q-col-gutter-md">
-      <div class="col-12 col-md-4">
+    <div class="row q-col-gutter-lg">
+      <div class="col-12 col-lg-4">
         <q-card class="my-card">
           <q-card-section>
-            <div class="text-h6">Date Selection</div>
+            <div class="text-h6 q-mb-md">Date Selection</div>
             <q-date
-            v-model="state.date"
-            first-day-of-week="1"
-            mask="YYYY-MM-DD"
-            :events="highlightDays"
-            :event-color="colorPick"
-            :options="disablePastDates"
-            today-btn
-            no-unset
-          />
+              v-model="state.date"
+              first-day-of-week="1"
+              mask="YYYY-MM-DD"
+              :events="highlightDays"
+              :event-color="colorPick"
+              :options="disablePastDates"
+              today-btn
+              no-unset
+              class="full-width"
+              style="max-height: 350px"
+            />
           </q-card-section>
-          <q-card-section>
-            <div class="row items-center q-gutter-sm">
-              <q-toggle v-model="state.invigilators" label="Invigilators" color="orange" />
-              <q-toggle v-model="state.examiners" label="Examiners" color="blue" />
+
+          <q-card-section class="q-pt-none">
+            <div class="row q-col-gutter-sm justify-between items-center">
+              <div class="col-6">
+                <q-toggle
+                  v-model="state.invigilators"
+                  label="Invigilators"
+                  color="orange"
+                  dense
+                />
+              </div>
+              <div class="col-6">
+                <q-toggle
+                  v-model="state.examiners"
+                  label="Examiners"
+                  color="blue"
+                  dense
+                />
+              </div>
             </div>
           </q-card-section>
-          <q-card-actions align="right">
+          <q-card-actions align="right" class="q-pa-md">
             <q-btn color="primary" label="Add Date" @click="addDate" icon="add" flat />
             <q-btn color="secondary" label="Inform Users" @click="openInformDialog" icon="send" flat />
           </q-card-actions>
         </q-card>
       </div>
 
-      <div class="col-12 col-md-8">
+      <div class="col-12 col-lg-8">
         <q-card class="my-card">
           <q-card-section>
-            <div class="text-h6">Exam Days</div>
-            <q-input v-model="search" placeholder="Search exam days" dense outlined class="q-mt-sm">
+            <div class="text-h6 q-mb-md">Exam Days</div>
+            <q-input
+              v-model="search"
+              placeholder="Search exam days"
+              dense
+              outlined
+              class="q-mb-md"
+            >
               <template v-slot:append>
                 <q-icon name="search" />
               </template>
             </q-input>
           </q-card-section>
-          <q-card-section>
+
+          <q-card-section class="q-px-md">
             <q-table
               :rows="filteredExamDays"
               :columns="columns"
               row-key="date"
-              :pagination="{ rowsPerPage: 0 }"
+              :pagination="{ rowsPerPage: 10 }"
               flat
               bordered
               :filter="search"
               class="primary-header"
+              :table-style="{ minWidth: '500px' }"
+              wrap-cells
             >
               <template v-slot:body="props">
                 <q-tr :props="props">
-                  <q-td key="date" :props="props">
+                  <q-td key="date" :props="props" auto-width>
                     {{ formatDate(props.row.date) }}
                   </q-td>
-                  <q-td key="type" :props="props">
-                    <q-chip
-                      v-if="props.row.isForInvigilators"
-                      dense
-                      square
-                      color="orange"
-                      text-color="white"
-                      icon="person"
-                    >
-                      I
-                    </q-chip>
-                    <q-chip
-                      v-if="props.row.isForExaminers"
-                      dense
-                      square
-                      color="blue"
-                      text-color="white"
-                      icon="school"
-                      class="q-ml-xs"
-                    >
-                      E
-                    </q-chip>
+                  <q-td key="type" :props="props" class="text-center">
+                    <div class="row items-center justify-center q-gutter-x-xs">
+                      <q-chip
+                        v-if="props.row.isForInvigilators"
+                        dense
+                        square
+                        color="orange"
+                        text-color="white"
+                        icon="person"
+                        size="sm"
+                      >
+                        I
+                      </q-chip>
+                      <q-chip
+                        v-if="props.row.isForExaminers"
+                        dense
+                        square
+                        color="blue"
+                        text-color="white"
+                        icon="school"
+                        size="sm"
+                      >
+                        E
+                      </q-chip>
+                    </div>
                   </q-td>
-                  <q-td key="actions" :props="props">
-                    <q-btn-group spread flat>
+                  <q-td key="actions" :props="props" class="text-center">
+                    <div class="row items-center justify-center q-gutter-x-sm">
                       <q-btn
                         :icon="props.row.isLocked ? 'lock' : 'lock_open'"
                         :color="props.row.isLocked ? 'grey' : 'orange'"
                         @click="changeLock(props.row.id)"
                         flat
                         round
-                      >
-                        <q-tooltip>
-                          {{ props.row.isLocked ? 'Unlock' : 'Lock' }} this date
-                        </q-tooltip>
-                      </q-btn>
+                        dense
+                      />
                       <q-btn
                         @click="deleteExamDay(props.row.id)"
                         icon="delete"
                         color="red"
                         flat
                         round
-                      >
-                        <q-tooltip>Delete this exam day</q-tooltip>
-                      </q-btn>
-                    </q-btn-group>
+                        dense
+                      />
+                    </div>
                   </q-td>
                 </q-tr>
               </template>
@@ -110,12 +135,13 @@
       </div>
     </div>
 
+
     <q-dialog v-model="state.showInformDialog" persistent>
-      <q-card style="min-width: 350px">
-        <q-card-section>
+      <q-card style="min-width: 300px; max-width: 400px">
+        <q-card-section class="q-pb-none">
           <div class="text-h6">Inform Users - Please check all dates!</div>
         </q-card-section>
-        <q-card-section class="q-pt-none">
+        <q-card-section>
           <q-form @submit="submitInformUsers" class="q-gutter-md">
             <q-input
               v-model="informUsersForm.startDate"
@@ -123,6 +149,7 @@
               type="date"
               :rules="[val => !!val || 'Start Date is required']"
               outlined
+              dense
             />
             <q-input
               v-model="informUsersForm.endDate"
@@ -130,6 +157,7 @@
               type="date"
               :rules="[val => !!val || 'End Date is required']"
               outlined
+              dense
             />
             <q-input
               v-model="informUsersForm.dateOfSubmission"
@@ -137,12 +165,13 @@
               type="date"
               :rules="[val => !!val || 'Date of Submission is required']"
               outlined
+              dense
             />
-        <q-card-actions align="right" class="text-primary">
-          <q-btn flat label="Cancel" color="negative" @click="state.showInformDialog = false" />
-          <q-btn flat label="Send" color="primary" type="submit" :loading="state.loadingSend" :disable="state.loadingSend" />
-        </q-card-actions>
-        </q-form>
+            <div class="row justify-end q-gutter-sm">
+              <q-btn flat label="Cancel" color="negative" @click="state.showInformDialog = false" />
+              <q-btn flat label="Send" color="primary" type="submit" :loading="state.loadingSend" :disable="state.loadingSend" />
+            </div>
+          </q-form>
         </q-card-section>
       </q-card>
     </q-dialog>
@@ -152,8 +181,12 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue';
 import { useExamDayStore } from '../../stores/examDayStore';
-import { DayOfExams } from 'src/db/types';
+import { DayOfExams, CentreEnum } from 'src/db/types';
 import { useQuasar } from 'quasar';
+
+const props = defineProps<{
+  centre: CentreEnum;
+}>();
 
 const $q = useQuasar();
 const examDayStore = useExamDayStore();
@@ -196,7 +229,7 @@ const filteredExamDays = computed(() => {
 
 const addDate = async () => {
   const sDate = new Date(state.date);
-  await examDayStore.addExamDay(sDate, state.invigilators, state.examiners);
+  await examDayStore.addExamDay(sDate, state.invigilators, state.examiners, props.centre);
   await refreshExamDays();
 };
 
@@ -223,13 +256,13 @@ const submitInformUsers = async () => {
     return;
   }
 
-  state.loadingSend = true; // Start loading
+  state.loadingSend = true;
   try {
-    await examDayStore.informUsers(informUsersForm.startDate, informUsersForm.endDate, informUsersForm.dateOfSubmission);
+    await examDayStore.informUsers(informUsersForm.startDate, informUsersForm.endDate, informUsersForm.dateOfSubmission, props.centre);
   } catch (error) {
     console.error(error);
   } finally {
-    state.loadingSend = false; // Stop loading
+    state.loadingSend = false;
     state.showInformDialog = false;
   }
 };
@@ -249,11 +282,11 @@ const deleteExamDay = async (id: number) => {
     title: 'Confirm Deletion',
     message: 'Are you sure you want to delete this exam day?',
     ok: {
-      label: 'Inform',
+      label: 'Remove date',
       color: 'positive',
     },
     cancel: {
-      label: 'Go back',
+      label: 'Cancel',
       color: 'negative',
     },
     persistent: true
@@ -316,7 +349,7 @@ const changeLock = async (id: number) => {
 };
 
 const refreshExamDays = async () => {
-  await examDayStore.loadExamDays();
+  await examDayStore.loadExamDays(props.centre);
   examDays.value = examDayStore.upcomingExamDays;
 };
 
@@ -328,16 +361,37 @@ onMounted(async () => {
 
 <style scoped>
 .exam-schedule {
-  max-width: 1200px;
   margin: 0 auto;
+  max-width: 1400px; /* Added max-width for better large screen display */
 }
 
 .my-card {
   width: 100%;
   transition: all 0.3s ease;
+  height: 100%; /* Made cards equal height */
 }
 
 .my-card:hover {
-  box-shadow: 0 8px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Added responsive adjustments */
+@media (max-width: 599px) {
+  .q-table {
+    font-size: 12px;
+  }
+
+  .q-btn {
+    padding: 4px 8px;
+  }
+
+  .q-chip {
+    height: 24px;
+  }
+}
+
+/* Ensure table doesn't overflow on mobile */
+.q-table__container {
+  overflow-x: auto;
 }
 </style>

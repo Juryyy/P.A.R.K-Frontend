@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { api } from '../boot/axios';
 import { Notify } from 'quasar';
 import { ref } from 'vue';
-import { dayResponse } from '../db/types';
+import { CentreEnum, dayResponse } from '../db/types';
 
 export const useExamDayStore = defineStore('examDay', {
   state: () => ({
@@ -11,11 +11,15 @@ export const useExamDayStore = defineStore('examDay', {
     allExamDays: ref([]),
   }),
   actions: {
-    async loadExamDays() {
+    async loadExamDays(centre: CentreEnum) {
       try {
-        const response = await api.get('/examDays/examDays');
+        const response = await api.get('/examDays/examDays', {
+          params: {
+            centre: centre
+          }
+        });
         this.upcomingExamDays = response.data;
-      } catch (error : any ) {
+      } catch (error: any) {
         Notify.create({
           color: 'negative',
           message: error.response.data.error,
@@ -25,9 +29,13 @@ export const useExamDayStore = defineStore('examDay', {
       }
     },
 
-    async loadAllExamDays() {
+    async loadAllExamDays(centre: CentreEnum) {
       try {
-        const response = await api.get('/examDays/all');
+        const response = await api.get('/examDays/all',{
+          params: {
+            centre: centre
+          }
+        });
         this.allExamDays = response.data;
       } catch (error : any ) {
         Notify.create({
@@ -56,13 +64,15 @@ export const useExamDayStore = defineStore('examDay', {
     async addExamDay(
       date: Date,
       isForInvigilators: boolean,
-      isForExaminers: boolean
+      isForExaminers: boolean,
+      centre: CentreEnum
     ) {
       try {
         await api.post('/examDays/create', {
           date: date,
           isForInvigilators: isForInvigilators,
           isForExaminers: isForExaminers,
+          centre: centre,
         });
         Notify.create({
           color: 'positive',
@@ -121,12 +131,13 @@ export const useExamDayStore = defineStore('examDay', {
       }
     },
 
-      async informUsers(startDate : string, endDate : string, dateOfSubmits : string) {
+      async informUsers(startDate : string, endDate : string, dateOfSubmits : string, centre : CentreEnum) {
         try {
           await api.post('/examDays/informUsers', {
             startDate: startDate,
             endDate: endDate,
             dateOfSubmits: dateOfSubmits,
+            centre: centre,
           });
           Notify.create({
             color: 'positive',

@@ -104,8 +104,8 @@ export enum RoleEnum {
 }
 
 export enum CentreEnum{
-  Prague = 'Prague',
   Brno = 'Brno',
+  Prague = 'Prague',
 }
 
 export interface ExtendedUser extends User {

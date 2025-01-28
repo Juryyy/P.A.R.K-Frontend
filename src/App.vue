@@ -47,6 +47,7 @@ const initializeApp = async () => {
 
     try {
       const user = userStore.getUserInfo();
+      console.log(user);
 
       if (!user.email) {
         router.push('/login');
@@ -77,6 +78,7 @@ const initializeApp = async () => {
     state.isLoaded = true;
   } catch (error: any) {
     console.error(error);
+    initializeApp();
     state.error = 'Failed to load application data. Please try again.';
     Notify.create({
       color: 'negative',

@@ -17,7 +17,8 @@ export const useUserStore = defineStore('user', {
     refreshTrigger: ref(0),
     lastRefreshTime: ref(0),
     updateConfirmation: ref(false),
-    isActivated: ref(false)
+    isActivated: ref(false),
+    rightDrawerOpen: ref(false),
   }),
   actions: {
     triggerExamRefresh(){
@@ -269,6 +270,9 @@ export const useUserStore = defineStore('user', {
     updatePasswordStatus() {
       this.user.passwordUpdated = true;
   },
+    toggleRightDrawer() {
+      this.rightDrawerOpen = !this.rightDrawerOpen;
+    },
   }
 
 });

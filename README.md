@@ -7,10 +7,10 @@
 
 ### Availability:
 
-- [ ] vytváření availability
-- [ ] response byly nastaveny ku jednotlivým lidem, kontrola zda Praha nezadává availability pro Brno.
+- [x] vytváření availability
+- [x] rozdělení na jednotlivé centra
 - [ ] v případě že uživatel má vícero center, ukázat jaká availability je pro jaké centrum.
-- [ ] Date lock fix
+- [x] Date lock fix
 
 ### Location:
 - [ ] atribut při vytváření, rozdělení na ty podsekce, filtry?
