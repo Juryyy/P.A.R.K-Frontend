@@ -215,7 +215,7 @@
                 </template>
                 <template v-else>
                   <div class="row q-col-gutter-md">
-                    <div class="col-12" v-for="field in availabilityFields" :key="field.label">
+                    <div class="col-12" v-for="field in availabilityFieldsStranger" :key="field.label">
                       <div class="field-display">
                         <div class="text-subtitle2 text-grey-7">{{ field.label }}</div>
                         <div class="text-body1">
@@ -259,7 +259,7 @@
                       <q-item>
                         <q-item-section>
                           <q-input
-                            v-model="editableUser.totaraDate"
+                            v-model="editableFields.totaraDate"
                             label="Totara Completion Date"
                             mask="####-##-##"
                             :disable="!editableUser.totaraDone || !isCurrentUser"
@@ -273,7 +273,7 @@
                               <q-icon name="event" class="cursor-pointer">
                                 <q-popup-proxy cover transition-show="scale" transition-hide="scale">
                                   <q-date
-                                    v-model="editableUser.totaraDate"
+                                    v-model="editableFields.totaraDate"
                                     mask="YYYY-MM-DD"
                                     :disable="!editableUser.totaraDone || !isCurrentUser"
                                   />
@@ -418,14 +418,12 @@ import { defineProps } from 'vue';
 import { useUserStore } from 'src/stores/userStore';
 import { getRoleColor, getLevelColor } from 'src/helpers/Color';
 import { formatDateString } from 'src/helpers/FormatTime';
-import deepEqual from 'src/helpers/deepEqual';
+import { deepEqual, normalizeDateString } from 'src/helpers/deepEqual';
 import { parseISO, format } from 'date-fns';
 import { Cropper, CircleStencil } from 'vue-advanced-cropper';
 import 'vue-advanced-cropper/dist/style.css';
 import { useQuasar } from 'quasar';
 import { useAuthStore } from 'src/stores/authStore';
-
-
 
 const props = defineProps<{
   user: User | null;
@@ -469,6 +467,11 @@ const userInfoFields: EditableUserField[] = [
 const availabilityFields: EditableUserField[] = [
   { key: 'note', label: 'Short Note (optional) - ex. "No fridays" ', type: 'text' },
   { key: 'noteLonger', label: 'Detailed Note (optional)', type: 'textarea', hint: 'Please give us more detailed information about your availability' },
+];
+
+const availabilityFieldsStranger: EditableUserField[] = [
+  { key: 'note', label: 'Short Note', type: 'text' },
+  { key: 'noteLonger', label: 'Detailed Note', type: 'textarea' },
 ];
 
 const administrationFields: EditableUserField[] = [
@@ -540,7 +543,9 @@ const isCurrentUserAdmin = computed(() => {
   return currentUser?.role.includes(RoleEnum.Office) || currentUser?.role.includes(RoleEnum.Developer);
 });
 
-const hasChanges = computed(() => !deepEqual(editableUser.value, initialUser.value));
+const datesToCheck = ['DateOfBirth', 'totaraDate'];
+
+const hasChanges = computed(() => !deepEqual(editableUser.value, initialUser.value, datesToCheck));
 
 const hasAdminNoteChanges = computed(() => !deepEqual(editableUser.value?.adminNote, initialUser.value?.adminNote));
 const hasInsperaAccountChanges = computed(() => !deepEqual(editableUser.value?.insperaAccount, initialUser.value?.insperaAccount));
@@ -574,8 +579,19 @@ const formatFieldValue = (value: any, type: string | undefined) => {
 const updateProfile = async () => {
   if (!editableUser.value) return;
 
+  const normalizedTotaraDate = normalizeDateString(editableUser.value.totaraDate);
+  const normalizedEditableTotaraDate = normalizeDateString(editableFields.totaraDate);
+
+  const normalizedDateOfBirth = normalizeDateString(editableUser.value.dateOfBirth);
+  const normalizedEditableDateOfBirth = normalizeDateString(editableFields.dateOfBirth);
+
+  const datesUnchanged =
+    normalizedTotaraDate === normalizedEditableTotaraDate &&
+    normalizedDateOfBirth === normalizedEditableDateOfBirth;
+
   // Check if there are any changes
-  if (!hasChanges.value) {
+
+  if (!hasChanges.value && datesUnchanged) {
     $q.notify({
       type: 'info',
       message: 'No changes detected. Nothing to update.',
@@ -600,6 +616,7 @@ const updateProfile = async () => {
       editableUser.value.totaraDone,
       editableUser.value.insperaAccount
     );
+
 
     if(userStore.updateConfirmation){
       userStore.changeConfirmation(false);

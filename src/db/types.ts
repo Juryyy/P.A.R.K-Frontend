@@ -43,6 +43,7 @@ export interface DayOfExams {
   isForInvigilators: boolean;
   isForExaminers: boolean;
   isLocked: boolean;
+  adminCentre: CentreEnum;
 }
 
 export interface DayOfExamsC extends DayOfExams {
@@ -90,6 +91,7 @@ export interface Exam {
   dayReportId?: number | null;
   dayReport?: DayReport | null;
   userConfirmations: userConfirmations[];
+  adminCentre: CentreEnum;
 }
 
 export interface ExamWithVenueLink extends Exam {

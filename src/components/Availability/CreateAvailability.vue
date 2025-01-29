@@ -4,7 +4,7 @@
       <div class="col-12 col-lg-4">
         <q-card class="my-card">
           <q-card-section>
-            <div class="text-h6 q-mb-md"> {{ props.centre }} Date Selection</div>
+            <div class="text-h5 text-weight-bold q-mb-md text-primary">Availability Date Selection - {{ props.centre }}</div>
             <q-date
               v-model="state.date"
               first-day-of-week="1"
@@ -49,7 +49,7 @@
       <div class="col-12 col-lg-8">
         <q-card class="my-card">
           <q-card-section>
-            <div class="text-h6 q-mb-md">{{ props.centre }} Exam Days</div>
+            <div class="text-h5 text-weight-bold q-mb-md text-primary">Exam Days - {{ props.centre }}</div>
             <q-input
               v-model="search"
               placeholder="Search exam days"
@@ -215,11 +215,14 @@ const columns : any = [
 ];
 
 const filteredExamDays = computed(() => {
-  const sortedDays = [...examDays.value].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  if (!search.value) return sortedDays;
+  const centreFilteredAndSorted = [...examDays.value]
+    .filter(day => day.adminCentre === props.centre)
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+  if (!search.value) return centreFilteredAndSorted;
 
   const searchLower = search.value.toLowerCase();
-  return sortedDays.filter(day =>
+  return centreFilteredAndSorted.filter(day =>
     formatDate(day.date).toLowerCase().includes(searchLower) ||
     (day.isForInvigilators && 'invigilator'.includes(searchLower)) ||
     (day.isForExaminers && 'examiner'.includes(searchLower))
@@ -234,7 +237,9 @@ const addDate = async () => {
 };
 
 const openInformDialog = () => {
-  const nonLockedDays = examDays.value.filter(day => !day.isLocked);
+  const nonLockedDays = examDays.value
+    .filter(day => !day.isLocked && day.adminCentre === props.centre);
+
   if (nonLockedDays.length > 0) {
     informUsersForm.startDate = formatDateForInput(nonLockedDays[0].date);
     informUsersForm.endDate = formatDateForInput(nonLockedDays[nonLockedDays.length - 1].date);
@@ -303,7 +308,8 @@ const highlightDays = (date: string) => {
   const formattedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
   const result = examDays.value.some(examDay => {
     const examDate = new Date(examDay.date);
-    return examDate.toISOString().split('T')[0] === formattedDate;
+    return examDate.toISOString().split('T')[0] === formattedDate &&
+           examDay.adminCentre === props.centre;
   });
   return result;
 };
@@ -322,7 +328,7 @@ const colorPick = (date: string) => {
   const formattedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
   const examDay = examDays.value.find((day) => {
     const examDate = new Date(day.date);
-    return examDate.toISOString().split('T')[0] === formattedDate;
+    return examDate.toISOString().split('T')[0] === formattedDate && day.adminCentre === props.centre;;
   });
 
 

@@ -2,23 +2,34 @@ import { defineStore } from 'pinia';
 import { api } from '../boot/axios';
 import { Notify } from 'quasar';
 import { ref } from 'vue';
-import { CentreEnum, dayResponse } from '../db/types';
+import { CentreEnum, dayResponse, DayOfExams } from '../db/types';
 
 export const useExamDayStore = defineStore('examDay', {
   state: () => ({
-    upcomingExamDays: ref([]),
+    upcomingExamDays: ref<DayOfExams[]>([]),
     responsesForExamDay: ref<dayResponse[]>([]),
     allExamDays: ref([]),
   }),
   actions: {
     async loadExamDays(centre: CentreEnum) {
       try {
-        const response = await api.get('/examDays/examDays', {
+        const response = await api.get<DayOfExams[]>('/examDays/examDays', {
           params: {
             centre: centre
           }
         });
-        this.upcomingExamDays = response.data;
+        const existingExamDays = new Map<number, DayOfExams>(
+          this.upcomingExamDays.map((examDay: DayOfExams) => [examDay.id || 0, examDay])
+        );
+
+        response.data.forEach((newExamDay: DayOfExams) => {
+          if (newExamDay.id !== undefined) {
+            existingExamDays.set(newExamDay.id, newExamDay);
+          }
+        });
+
+        this.upcomingExamDays = Array.from(existingExamDays.values());
+        console.log('examDays:', this.upcomingExamDays);
       } catch (error: any) {
         Notify.create({
           color: 'negative',

@@ -28,7 +28,7 @@
   <div class="q-ma-md allign-bottom">
     <q-btn class="q-ma-sm" label="Add Location" color="primary" @click="state.showLocation = true" />
     <q-icon color="primary" name="help" size="xs">
-      <q-tooltip color="primary" class="bg-primary">Location is a general place, like Brno, Praha or Zlín <br>Venue is the actual place, ex. Biskupské gymnázium, with full adress</q-tooltip>
+      <q-tooltip color="primary" class="bg-primary">Location is a general place, like Brno, Praha or Zlín <br>Venue is the actual place, ex. Biskupské gymnázium, with full address</q-tooltip>
     </q-icon>
   </div>
   <q-dialog v-model="state.showLocation">

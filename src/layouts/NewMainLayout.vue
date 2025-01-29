@@ -290,7 +290,7 @@ const adminEssentialLinks: EssentialLinkProps[] = [
     icon: 'event_note',
   },
   {
-    title: 'Exams',
+    title: 'Create Exams',
     link: 'exams',
     icon: 'assignment',
   },

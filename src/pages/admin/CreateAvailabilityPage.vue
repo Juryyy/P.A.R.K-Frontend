@@ -4,8 +4,8 @@
       v-model="state.tab"
       class="q-mb-md"
       align="justify"
-      active-color="primary"
-      indicator-color="primary"
+      active-color="secondary"
+      indicator-color="secondary"
     >
       <q-tab
         v-for="centre in centres"

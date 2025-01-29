@@ -4,8 +4,8 @@
       v-model="state.tab"
       class="q-mb-md"
       align="justify"
-      active-color="primary"
-      indicator-color="primary"
+      active-color="secondary"
+      indicator-color="secondary"
     >
       <q-tab
         v-for="centre in userStore.user?.adminCentre"
@@ -51,8 +51,6 @@ onMounted(async () => {
     messageColor: 'amber',
     backgroundColor: 'black',
   });
-
-  console.log(userStore.user.adminCentre)
 
   if (userStore.user?.adminCentre && userStore.user.adminCentre.length > 0) {
     state.tab = userStore.user.adminCentre[0];
