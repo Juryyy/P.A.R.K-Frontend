@@ -1,4 +1,4 @@
-import { RoleEnum, LevelEnum } from '../db/types';
+import { RoleEnum, LevelEnum, CentreEnum } from '../db/types';
 
 export const formatRole = (role: RoleEnum): string => {
   switch (role) {
@@ -31,4 +31,13 @@ const roleOrder: { [key in RoleEnum]: number } = {
 
 export const sortRoles = (roles: RoleEnum[]): RoleEnum[] => {
   return roles.sort((a, b) => roleOrder[a] - roleOrder[b]);
+};
+
+const centreOrder: { [key in string]: number } = {
+  [CentreEnum.Brno]: 1,
+  [CentreEnum.Praha]: 2
+};
+
+export const sortCentres = (centres: CentreEnum[]): CentreEnum[] => {
+  return centres.sort((a, b) => centreOrder[a] - centreOrder[b]);
 };

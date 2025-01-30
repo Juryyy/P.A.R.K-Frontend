@@ -118,6 +118,8 @@ export interface ExtendedUser extends User {
   isLevelChanged: boolean;
   isSeniorChanged: boolean;
   originalIsSenior: boolean;
+  originalCentres: CentreEnum[];
+  isCentreChanged: boolean;
 }
 
 export interface UserResponses {

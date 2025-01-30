@@ -85,6 +85,29 @@ export const useAdminStore = defineStore('admin', {
       // Deactivate user
     },
 
+    async updateUserAdminCentre(id: number, adminCentre: CentreEnum[]) {
+      try {
+        const response = await api.put('/office/updateUserCentre', {
+          id,
+          adminCentre,
+        });
+        Notify.create({
+          color: 'positive',
+          message: response.data.success,
+          position: 'bottom',
+          icon: 'check',
+          textColor: 'black',
+        });
+      } catch (error : any) {
+        Notify.create({
+          color: 'negative',
+          message: error.response.data.error,
+          position: 'bottom',
+          icon: 'report_problem',
+        });
+      }
+    },
+
     async addLocation(location: string, adminCentre: CentreEnum[]) {
       try {
         const response = await api.post('/office/addLocation', {

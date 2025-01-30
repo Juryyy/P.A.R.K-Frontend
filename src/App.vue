@@ -1,10 +1,6 @@
 <template>
   <div>
     <router-view v-if="state.isLoaded" :key="$route.fullPath" />
-    <div v-else-if="state.error" class="error-state">
-      {{ state.error }}
-      <button @click="initializeApp">Retry</button>
-    </div>
   </div>
 </template>
 
@@ -22,6 +18,7 @@ const router = useRouter();
 const state = reactive({
   isLoaded: false,
   error: null as string | null,
+  hasFailed: false,
 });
 
 const initializeApp = async () => {
@@ -78,14 +75,17 @@ const initializeApp = async () => {
     state.isLoaded = true;
   } catch (error: any) {
     console.error(error);
-    initializeApp();
     state.error = 'Failed to load application data. Please try again.';
-    Notify.create({
-      color: 'negative',
-      message: 'Failed to initialize application',
-      position: 'bottom',
-      icon: 'report_problem',
-    });
+    if(state.hasFailed){
+      Notify.create({
+        color: 'negative',
+        message: 'Failed to initialize application, if the problem persists please contact us.',
+        position: 'bottom',
+        icon: 'report_problem',
+      });
+    }
+    state.hasFailed = true;
+    initializeApp();
   } finally {
     Loading.hide();
   }

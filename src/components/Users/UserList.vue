@@ -89,6 +89,33 @@
                   />
                 </q-popup-edit>
               </q-td>
+              <q-td key="adminCentre">
+                <div class="flex flex-wrap gap-2">
+                  <q-chip
+                    v-for="centre in sortCentres(props.row.adminCentre)"
+                    :key="centre"
+                    color="blue-2"
+                    text-color="black"
+                    size="md"
+                    class="text-body1"
+                  >
+                    {{ centre }}
+                  </q-chip>
+                </div>
+                <q-popup-edit v-model="props.row.adminCentre" :disable="!currentUserRole.includes(RoleEnum.Office)">
+                  <q-select
+                    label="Centres"
+                    v-model="props.row.adminCentre"
+                    :options="Centres"
+                    multiple
+                    emit-value
+                    map-options
+                    dense
+                    use-chips
+                    @update:modelValue="handleCentreChange(props.row)"
+                  />
+                </q-popup-edit>
+              </q-td>
               <q-td key="isSenior">
                 <q-icon
                   :color="props.row.isSenior ? 'red' : 'grey-5'"
@@ -108,14 +135,14 @@
                   <q-btn
                     v-if="canEditSenior"
                     @click="editUser(props.row)"
-                    :color="props.row.isRoleChanged || props.row.isLevelChanged || props.row.isSeniorChanged ? 'blue' : 'grey'"
+                    :color="props.row.isRoleChanged || props.row.isLevelChanged || props.row.isSeniorChanged || props.row.isCentreChanged ? 'blue' : 'grey'"
                     icon="manage_accounts"
                     size="md"
                     round
                     flat
-                    :disable="!(props.row.isRoleChanged || props.row.isLevelChanged || props.row.isSeniorChanged)"
+                    :disable="!(props.row.isRoleChanged || props.row.isLevelChanged || props.row.isSeniorChanged || props.row.isCentreChanged)"
                   >
-                    <q-tooltip>{{ props.row.isRoleChanged || props.row.isLevelChanged || props.row.isSeniorChanged ? `Update ${props.row.firstName} ${props.row.lastName}` : 'No changes' }}</q-tooltip>
+                    <q-tooltip>{{ props.row.isRoleChanged || props.row.isLevelChanged || props.row.isSeniorChanged || props.row.isCentreChanged ? `Update ${props.row.firstName} ${props.row.lastName}` : 'No changes' }}</q-tooltip>
                   </q-btn>
                   <q-btn
                     @click="viewUser(props.row)"
@@ -236,7 +263,7 @@ import { useAdminStore } from 'src/stores/adminStore';
 import { useRouter } from 'vue-router';
 import _ from 'lodash';
 import { getRoleColor, getLevelColor } from 'src/helpers/Color';
-import { sortRoles, sortLevels } from 'src/helpers/FormatRole';
+import { sortRoles, sortLevels, sortCentres } from 'src/helpers/FormatRole';
 
 const userStore = useUserStore();
 const adminStore = useAdminStore();
@@ -250,9 +277,11 @@ const usersRef = ref<ExtendedUser[]>(userStore.users.map(user => ({
   isRoleChanged: false,
   isLevelChanged: false,
   isSeniorChanged: false,
+  isCentreChanged: false,
   originalRoles: [...(user.role || [])],
   originalLevels: [...(user.level || [])],
   originalIsSenior: user.isSenior || false,
+  originalCentres: [...(user.adminCentre || [])],
 })));
 
 const searchQuery = ref('');
@@ -272,6 +301,8 @@ const filteredUsersRef = computed(() => {
   );
 });
 
+console.log(usersRef.value);
+
 const filteredUsersCount = computed(() => filteredUsersRef.value.length);
 
 const currentUserRole = computed(() => userStore.getUserRole());
@@ -287,6 +318,7 @@ const columns: any[] = [
   { name: 'email', align: 'left', label: 'Email', field: 'email', sortable: true },
   { name: 'role', align: 'left', label: 'Role', field: 'role', sortable: true },
   { name: 'level', align: 'left', label: 'Levels', field: 'level', sortable: true },
+  { name: 'adminCentre', align: 'left', label: 'Centres', field: 'adminCentre', sortable: true },
   { name: 'isSenior', align: 'left', label: 'Senior', field: 'isSenior', sortable: true },
   { name: 'Exams', align: 'left', label: 'Exams (S | I | E)', field: (row: ExtendedUser) => `${row._count.supervisedExams} | ${row._count.invigilatedExams} | ${row._count.examinedExams}`, sortable: true },
   { name: 'actions', align: 'left', label: 'Actions', field: 'actions' }
@@ -331,17 +363,20 @@ async function addUser() {
   state.newUser = false;
   await userStore.getAllUsers();
   usersRef.value = userStore.users.map(user => ({
-    ...user,
-    role: user.role || [],
-    level: user.level || [],
-    isSenior: user.isSenior || false,
-    isRoleChanged: false,
-    isLevelChanged: false,
-    isSeniorChanged: false,
-    originalRoles: [...(user.role || [])],
-    originalLevels: [...(user.level || [])],
-    originalIsSenior: user.isSenior || false,
-  }));
+  ...user,
+  role: user.role || [],
+  level: user.level || [],
+  adminCentre: user.adminCentre || [],
+  isSenior: user.isSenior || false,
+  isRoleChanged: false,
+  isLevelChanged: false,
+  isCentreChanged: false,
+  isSeniorChanged: false,
+  originalRoles: [...(user.role || [])],
+  originalLevels: [...(user.level || [])],
+  originalCentres: [...(user.adminCentre || [])],
+  originalIsSenior: user.isSenior || false,
+}));
 }
 
 async function editUser(item: ExtendedUser) {
@@ -356,12 +391,17 @@ async function editUser(item: ExtendedUser) {
   if (updatedUser.isSeniorChanged) {
     await adminStore.updateUserIsSenior(updatedUser.id, updatedUser.isSenior);
   }
+  if (updatedUser.isCentreChanged) {
+    await adminStore.updateUserAdminCentre(updatedUser.id, updatedUser.adminCentre);
+  }
   usersRef.value[index] = updatedUser;
   updatedUser.isRoleChanged = false;
   updatedUser.isLevelChanged = false;
   updatedUser.isSeniorChanged = false;
+  updatedUser.isCentreChanged = false;
   updatedUser.originalRoles = [...(updatedUser.role || [])];
   updatedUser.originalLevels = [...(updatedUser.level || [])];
+  updatedUser.originalCentres = [...(updatedUser.adminCentre || [])];
   updatedUser.originalIsSenior = updatedUser.isSenior;
 }
 
@@ -369,17 +409,20 @@ async function deactivateUser(user: ExtendedUser) {
   await adminStore.deactivateUser(user.id);
   await userStore.getAllUsers();
   usersRef.value = userStore.users.map(user => ({
-    ...user,
-    role: user.role || [],
-    level: user.level || [],
-    isSenior: user.isSenior || false,
-    isRoleChanged: false,
-    isLevelChanged: false,
-    isSeniorChanged: false,
-    originalRoles: [...(user.role || [])],
-    originalLevels: [...(user.level || [])],
-    originalIsSenior: user.isSenior || false,
-  }));
+  ...user,
+  role: user.role || [],
+  level: user.level || [],
+  adminCentre: user.adminCentre || [],
+  isSenior: user.isSenior || false,
+  isRoleChanged: false,
+  isLevelChanged: false,
+  isCentreChanged: false,
+  isSeniorChanged: false,
+  originalRoles: [...(user.role || [])],
+  originalLevels: [...(user.level || [])],
+  originalCentres: [...(user.adminCentre || [])],
+  originalIsSenior: user.isSenior || false,
+}));
 }
 
 const handleRoleChange = (user: ExtendedUser) => {
@@ -394,6 +437,10 @@ const handleIsSeniorChange = (user: ExtendedUser) => {
   user.isSeniorChanged = user.originalIsSenior !== user.isSenior;
 };
 
+const handleCentreChange = (user: ExtendedUser) => {
+  user.isCentreChanged = !_.isEqual(user.originalCentres.sort(), user.adminCentre.sort());
+};
+
 const toggleIsSenior = (user: ExtendedUser) => {
   user.isSenior = !user.isSenior;
   handleIsSeniorChange(user);
@@ -403,6 +450,7 @@ watch(usersRef, (newUsers) => {
   newUsers.forEach(newUser => {
     newUser.isRoleChanged = !_.isEqual(sortRoles(newUser.originalRoles), sortRoles(newUser.role));
     newUser.isLevelChanged = !_.isEqual(sortLevels(newUser.originalLevels), sortLevels(newUser.level));
+    newUser.isCentreChanged = !_.isEqual(sortCentres(newUser.originalCentres), sortCentres(newUser.adminCentre));
     newUser.isSeniorChanged = newUser.originalIsSenior !== newUser.isSenior;
   });
 }, { deep: true });
