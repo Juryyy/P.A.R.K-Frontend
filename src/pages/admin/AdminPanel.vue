@@ -29,7 +29,7 @@ import ExamsList from 'src/components/Admin/ExamsList.vue';
 
 const adminStore = useAdminStore();
 
-const tab = ref('exams');
+const tab = ref('locations');
 const loaded = ref(false);
 
 onBeforeMount(async () => {

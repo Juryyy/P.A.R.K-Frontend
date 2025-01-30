@@ -85,10 +85,11 @@ export const useAdminStore = defineStore('admin', {
       // Deactivate user
     },
 
-    async addLocation(location: string){
+    async addLocation(location: string, adminCentre: CentreEnum[]) {
       try {
         const response = await api.post('/office/addLocation', {
-          location
+          location,
+          adminCentre
         });
         Notify.create({
           color: 'positive',

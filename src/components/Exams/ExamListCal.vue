@@ -191,10 +191,11 @@
                     dense
                     filled
                     v-model="inputExam.venue"
-                    label="Venue"
+                    :label="!inputExam.location ? 'Select a location first' : 'Venue'"
                     :options="examVenues"
                     :rules="[val => !!val || 'Venue is required']"
                     class="full-width"
+                    :disable="!inputExam.location"
                   />
                 </div>
               </div>
@@ -371,7 +372,10 @@ const examLocations = ref(['']);
 
 const examForm = ref<QForm | null>(null);
 
-examLocations.value = adminStore.locationsWithVenues.map((location: Location) => location.name);
+examLocations.value = adminStore.locationsWithVenues
+  .filter((location: Location) => location.adminCentre.includes(props.centre))
+  .map((location: Location) => location.name);
+
 const updateExamVenues = () => {
   inputExam.venue = '';
   const selectedLoc: Location | undefined = adminStore.locationsWithVenues.find(
@@ -494,6 +498,7 @@ const addExam = async () => {
       await examStore.createExam({
         ...inputExam,
         dayOfExamsId: matchingExamDay.id,
+        adminCentre: props.centre,
       });
       await examStore.loadUpcomingExams();
       examsRef.value = examStore.upcomingExams.filter((exam) => exam.adminCentre === props.centre);
@@ -670,7 +675,6 @@ const timeRules = computed(() => ({
 :deep(.q-field__prefix),
 :deep(.q-field__suffix),
 :deep(.q-field__input) {
-  padding: 8px;
   font-size: 14px !important;
 }
 
@@ -730,7 +734,7 @@ const timeRules = computed(() => ({
     }
 
     :deep(.q-field) {
-      flex: 1;
+      flex:1;
 
       .q-field__control {
         height: 44px;

@@ -320,7 +320,7 @@
         </q-card-section>
       </q-card>
 
-      <!-- Override Section -->
+      <!-- Assignment Section -->
       <div class="override-section q-mt-md">
         <div class="row items-center q-mb-md">
           <q-toggle v-model="isOverrideActive"
@@ -351,7 +351,7 @@
                         <div v-for="response in filteredResponses(answer, [...role.filterRoles])"
                              :key="response.id"
                              class="response-item q-mb-sm">
-                          <div v-if="!response.assigned"
+                          <div v-if="!response.assigned && response.adminCentre.includes(exam.adminCentre)"
                                :class="['name-wrapper', 'q-pa-sm', 'rounded-borders']">
                             <div class="row items-center justify-between">
                               <div class="col">
@@ -414,6 +414,7 @@ import { useAdminStore } from 'src/stores/adminStore';
 import { Dialog, Notify } from 'quasar';
 import { getLevelColor } from 'src/helpers/Color';
 import { getFileIcon } from 'src/helpers/FileType';
+import { CentreEnum } from 'src/db/types';
 
 const examStore = useExamStore();
 const examDayStore = useExamDayStore();

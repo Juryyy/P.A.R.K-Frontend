@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { api } from '../boot/axios';
 import { Notify } from 'quasar';
 import { ref } from 'vue';
-import { AbsentCandidates, Exam, RoleEnum } from '../db/types';
+import { AbsentCandidates, Exam, RoleEnum, CentreEnum } from '../db/types';
 
 export const useExamStore = defineStore('exam', {
   state: () => ({
@@ -28,7 +28,7 @@ export const useExamStore = defineStore('exam', {
       }
     },
 
-    async createExam({ venue, location, type, levels, startTime, endTime, note, dayOfExamsId }: { venue: string, location: string, type: string, levels: string[], startTime: string, endTime: string, note: string, dayOfExamsId: number }){
+    async createExam({ venue, location, type, levels, startTime, endTime, note, dayOfExamsId, adminCentre }: { venue: string, location: string, type: string, levels: string[], startTime: string, endTime: string, note: string, dayOfExamsId: number, adminCentre: CentreEnum }) {
       try {
           await api.post('/exams/createExam',{
           venue,
@@ -38,7 +38,8 @@ export const useExamStore = defineStore('exam', {
           startTime,
           endTime,
           note,
-          dayOfExamsId
+          dayOfExamsId,
+          adminCentre
         });
         Notify.create({
           color: 'positive',
@@ -61,6 +62,7 @@ export const useExamStore = defineStore('exam', {
       try {
         const response = await api.get(`/exams/${id}`);
         this.selectedExam = response.data;
+        console.log(this.selectedExam);
       } catch (error : any) {
         Notify.create({
           color: 'negative',

@@ -62,6 +62,7 @@ export const useExamDayStore = defineStore('examDay', {
       try {
         const response = await api.get(`/responses/responsesExamDay/${id}`);
         this.responsesForExamDay = response.data;
+        console.log('responses:', this.responsesForExamDay);
       } catch (error : any ) {
         Notify.create({
           color: 'negative',

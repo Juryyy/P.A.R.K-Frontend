@@ -1,7 +1,7 @@
 <template>
   <q-page v-if="loaded">
     <template v-if="examStore.selectedExam">
-      <EditExam :exam="examStore.selectedExam" :responses="examDayStore.responsesForExamDay" />
+      <EditExam :exam="examStore.selectedExam" :responses="examDayStore.responsesForExamDay"/>
     </template>
   </q-page>
 </template>

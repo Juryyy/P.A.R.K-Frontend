@@ -20,7 +20,7 @@ export interface User {
   totaraDone: boolean;
   insperaAccount: boolean;
   passwordUpdated: boolean;
-  adminCentre: CentreEnum;
+  adminCentre: CentreEnum[];
 
   supervisedExams: Exam[];
   invigilatedExams: Exam[];
@@ -108,7 +108,7 @@ export enum RoleEnum {
 
 export enum CentreEnum{
   Brno = 'Brno',
-  Prague = 'Prague',
+  Praha = 'Praha',
 }
 
 export interface ExtendedUser extends User {
@@ -152,6 +152,7 @@ export interface dayResponse {
   userId: number;
   userNote?: string | null;
   userLevel: LevelEnum[];
+  adminCentre: CentreEnum[];
 }
 
 export enum LevelEnum {
@@ -181,6 +182,7 @@ export interface Location {
   id: number;
   name: string;
   venues: Venue[];
+  adminCentre: CentreEnum;
 }
 
 export interface Author {
