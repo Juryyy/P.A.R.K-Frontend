@@ -1,5 +1,5 @@
 <template>
-  <div class="exam-schedule q-pa-md">
+  <div class="exam-schedule q-px-md">
     <div class="row q-col-gutter-lg">
       <div class="col-12 col-lg-4">
         <q-card class="my-card">
@@ -368,7 +368,6 @@ onMounted(async () => {
 <style scoped>
 .exam-schedule {
   margin: 0 auto;
-  max-width: 1400px; /* Added max-width for better large screen display */
 }
 
 .my-card {

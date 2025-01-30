@@ -114,17 +114,31 @@
                 </div>
 
                 <div class="row items-center">
+                  <!-- Confirmation button for current user -->
                   <q-btn v-if="isCurrentUser(person.id) && exam.isPrepared && !exam.isCompleted"
-                        flat
-                        round
-                        dense
-                        size="md"
-                        :icon="getConfirmationIcon(person.id, key)"
-                        :color="getConfirmationColor(person.id, key)"
-                        @click="toggleConfirmation(person.id, key)"
-                        :loading="isLoading(person.id, key)"
-                        class="confirmation-btn">
+                         flat
+                         round
+                         dense
+                         size="md"
+                         :icon="getConfirmationIcon(person.id, key)"
+                         :color="getConfirmationColor(person.id, key)"
+                         @click="toggleConfirmation(person.id, key)"
+                         :loading="isLoading(person.id, key)"
+                         class="confirmation-btn q-mr-xs">
                     <q-tooltip>{{ getConfirmationTooltip(person.id, key) }}</q-tooltip>
+                  </q-btn>
+
+                  <!-- Substitute request -->
+                  <q-btn v-if="isCurrentUser(person.id) && exam.isPrepared && !exam.isCompleted"
+                         round
+                         flat
+                         dense
+                         size="md"
+                         icon="swap_horizontal_circle"
+                         color="warning"
+                         @click="requestSubstitute(editableExam.id, person.id, roleKeyToEnum(key))"
+                         class="q-ml-xs">
+                    <q-tooltip class="bg-warning text-black" >Request a substitution for you</q-tooltip>
                   </q-btn>
                 </div>
               </div>
@@ -375,8 +389,10 @@ import { getLevelColor } from 'src/helpers/Color';
 import { getFileIcon } from 'src/helpers/FileType';
 import { RoleEnum } from 'src/db/types';
 import { useUserStore } from 'src/stores/userStore';
+import { useQuasar } from 'quasar';
 
 const examStore = useExamStore();
+const $q = useQuasar();
 
 const props = defineProps<{
   exam: Exam;
@@ -456,6 +472,29 @@ const truncatedNote = (note: string | undefined) => {
     return `${note.substring(0, maxLength)}`;
   }
   return note;
+};
+
+
+const requestSubstitute = async (
+  examId: number,
+  userId: number,
+  role: RoleEnum
+) => {
+  $q.dialog({
+    title: 'Request Substitute',
+    message: 'Are you sure you want to request a substitute? You will be removed from the exam, if substitution is found.',
+    ok: {
+      label: 'Request',
+      color: 'primary',
+    },
+    cancel: {
+      label: 'Cancel',
+      color: 'negative',
+    }
+  }).onOk(() => {
+  //await examStore.requestSubstitute(examId, userId, role);
+  console.log('Requesting substitute for user:', userId, 'in exam:', examId, 'for role:', role);
+  });
 };
 
 const saveExamDayReport = async () => {

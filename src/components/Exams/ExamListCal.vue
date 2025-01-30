@@ -1,5 +1,5 @@
 <template>
-  <q-page class="q-pa-md bg-grey-1">
+  <q-page class="q-px-md">
     <div class="row q-col-gutter-lg">
       <!-- Left Column - Calendar -->
       <div class="col-12 col-md-4">

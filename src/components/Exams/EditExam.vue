@@ -340,7 +340,8 @@
                 <div class="row q-col-gutter-md">
                   <div v-for="answer in answers" :key="answer"
                        class="col-xs-12 col-sm-6 col-md-3">
-                    <q-card bordered :class="['response-card', getAnswerClass(answer)]">
+                    <q-card bordered class="response-card"
+                            :style="getAnswerStyle(answer)">
                       <q-card-section class="q-py-sm">
                         <div class="text-subtitle1 text-center text-weight-medium">
                           {{ roleTitles[answer as RoleTitleKey] }}
@@ -646,9 +647,9 @@ const isOverrideActive = ref(false);
 const getAnswerStyle = (answer: RoleTitleKey) => {
   switch (answer) {
     case 'Yes':
-      return { backgroundColor: '#e8f5e9' }; // Light Green
+      return { backgroundColor: '#D2EFD2' }; // Light Green
     case 'AM':
-      return { backgroundColor: '#fffde7' }; // Light Yellow
+      return { backgroundColor: '#FFFFCD' }; // Light Yellow
     case 'PM':
       return { backgroundColor: '#e3f2fd' }; // Light Blue
     case 'No':
@@ -1022,7 +1023,6 @@ const removeSchedule = async () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #f5f5f5;
   border-radius: 0.5rem;
   padding: 0.5rem 1rem;
   margin-bottom: 1rem;
@@ -1203,8 +1203,7 @@ const removeSchedule = async () => {
   }
 
   .name-wrapper {
-    background-color: #f8f9fa;
-    border: 1px solid #e9ecef;
+    border: 2px solid #cfcfcf;
     transition: all 0.2s ease;
 
     &:hover {
