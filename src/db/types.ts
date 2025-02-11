@@ -128,6 +128,7 @@ export interface UserResponses {
   date: string;
   isLocked: boolean;
   centre: CentreEnum;
+  hasSeen: boolean;
 }
 
 export interface UserAnswers {

@@ -33,35 +33,52 @@
               </q-th>
             </q-tr>
           </template>
-          <template v-slot:body-cell-date="props">
-            <q-td :props="props" class="text-weight-medium">
-              {{ formatDate(props.row.date) }}
-            </q-td>
-          </template>
-          <template v-slot:body-cell-action="props">
-            <q-td :props="props">
-              <div class="response-layout q-gutter-y-sm">
-                <q-option-group
-                  v-model="props.row.response"
-                  :options="options"
-                  type="radio"
-                  inline
-                  :disable="props.row.isLocked"
-                  dense
-                  class="response-group"
-                >
-                  <template v-slot:label="{ label, value }">
-                    <q-chip
-                      :color="getChipColor(value)"
-                      text-color="black"
-                      :label="label"
-                      size="md"
-                      :class="{ 'q-chip--selected': props.row.response === value }"
+
+          <template v-slot:body="props">
+            <q-tr
+              :props="props"
+              :class="{ 'new-response': !props.row.hasSeen }"
+              @mounted="handleResponseSeen(props.row.id)"
+            >
+              <q-td v-for="col in props.cols" :key="col.name" :props="props">
+                <template v-if="col.name === 'date'">
+                  <div class="row items-center">
+                    {{ formatDate(props.row.date) }}
+                    <q-badge
+                      v-if="!props.row.hasSeen"
+                      color="red"
+                      text-color="white"
+                      label="New"
+                      class="q-ml-sm"
                     />
-                  </template>
-                </q-option-group>
-              </div>
-            </q-td>
+                  </div>
+                </template>
+
+                <template v-else-if="col.name === 'action'">
+                  <div class="response-layout q-gutter-y-sm">
+                    <q-option-group
+                      v-model="props.row.response"
+                      :options="options"
+                      type="radio"
+                      inline
+                      :disable="props.row.isLocked"
+                      dense
+                      class="response-group"
+                    >
+                      <template v-slot:label="{ label, value }">
+                        <q-chip
+                          :color="getChipColor(value)"
+                          text-color="black"
+                          :label="label"
+                          size="md"
+                          :class="{ 'q-chip--selected': props.row.response === value }"
+                        />
+                      </template>
+                    </q-option-group>
+                  </div>
+                </template>
+              </q-td>
+            </q-tr>
           </template>
         </q-table>
       </q-card-section>
@@ -139,6 +156,10 @@ const getChipColor = (value: string) => {
   }
 };
 
+const handleResponseSeen = async (responseId: number) => {
+  await availabilityStore.loadResponsesForUser();
+};
+
 const handleSubmit = async () => {
   submitting.value = true;
   try {
@@ -173,15 +194,10 @@ const handleSubmit = async () => {
   thead tr:first-child th {
     background-color: #98c23b;
   }
+}
 
-  thead tr th {
-    font-weight: bold;
-  }
-
-  tbody td {
-    padding-top: 12px;
-    padding-bottom: 12px;
-  }
+.new-response {
+  background-color: #e9f5d2;
 }
 
 .response-layout {
@@ -199,12 +215,9 @@ const handleSubmit = async () => {
 
 .q-chip {
   transition: all 0.3s ease;
-  font-size: 14px;
-  font-weight: 500;
 
   &--selected {
     transform: scale(1.05);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
 }
 

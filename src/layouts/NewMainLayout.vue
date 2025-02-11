@@ -213,11 +213,12 @@ import { getRoleColor } from 'src/helpers/Color';
 import { sortRoles } from 'src/helpers/FormatRole';
 import { formatDateString, formatTimeString } from 'src/helpers/FormatTime';
 import { storeToRefs } from 'pinia';
-import { min } from 'lodash';
+import { useAvailabilityStore } from 'src/stores/availabilityStore';
 
 const userStore = useUserStore();
 const authStore = useAuthStore();
 const examStore = useExamStore();
+const availabilityStore = useAvailabilityStore();
 
 onBeforeMount(async () => {
   Loading.show({
@@ -228,6 +229,7 @@ onBeforeMount(async () => {
   });
   usersExamsRef.value = userStore.usersExams as ExamWithVenueLink[];
   await userStore.getUsersAvatar();
+  await availabilityStore.countNewResponses();
   Loading.hide();
 });
 
@@ -241,6 +243,9 @@ const user = computed(() => userStore.user);
 const showNoteDialog = ref(false);
 const selectedNote = ref('');
 const isInitialMount = ref(true);
+
+//This part is for fetching number for notification count
+const availabilityCount = computed(() => availabilityStore.newResponses);
 
 const shouldShowMoreLink = (note: string | undefined) => {
   const maxLength = 19;
@@ -260,8 +265,6 @@ const truncatedNote = (note: string | undefined) => {
   return note;
 };
 
-console.log(user)
-
 const essentialLinks = computed<EssentialLinkProps[]>(() => [
   {
     title: 'Home',
@@ -274,7 +277,7 @@ const essentialLinks = computed<EssentialLinkProps[]>(() => [
     link: '/availabilty-check',
     icon: 'calendar_today',
     isActiveBlocked: !user.value.activatedAccount,
-    notificationCount: user.value.availabilityCheckCount ?? 12,
+    notificationCount: availabilityCount.value,
   },
   {
     title: 'My Profile',
