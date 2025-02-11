@@ -18,7 +18,7 @@ export const useUserStore = defineStore('user', {
     lastRefreshTime: ref(0),
     updateConfirmation: ref(false),
     isActivated: ref(false),
-    rightDrawerOpen: ref(false),
+    rightDrawerOpen: ref(true),
   }),
   actions: {
     triggerExamRefresh(){
