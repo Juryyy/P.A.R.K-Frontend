@@ -108,7 +108,7 @@
                  class="personnel-card q-pa-xs q-mb-xs">
               <div class="row items-center justify-between">
                 <div class="row items-center">
-                  <span class="q-ml-xs text-subtitle2">
+                  <span class="q-ml-xs text-subtitle2 font-name">
                     {{ person.firstName }} {{ person.lastName }}
                   </span>
                 </div>
@@ -125,7 +125,7 @@
                          @click="toggleConfirmation(person.id, key)"
                          :loading="isLoading(person.id, key)"
                          class="confirmation-btn q-mr-xs">
-                    <q-tooltip>{{ getConfirmationTooltip(person.id, key) }}</q-tooltip>
+                    <q-tooltip :class="getConfirmationColorBackground(person.id,key)" >{{ getConfirmationTooltip(person.id, key) }}</q-tooltip>
                   </q-btn>
 
                   <!-- Substitute request -->
@@ -608,6 +608,10 @@ const getConfirmationColor = (userId: number, roleKey: string) => {
   return getConfirmationStatus(userId, roleKey) ? 'positive' : 'negative';
 };
 
+const getConfirmationColorBackground = (userId: number, roleKey: string) => {
+  return getConfirmationStatus(userId, roleKey) ? 'bg-positive text-black' : 'bg-negative';
+};
+
 const getConfirmationTooltip = (userId: number, roleKey: string) => {
   return getConfirmationStatus(userId, roleKey)
     ? 'Confirmed. Click to cancel confirmation'
@@ -873,6 +877,13 @@ const getInitials = (firstName: string, lastName: string) => {
   margin-top: 16px;
   white-space: pre-wrap;
   word-break: break-word;
+}
+
+.font-name {
+  font-weight: 600;
+  letter-spacing: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 </style>

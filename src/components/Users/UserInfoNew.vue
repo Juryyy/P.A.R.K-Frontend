@@ -441,7 +441,6 @@ const adaptiveLabel = computed(() => {
   return 'Detailed Note (optional) - Please give us more detailed information about your availability';
 });
 
-
 type EditableFieldKey = 'firstName' | 'lastName' | 'email' | 'dateOfBirth' | 'phone' | 'note' | 'noteLonger' | 'totaraDate';
 
 type EditableFields = {
@@ -622,6 +621,7 @@ const updateProfile = async () => {
       userStore.changeConfirmation(false);
       await userStore.getProfile(editableUser.value.id);
       await authStore.getToken();
+      await userStore.refreshUserInfo();
       if (userStore.selectedUser) {
         editableUser.value = { ...userStore.selectedUser };
         initialUser.value = { ...userStore.selectedUser };

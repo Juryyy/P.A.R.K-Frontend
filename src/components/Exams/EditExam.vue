@@ -165,7 +165,7 @@
                    class="personnel-card q-pa-xs q-mb-xs">
                 <div class="row items-center justify-between">
                   <div class="row items-center">
-                    <span class="q-ml-xs text-subtitle2">
+                    <span class="q-ml-xs text-subtitle2 font-name text-weight-medium">
                       {{ person.firstName }} {{ person.lastName }}
                     </span>
                   </div>
@@ -356,7 +356,7 @@
                                :class="['name-wrapper', 'q-pa-sm', 'rounded-borders']">
                             <div class="row items-center justify-between">
                               <div class="col">
-                                <div class="text-subtitle2 text-weight-medium">
+                                <div class="text-subtitle2 text-weight-medium font-name">
                                   <span class="clickable-name"
                                         @click="goToUserProfile(response.userId)">
                                     {{ response.userName }}
@@ -1225,5 +1225,12 @@ const removeSchedule = async () => {
   margin-top: 16px;
   white-space: pre-wrap;
   word-break: break-word;
+}
+
+.font-name {
+  font-weight: 600;
+  letter-spacing: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 </style>

@@ -1,6 +1,7 @@
 <template>
-  <q-item clickable :to="link" :active="isActive">
-    <q-item-section v-if="icon" avatar>
+  <q-item clickable :to="link" :active="isActive" class="relative-position">
+    <q-item-section avatar>
+      <q-badge v-if="notificationCount > 0" color="red" :label="notificationCount" class="badge" rounded/>
       <q-icon :name="icon" />
     </q-item-section>
 
@@ -22,14 +23,28 @@ export interface EssentialLinkProps {
   link?: string;
   icon?: string;
   isActiveBlocked?: boolean;
+  notificationCount?: number;
 }
 
 const props = withDefaults(defineProps<EssentialLinkProps>(), {
   caption: '',
   link: '#',
   icon: '',
+  notificationCount: 0,
 });
 
 const route = useRoute();
 const isActive = computed(() => route.path === props.link);
 </script>
+
+<style scoped lang="scss">
+
+.badge{
+  right:-15px;
+  top:10px;
+  position: relative;
+  z-index: 1;
+  margin-top:-18px;
+}
+
+</style>

@@ -48,11 +48,13 @@
         <div class="flex-grow">
           <q-list>
             <essential-link
-            v-for="link in essentialLinks.filter(link => !link.isActiveBlocked)"
+              v-for="link in essentialLinks.filter(link => !link.isActiveBlocked)"
               :key="link.title"
               :title="link.title"
               :link="link.link"
               :icon="link.icon"
+              :notification-count="link.notificationCount"
+              :is-mini="miniState"
             />
           </q-list>
           <q-separator
@@ -67,6 +69,8 @@
               :title="link.title"
               :link="`/admin/${link.link}`"
               :icon="link.icon"
+              :notification-count="link.notificationCount"
+              :is-mini="miniState"
             />
           </q-list>
         </div>
@@ -82,7 +86,7 @@
       </div>
     </q-drawer>
     </div>
-    <q-drawer show-if-above v-model="userStore.rightDrawerOpen" side="right" elevated class="right-drawer">
+    <q-drawer v-model="userStore.rightDrawerOpen" side="right" elevated class="right-drawer">
       <div class="user-info-section">
         <q-img src="/background.jpg" style="height: 150px">
           <div class="bg-transparent absolute-center q-pa-md drawer-avatar-box">
@@ -209,6 +213,7 @@ import { getRoleColor } from 'src/helpers/Color';
 import { sortRoles } from 'src/helpers/FormatRole';
 import { formatDateString, formatTimeString } from 'src/helpers/FormatTime';
 import { storeToRefs } from 'pinia';
+import { min } from 'lodash';
 
 const userStore = useUserStore();
 const authStore = useAuthStore();
@@ -255,28 +260,34 @@ const truncatedNote = (note: string | undefined) => {
   return note;
 };
 
-const essentialLinks: EssentialLinkProps[] = [
+console.log(user)
+
+const essentialLinks = computed<EssentialLinkProps[]>(() => [
   {
     title: 'Home',
     link: '/',
     icon: 'home',
+    isActiveBlocked: !user.value.activatedAccount,
   },
   {
     title: 'My Availability',
     link: '/availabilty-check',
     icon: 'calendar_today',
+    isActiveBlocked: !user.value.activatedAccount,
+    notificationCount: user.value.availabilityCheckCount ?? 12,
   },
   {
     title: 'My Profile',
-    link: '/user/' + user.value?.id,
+    link: '/user/' + user.value.id,
     icon: 'person',
   },
   {
     title: 'Other Users',
     link: '/users',
     icon: 'people',
+    isActiveBlocked: !user.value.activatedAccount,
   },
-];
+]);
 
 const adminEssentialLinks: EssentialLinkProps[] = [
   //{
@@ -288,16 +299,19 @@ const adminEssentialLinks: EssentialLinkProps[] = [
     title: 'Create Availability',
     link: 'create-availability',
     icon: 'event_note',
+    isActiveBlocked: !user.value.activatedAccount,
   },
   {
     title: 'Create Exams',
     link: 'exams',
     icon: 'assignment',
+    isActiveBlocked: !user.value.activatedAccount,
   },
   {
     title: 'Admin Panel',
     link: 'admin-panel',
     icon: 'admin_panel_settings',
+    isActiveBlocked: !user.value.activatedAccount,
   },
 ];
 

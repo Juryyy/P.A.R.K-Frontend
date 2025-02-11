@@ -30,11 +30,10 @@ export const useUserStore = defineStore('user', {
     },
 
     getUserInfo() {
-      // Decode jwt token from local storage and set user info
       const token = localStorage.getItem('token');
       if (token) {
         const decode = jwtDecode(token) as UserInfo;
-        this.user = decode.user;
+        Object.assign(this.user, decode.user);
       }
       return this.user;
     },
@@ -46,6 +45,11 @@ export const useUserStore = defineStore('user', {
 
     getUserId() {
       return this.user.id;
+    },
+
+    async refreshUserInfo() {
+      this.getUserInfo();
+      this.user = { ...this.user };
     },
 
     async getUsersExams() {
