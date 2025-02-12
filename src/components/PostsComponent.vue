@@ -199,10 +199,11 @@
       </q-card-actions>
     </div>
     </q-card>
+    </div>
 
 
     <q-dialog v-model="show" persistent>
-      <q-card>
+      <q-card class="post-card-create">
         <q-card-section>
           <h4>Create post</h4>
           <q-input v-model="newPost.title" label="Title" />
@@ -260,9 +261,7 @@
           @update:model-value="onFileChange"
           class="q-mb-md"
         >
-          <template v-slot:hint>
-            You can select multiple files at once. Hold Ctrl/Cmd to select individual files or Shift for a range.
-          </template>
+        <q-tooltip class="bg-secondary">You can select multiple files at once. Hold Ctrl/Cmd to select individual files or Shift for a range.</q-tooltip>
         </q-file>
             <div v-if="selectedFiles.length > 0" class="q-mt-md">
               <div v-for="(file, index) in selectedFiles" :key="index" class="q-mt-sm file-item">
@@ -285,7 +284,7 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
-  </div>
+
   </div>
 </template>
 
@@ -375,7 +374,7 @@ const filterUsers = (val: string, update: (callback: () => void) => void) => {
 
 const onFileChange = (files: FileList | null) => {
   if (files) {
-    selectedFiles.value = [...selectedFiles.value, ...Array.from(files)];
+    selectedFiles.value = Array.from(files);
   }
 };
 
@@ -553,8 +552,14 @@ const saveEdit = async (postId: number | undefined) => {
     messageColor: 'primary',
     backgroundColor: 'black',
   });
+  Notify.create({
+    message: 'Not implemented yet!',
+    color: 'warning',
+    icon: 'warning',
+  });
+  Loading.hide();
+  cancelEdit(postId);
 };
-
 </script>
 
 <style scoped>
@@ -595,6 +600,7 @@ const saveEdit = async (postId: number | undefined) => {
   margin: 0 auto;
 }
 
+
 .add-post-btn {
   width: 100%;
 }
@@ -623,6 +629,29 @@ const saveEdit = async (postId: number | undefined) => {
   .post-card {
     border-radius: 0;
   }
+}
+
+.post-card-create {
+  width: 80%;
+  max-width: 550px;
+}
+
+@media (min-width: 600px) {
+  .post-card-create {
+    width: 600px;
+  }
+}
+
+.post-container-create {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+
+.post-card-create {
+  border-radius: 8px;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2), 0 2px 2px rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.12);
+  transition: box-shadow 0.3s ease-in-out;
 }
 
 .content-label {

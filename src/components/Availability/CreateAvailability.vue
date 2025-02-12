@@ -181,7 +181,7 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue';
 import { useExamDayStore } from '../../stores/examDayStore';
-import { DayOfExams, CentreEnum } from 'src/db/types';
+import { CentreEnum } from 'src/db/types';
 import { useQuasar } from 'quasar';
 
 const props = defineProps<{
@@ -190,7 +190,7 @@ const props = defineProps<{
 
 const $q = useQuasar();
 const examDayStore = useExamDayStore();
-const examDays = ref<DayOfExams[]>(examDayStore.upcomingExamDays);
+const examDays = computed(() => examDayStore.availabilityExamDays);
 const search = ref('');
 const currentDate = new Date();
 
@@ -233,7 +233,7 @@ const filteredExamDays = computed(() => {
 const addDate = async () => {
   const sDate = new Date(state.date);
   await examDayStore.addExamDay(sDate, state.invigilators, state.examiners, props.centre);
-  await refreshExamDays();
+  await examDayStore.loadExamDaysAvailability(props.centre);
 };
 
 const openInformDialog = () => {
@@ -296,10 +296,19 @@ const deleteExamDay = async (id: number) => {
     },
     persistent: true
   }).onOk(async () => {
-    $q.loading.show();
-    await examDayStore.deleteExamDay(id);
-    await refreshExamDays();
-    $q.loading.hide();
+    try {
+      $q.loading.show();
+      await examDayStore.deleteExamDay(id);
+      await examDayStore.loadExamDaysAvailability(props.centre);
+    } catch (error) {
+      console.error('Error deleting exam day:', error);
+      $q.notify({
+        message: 'Failed to delete exam day',
+        color: 'negative'
+      });
+    } finally {
+      $q.loading.hide();
+    }
   });
 };
 
@@ -350,17 +359,12 @@ const changeLock = async (id: number) => {
   const examDay = examDays.value.find(day => day.id === id);
   if (examDay) {
     await examDayStore.changeLock(id);
-    await refreshExamDays();
+    await examDayStore.loadExamDaysAvailability(props.centre);
   }
 };
 
-const refreshExamDays = async () => {
-  await examDayStore.loadExamDays(props.centre);
-  examDays.value = examDayStore.upcomingExamDays;
-};
-
 onMounted(async () => {
-  await refreshExamDays();
+  await examDayStore.loadExamDaysAvailability(props.centre);
 });
 
 </script>

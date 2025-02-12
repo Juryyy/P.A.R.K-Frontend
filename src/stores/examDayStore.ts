@@ -7,6 +7,7 @@ import { CentreEnum, dayResponse, DayOfExams } from '../db/types';
 export const useExamDayStore = defineStore('examDay', {
   state: () => ({
     upcomingExamDays: ref<DayOfExams[]>([]),
+    availabilityExamDays: ref<DayOfExams[]>([]),
     responsesForExamDay: ref<dayResponse[]>([]),
     allExamDays: ref([]),
   }),
@@ -14,9 +15,7 @@ export const useExamDayStore = defineStore('examDay', {
     async loadExamDays(centre: CentreEnum) {
       try {
         const response = await api.get<DayOfExams[]>('/examDays/examDays', {
-          params: {
-            centre: centre
-          }
+          params: { centre }
         });
         const existingExamDays = new Map<number, DayOfExams>(
           this.upcomingExamDays.map((examDay: DayOfExams) => [examDay.id || 0, examDay])
@@ -29,7 +28,30 @@ export const useExamDayStore = defineStore('examDay', {
         });
 
         this.upcomingExamDays = Array.from(existingExamDays.values());
-        console.log('examDays:', this.upcomingExamDays);
+      } catch (error: any) {
+        Notify.create({
+          color: 'negative',
+          message: error.response.data.error,
+          position: 'bottom',
+          icon: 'report_problem',
+        });
+      }
+    },
+
+    async loadExamDaysAvailability(centre: CentreEnum) {
+      try {
+        const response = await api.get<DayOfExams[]>('/examDays/examDays', {
+          params: { centre }
+        });
+        const newIds = new Set(response.data.map(day => day.id));
+
+        this.availabilityExamDays = this.availabilityExamDays
+          .filter(day => newIds.has(day.id))
+          .concat(
+            response.data.filter(newDay =>
+              !this.availabilityExamDays.find(existingDay => existingDay.id === newDay.id)
+            )
+          );
       } catch (error: any) {
         Notify.create({
           color: 'negative',

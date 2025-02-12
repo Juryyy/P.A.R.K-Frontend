@@ -396,6 +396,7 @@ onMounted(async () => {
   //  backgroundColor: 'black',
   //});
   await examDayStore.loadExamDays(props.centre);
+  console.log(examDayStore.upcomingExamDays);
   //Loading.show({
   //  message: 'Loading upcoming exams...',
   //  spinnerColor: 'amber',

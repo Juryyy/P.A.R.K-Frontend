@@ -64,6 +64,7 @@
                       :disable="props.row.isLocked"
                       dense
                       class="response-group"
+                      color="secondary"
                     >
                       <template v-slot:label="{ label, value }">
                         <q-chip

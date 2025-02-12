@@ -1,7 +1,9 @@
 <template>
-  <q-page class="row justify-evenly">
-    <PostsComponent v-if="state.isLoaded"/>
-  </q-page>
+    <q-page class="row justify-evenly">
+      <template v-if="state.isLoaded">
+        <PostsComponent/>
+      </template>
+    </q-page>
 </template>
 
 <script setup lang="ts">
