@@ -104,14 +104,27 @@
 
           <div v-else class="personnel-cards">
             <div v-for="person in editableExam[key]"
-                 :key="person.id"
-                 class="personnel-card q-pa-xs q-mb-xs">
-              <div class="row items-center justify-between">
-                <div class="row items-center">
-                  <span class="q-ml-xs text-subtitle2 font-name">
-                    {{ person.firstName }} {{ person.lastName }}
-                  </span>
-                </div>
+            :key="person.id"
+            class="personnel-card q-pa-xs q-mb-xs">
+         <div class="row items-center justify-between">
+           <div class="row items-center">
+             <span class="q-ml-xs text-subtitle2 font-name">
+               {{ person.firstName }} {{ person.lastName }}
+             </span>
+             <!-- Add substitution status indicator -->
+             <q-chip
+             v-if="hasRequestedSubstitution(person.id, key)"
+             class="sub-request-chip q-ml-sm"
+             dense
+           >
+             <q-icon
+               name="swap_horiz"
+               size="xs"
+               class="q-mr-xs"
+             />
+             <span>Sub Requested</span>
+           </q-chip>
+           </div>
 
                 <div class="row items-center">
                   <!-- Confirmation button for current user -->
@@ -129,16 +142,19 @@
                   </q-btn>
 
                   <!-- Substitute request -->
-                  <q-btn v-if="isCurrentUser(person.id) && exam.isPrepared && !exam.isCompleted"
+                  <q-btn v-if="isCurrentUser(person.id) && !exam.isCompleted"
                          round
                          flat
                          dense
                          size="md"
                          icon="swap_horizontal_circle"
-                         color="warning"
+                         :color="hasRequestedSubstitution(person.id, key) ? 'grey' : 'warning'"
                          @click="requestSubstitute(editableExam.id, person.id, roleKeyToEnum(key))"
+                         :disable="hasRequestedSubstitution(person.id, key)"
                          class="q-ml-xs">
-                    <q-tooltip class="bg-warning text-black" >Request a substitution for you</q-tooltip>
+                    <q-tooltip :class="hasRequestedSubstitution(person.id, key) ? 'bg-grey' : 'bg-warning text-black'">
+                      {{ hasRequestedSubstitution(person.id, key) ? 'Substitution already requested' : 'Request a substitution for you' }}
+                    </q-tooltip>
                   </q-btn>
                 </div>
               </div>
@@ -383,16 +399,18 @@
 import { ref, reactive, computed, watch } from 'vue';
 import { useExamStore } from 'src/stores/examStore';
 import { QForm } from 'quasar';
-import { AbsentCandidates, Exam } from 'src/db/types';
+import { AbsentCandidates, Exam, SubstitutionRequestInfo } from 'src/db/types';
 import { formatTimeString } from 'src/helpers/FormatTime';
 import { getLevelColor } from 'src/helpers/Color';
 import { getFileIcon } from 'src/helpers/FileType';
 import { RoleEnum } from 'src/db/types';
 import { useUserStore } from 'src/stores/userStore';
 import { useQuasar } from 'quasar';
+import { useSubstitutionStore } from 'src/stores/substitutionStore';
 
 const examStore = useExamStore();
 const $q = useQuasar();
+const substituteStore = useSubstitutionStore();
 
 const props = defineProps<{
   exam: Exam;
@@ -405,6 +423,11 @@ const comment = ref<string>();
 const issues = ref<string>();
 const absent = ref<number>();
 const examForm = ref<QForm | null>(null);
+
+const examSubs = computed(() => {
+  return substituteStore.examSubs;
+});
+
 
 const userStore = useUserStore();
 const currentUser = computed(() => userStore.user);
@@ -447,7 +470,6 @@ const initializeEditableExam = () => {
 initializeEditableExam();
 
 const loadingFiles = reactive<{ [key: number]: boolean }>({});
-const showNoteDialog = ref(false);
 
 const roles = {
   supervisors: { title: 'Supervisors' },
@@ -457,25 +479,8 @@ const roles = {
   examiners: { title: 'Examiners' },
 } as const;
 
-const shouldShowMoreLink = (note: string | undefined) => {
-  const maxLength = 19;
-  return note && note.length > maxLength;
-};
 
-const showFullNoteDialog = () => {
-  showNoteDialog.value = true;
-};
-
-const truncatedNote = (note: string | undefined) => {
-  const maxLength = 19;
-  if (note && note.length > maxLength) {
-    return `${note.substring(0, maxLength)}`;
-  }
-  return note;
-};
-
-
-const requestSubstitute = async (
+const requestSubstitute = (
   examId: number,
   userId: number,
   role: RoleEnum
@@ -491,9 +496,9 @@ const requestSubstitute = async (
       label: 'Cancel',
       color: 'negative',
     }
-  }).onOk(() => {
-  //await examStore.requestSubstitute(examId, userId, role);
-  console.log('Requesting substitute for user:', userId, 'in exam:', examId, 'for role:', role);
+  }).onOk(async () => {
+  await substituteStore.createSubstitution(new Date(), examId, 'Requesting substitute', role, userId);
+  await substituteStore.loadSubsForExam(examId);
   });
 };
 
@@ -616,6 +621,15 @@ const getConfirmationTooltip = (userId: number, roleKey: string) => {
   return getConfirmationStatus(userId, roleKey)
     ? 'Confirmed. Click to cancel confirmation'
     : 'Not confirmed. Click to confirm';
+};
+
+const hasRequestedSubstitution = (userId: number, roleKey: string) => {
+  const roleEnum = roleKeyToEnum(roleKey);
+  return examSubs.value.some(
+    sub => sub.requestedById === userId &&
+           sub.originalRole === roleEnum &&
+           sub.status === 'Open'
+  );
 };
 
 const toggleConfirmation = async (userId: number, roleKey: string) => {
@@ -886,4 +900,20 @@ const getInitials = (firstName: string, lastName: string) => {
   -moz-osx-font-smoothing: grayscale;
 }
 
+.sub-request-chip {
+  background: rgba(255, 152, 0, 0.12);
+  color: #f57c00;
+  border: 1px solid rgba(255, 152, 0, 0.24);
+  font-weight: 500;
+  padding: 2px 8px;
+  transition: all 0.2s ease;
+
+  .q-icon {
+    opacity: 0.9;
+  }
+
+  &:hover {
+    background: rgba(255, 152, 0, 0.18);
+  }
+}
 </style>

@@ -44,7 +44,6 @@ const initializeApp = async () => {
 
     try {
       const user = userStore.getUserInfo();
-      console.log(user);
 
       if (!user.email) {
         router.push('/login');

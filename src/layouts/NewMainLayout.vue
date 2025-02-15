@@ -214,11 +214,13 @@ import { sortRoles } from 'src/helpers/FormatRole';
 import { formatDateString, formatTimeString } from 'src/helpers/FormatTime';
 import { storeToRefs } from 'pinia';
 import { useAvailabilityStore } from 'src/stores/availabilityStore';
+import { useSubstitutionStore } from 'src/stores/substitutionStore';
 
 const userStore = useUserStore();
 const authStore = useAuthStore();
 const examStore = useExamStore();
 const availabilityStore = useAvailabilityStore();
+const substitutionStore = useSubstitutionStore();
 
 onBeforeMount(async () => {
   Loading.show({
@@ -230,6 +232,7 @@ onBeforeMount(async () => {
   usersExamsRef.value = userStore.usersExams as ExamWithVenueLink[];
   await userStore.getUsersAvatar();
   await availabilityStore.countNewResponses();
+  await substitutionStore.getCountOfOpenSubstitutions();
   Loading.hide();
 });
 
@@ -246,6 +249,7 @@ const isInitialMount = ref(true);
 
 //This part is for fetching number for notification count
 const availabilityCount = computed(() => availabilityStore.newResponses);
+const subsCount = computed(() => substitutionStore.count);
 
 const shouldShowMoreLink = (note: string | undefined) => {
   const maxLength = 19;
@@ -285,10 +289,11 @@ const essentialLinks = computed<EssentialLinkProps[]>(() => [
     icon: 'person',
   },
   {
-    title: 'Other Users',
-    link: '/users',
-    icon: 'people',
-    isActiveBlocked: !user.value.activatedAccount,
+  title: 'Substitutions',
+  link: '/substitutions',
+  icon: 'swap_horiz',
+  isActiveBlocked: !user.value.activatedAccount,
+  notificationCount: subsCount.value,
   },
 ]);
 
@@ -298,6 +303,12 @@ const adminEssentialLinks: EssentialLinkProps[] = [
   //  link: 'import-candidates',
   //  icon: 'cloud_upload',
   //},
+  {
+    title: 'Users',
+    link: 'users',
+    icon: 'people',
+    isActiveBlocked: !user.value.activatedAccount,
+  },
   {
     title: 'Create Availability',
     link: 'create-availability',

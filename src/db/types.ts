@@ -231,3 +231,50 @@ export interface DayReport{
   createdAt: Date;
   authorId: number;
 }
+
+export enum SubstitutionStatusEnum{
+  Open = 'Open',
+  Assigned = 'Assigned',
+  Closed = 'Closed',
+}
+
+export interface SubstitutionRequest {
+  id: number;
+  examId: number;
+  exam: Exam;
+  requestedById: number;
+  requestedBy: User;
+  requestedAt: Date;
+  reason: string;
+  status: SubstitutionStatusEnum;
+  substitutorId?: number;
+  substitutor?: User;
+  originalRole: RoleEnum;
+  adminCentre: CentreEnum;
+  _count: {
+    applications: number;
+  };
+}
+
+export interface SubstitutionRequestInfo {
+  examId: number;
+  requestedById: number;
+  status: SubstitutionStatusEnum;
+  originalRole: RoleEnum;
+}
+
+export interface SubstitutionApplication {
+  id: number;
+  substitutionId: number;
+  substitutionRequest: SubstitutionRequest;
+  applicantId: number;
+  applicant: User;
+  appliedAt: Date;
+  status: ApplicationStatusEnum;
+}
+
+export enum ApplicationStatusEnum {
+  Pending = 'Pending',
+  Accepted = 'Accepted',
+  Rejected = 'Rejected'
+}

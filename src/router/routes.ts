@@ -39,15 +39,6 @@ const routes: RouteRecordRaw[] = [
         },
       },
       {
-        path: 'users',
-        component: () => import('pages/admin/UsersPage.vue'),
-        name: 'Users',
-        beforeEnter: checkIfUserIsActivated,
-        meta: {
-          title: 'Users',
-        },
-      },
-      {
         path: 'exam/:id',
         component: () => import('pages/ViewExamPage.vue'),
         name: 'ViewExam',
@@ -55,6 +46,15 @@ const routes: RouteRecordRaw[] = [
         props: true,
         meta: {
           title: 'Exam',
+        },
+      },
+      {
+        path: 'substitutions',
+        component: () => import('pages/SubstitutionsPage.vue'),
+        name: 'Substitutions',
+        beforeEnter: checkIfUserIsActivated,
+        meta: {
+          title: 'Substitutions',
         },
       },
       {
@@ -113,6 +113,15 @@ const routes: RouteRecordRaw[] = [
         beforeEnter: [checkOffice, checkIfUserIsActivated],
         meta: {
           title: 'Admin Panel',
+        },
+      },
+      {
+        path: 'users',
+        component: () => import('pages/admin/UsersPage.vue'),
+        name: 'Users',
+        beforeEnter: [checkOffice, checkIfUserIsActivated],
+        meta: {
+          title: 'Users',
         },
       },
     ],

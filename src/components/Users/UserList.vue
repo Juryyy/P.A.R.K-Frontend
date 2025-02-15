@@ -301,8 +301,6 @@ const filteredUsersRef = computed(() => {
   );
 });
 
-console.log(usersRef.value);
-
 const filteredUsersCount = computed(() => filteredUsersRef.value.length);
 
 const currentUserRole = computed(() => userStore.getUserRole());
