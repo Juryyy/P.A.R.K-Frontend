@@ -6,19 +6,18 @@ import { useUserStore } from './userStore';
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
-    verification : false as boolean,
-    email : '' as string,
+    verification: false as boolean,
+    email: '' as string,
+    loginAttempts: 0 as number,
+    isLocked: false as boolean,
   }),
   actions: {
-    async verifyUser(email : string, code : string){ {
+    async verifyUser(email: string, code: string) {
       try {
-        const response = await api.post('/auth/verify', { email, code });
-        const token = await api.get('/auth/token');
-
-        localStorage.setItem('token', token.data);
-        const userStore = useUserStore();
-        userStore.getUserInfo();
-
+        await api.post('/auth/verify', { email, code });
+        // Reset login attempts on successful verification
+        this.loginAttempts = 0;
+        this.isLocked = false;
         Notify.create({
           color: 'positive',
           message: 'Verification successful',
@@ -26,23 +25,41 @@ export const useAuthStore = defineStore('auth', {
           icon: 'check',
           textColor: 'black',
         });
-      } catch (error : any) {
+
+        const token = await api.get('/auth/token');
+        localStorage.setItem('token', token.data);
+        const userStore = useUserStore();
+        userStore.getUserInfo();
+      } catch (error: any) {
         Notify.create({
           color: 'negative',
-          message: 'The code is not valid or has expired',
+          message: error.response?.data?.error || 'The code is not valid or has expired',
           position: 'bottom',
           icon: 'report_problem',
-          });
-        }
+        });
       }
     },
+
     async login(email: string, password: string) {
       try {
+        if (this.isLocked) {
+          Notify.create({
+            color: 'negative',
+            message: 'Account is temporarily locked. Please try again later or reset your password.',
+            position: 'bottom',
+            icon: 'report_problem',
+          });
+          return;
+        }
+
         const response = await api.post('/auth/login', { email, password });
-        if(response.status === 200){
+
+        if (response.status === 200) {
           this.verification = true;
           this.email = email;
+          this.loginAttempts = 0;
         }
+
         Notify.create({
           color: 'positive',
           message: '2FA code sent to your email',
@@ -50,13 +67,24 @@ export const useAuthStore = defineStore('auth', {
           icon: 'check',
           textColor: 'black',
         });
-      } catch (error : any) {
+        return true;
+      } catch (error: any) {
+        this.loginAttempts++;
+        if (this.loginAttempts >= 5) {
+          this.isLocked = true;
+          setTimeout(() => {
+            this.isLocked = false;
+            this.loginAttempts = 0;
+          }, 15 * 60 * 1000);
+        }
+
         Notify.create({
           color: 'negative',
-          message: 'Email and password do not match',
+          message: error.response?.data?.error || 'Invalid credentials',
           position: 'bottom',
           icon: 'report_problem',
         });
+        return false;
       }
     },
 
@@ -72,10 +100,10 @@ export const useAuthStore = defineStore('auth', {
         } else {
           throw new Error('Logout failed');
         }
-      } catch (error : any) {
+      } catch (error: any) {
         Notify.create({
           color: 'negative',
-          message: error.response.data.error,
+          message: error.response?.data?.error || 'Logout failed',
           position: 'bottom',
           icon: 'report_problem',
         });
@@ -97,10 +125,10 @@ export const useAuthStore = defineStore('auth', {
           icon: 'check',
           textColor: 'black',
         });
-      } catch (error : any) {
+      } catch (error: any) {
         Notify.create({
           color: 'negative',
-          message: error.response.data.error,
+          message: error.response?.data?.error || 'Registration failed',
           position: 'bottom',
           icon: 'report_problem',
         });
@@ -110,17 +138,10 @@ export const useAuthStore = defineStore('auth', {
     async resetPassword(email: string) {
       try {
         await api.post('/auth/password-reset', { email });
-        Notify.create({
-          color: 'positive',
-          message: 'Password reset email sent',
-          position: 'bottom',
-          icon: 'check',
-          textColor: 'black',
-        });
-      } catch (error : any) {
+      } catch (error: any) {
         Notify.create({
           color: 'negative',
-          message: error.response.data.error,
+          message: error.response?.data?.error || 'Password reset failed',
           position: 'bottom',
           icon: 'report_problem',
         });
@@ -137,10 +158,10 @@ export const useAuthStore = defineStore('auth', {
           icon: 'check',
           textColor: 'black',
         });
-      } catch (error : any) {
-          Notify.create({
+      } catch (error: any) {
+        Notify.create({
           color: 'negative',
-          message: error.response.data.error,
+          message: error.response?.data?.error || 'Password update failed',
           position: 'bottom',
           icon: 'report_problem',
         });
@@ -154,15 +175,14 @@ export const useAuthStore = defineStore('auth', {
         localStorage.setItem('token', response.data);
         const userStore = useUserStore();
         userStore.getUserInfo();
-      } catch (error : any) {
+      } catch (error: any) {
         Notify.create({
           color: 'negative',
-          message: error.response.data.error,
+          message: error.response?.data?.error || 'Token retrieval failed',
           position: 'bottom',
           icon: 'report_problem',
         });
       }
     }
-
   },
 });

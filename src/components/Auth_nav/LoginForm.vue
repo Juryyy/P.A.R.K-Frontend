@@ -39,11 +39,24 @@
 
             <div class="row justify-between items-center">
               <q-btn label="Forgot Password?" flat color="primary" @click="isForgotPassword = true" />
-              <q-btn label="Login" type="submit" color="primary" :loading="loading">
+              <q-btn
+                label="Login"
+                type="submit"
+                color="primary"
+                :loading="loading"
+                :disable="isAccountLocked"
+              >
                 <template v-slot:loading>
                   <q-spinner-facebook />
                 </template>
               </q-btn>
+            </div>
+
+            <!-- Account lockout message -->
+            <div v-if="isAccountLocked" class="text-negative q-mt-md">
+              <q-icon name="lock" class="q-mr-xs" />
+              Account is temporarily locked due to too many failed attempts.
+              Please try again later or reset your password.
             </div>
           </q-form>
 
@@ -53,10 +66,10 @@
               <q-input
                 v-model="verificationCode"
                 type="text"
-                maxlength="6"
+                maxlength="8"
                 @input="formatVerificationCode"
                 class="verification-code-input"
-                :rules="[val => val.length === 6 || 'Please enter all 6 digits']"
+                :rules="[val => val.length === 8 || 'Please enter all 8 digits']"
               />
               <div class="verification-code-display">
                 <span
@@ -83,7 +96,7 @@
                 type="submit"
                 @click="validate"
                 :loading="loading"
-                :disable="loading || verificationCode.length !== 6"
+                :disable="loading || verificationCode.length !== 8"
               >
                 <template v-slot:loading>
                   <q-spinner size="20px" />
@@ -131,7 +144,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, computed } from 'vue';
+import { reactive, ref, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from 'src/stores/authStore';
 import { useUserStore } from 'src/stores/userStore';
@@ -152,19 +165,24 @@ const isCodeVerification = ref(false);
 const isForgotPassword = ref(false);
 const loading = ref(false);
 const verificationCode = ref('');
+const isAccountLocked = computed(() => authStore.isLocked);
 
 const displayCode = computed(() => {
-  const code = verificationCode.value.padEnd(6, ' ');
+  const code = verificationCode.value.padEnd(8, ' ');
   return code.split('');
 });
 
 const formatVerificationCode = () => {
-  verificationCode.value = verificationCode.value.replace(/[^0-9]/g, '').slice(0, 6);
+  verificationCode.value = verificationCode.value.replace(/[^0-9]/g, '').slice(0, 8);
 };
+
+watch(() => authStore.verification, (newValue) => {
+  isCodeVerification.value = newValue;
+});
 
 const validate = async (event: Event) => {
   event.preventDefault();
-  if (verificationCode.value.length !== 6) return;
+  if (verificationCode.value.length !== 8) return;
 
   loading.value = true;
   try {
@@ -175,37 +193,42 @@ const validate = async (event: Event) => {
   } catch (error) {
     Notify.create({
       type: 'negative',
-      message: 'Verification failed. Please try again.'
+      message: 'Verification failed. Please check the code and try again.'
     });
   } finally {
     loading.value = false;
   }
 };
-
 
 const onSubmit = async (event: Event) => {
   if (!state.email || !state.password) {
     return;
   }
+
+  if (isAccountLocked.value) {
+    Notify.create({
+      type: 'negative',
+      message: 'Account is temporarily locked due to too many failed attempts. Please try again later or reset your password.'
+    });
+    return;
+  }
+
   event.preventDefault();
   loading.value = true;
   try {
-    await authStore.login(state.email, state.password);
-    if (authStore.verification === true) {
+    const success = await authStore.login(state.email, state.password);
+    if (success && authStore.verification === true) {
       isCodeVerification.value = true;
-    } else {
-      await loadUserData();
     }
   } catch (error) {
     Notify.create({
       type: 'negative',
-      message: 'Login failed. Please check your credentials.'
+      message: 'An error occurred. Please try again later.'
     });
   } finally {
     loading.value = false;
   }
 };
-
 
 const resetPassword = async (event: Event) => {
   if (!state.email) {
@@ -217,14 +240,10 @@ const resetPassword = async (event: Event) => {
     await authStore.resetPassword(state.email);
     Notify.create({
       type: 'positive',
-      message: 'Password reset instructions have been sent to your email.'
+      message: 'If your email is registered, a password reset email has been sent.'
     });
     clear();
   } catch (error) {
-    Notify.create({
-      type: 'negative',
-      message: 'Failed to send reset instructions. Please try again.'
-    });
   } finally {
     loading.value = false;
   }
@@ -233,7 +252,7 @@ const resetPassword = async (event: Event) => {
 const loadUserData = async () => {
   Loading.show();
   try {
-    await userStore.getUserInfo();
+    userStore.getUserInfo();
     await userStore.getUsersAvatar();
     await userStore.getUsersExams();
     router.push('/');
@@ -241,7 +260,6 @@ const loadUserData = async () => {
     Loading.hide();
   }
 };
-
 
 const clear = () => {
   isCodeVerification.value = false;
@@ -303,7 +321,7 @@ const clear = () => {
   width: 100%;
   height: 100%;
   font-size: 24px;
-  letter-spacing: 38px;
+  letter-spacing: 29px; /* Adjusted for 8 digits */
   padding-left: 15px;
   position: absolute;
   top: 0;
@@ -327,9 +345,9 @@ const clear = () => {
 
 .code-digit {
   position: relative;
-  width: 40px;
+  width: 32px; /* Slightly smaller for 8 digits */
   height: 100%;
-  font-size: 24px;
+  font-size: 20px; /* Slightly smaller for 8 digits */
   border: 1px solid #ccc;
   border-radius: 4px;
   display: flex;
@@ -375,7 +393,6 @@ const clear = () => {
 .verification-code-container:hover .code-digit:not(.code-digit-filled) {
   animation: pulse 1s infinite;
 }
-
 
 @media (max-width: 600px) {
   .login-container {

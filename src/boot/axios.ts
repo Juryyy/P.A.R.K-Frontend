@@ -3,7 +3,7 @@ import axios, { AxiosInstance } from 'axios';
 import { useAuthStore } from 'src/stores/authStore';
 import { useUserStore } from 'src/stores/userStore';
 import { router } from 'src/router/index';
-import { Loading } from 'quasar';
+import { Loading, Notify } from 'quasar';
 import config from 'src/config';
 
 declare module '@vue/runtime-core' {
@@ -15,17 +15,25 @@ declare module '@vue/runtime-core' {
 
 const api = axios.create({
   baseURL: config.backendUrl,
-  withCredentials: true // Important for sending cookies
+  withCredentials: true
 });
 
-// Response interceptor to handle token refresh
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     try {
+      if (error.response && error.response.status === 429) {
+        Notify.create({
+          color: 'negative',
+          message: 'Too many requests. Please try again later.',
+          position: 'bottom',
+          icon: 'report_problem',
+        });
+        return Promise.reject(error);
+      }
+
       if (error.config && error.response && error.response.status === 401) {
-        // If the request was for refresh token, logout and redirect to login page
-        if (error.config.url === '/auth/refresh-token') {
+        if (error.config.url === '/auth/refresh-tokens') {
           useAuthStore().logout();
           router.push('/login');
           return Promise.reject(error);
@@ -34,20 +42,15 @@ api.interceptors.response.use(
         Loading.show({ message: 'Wait a moment please' });
 
         try {
-          // The access token has expired, try refresh
-          const refreshResponse = await api.post('/auth/refresh-token');
+          const refreshResponse = await api.post('/auth/refresh-tokens');
 
           if (refreshResponse.status === 200) {
-            // Store new user info JWT
             localStorage.setItem('token', refreshResponse.data);
-            // Update user info
             useUserStore().getUserInfo();
             Loading.hide();
-            // Retry the original request
             return api.request(error.config);
           }
         } catch (refreshError) {
-          // Refresh token is invalid
           useAuthStore().logout();
           router.push('/login');
           return Promise.reject(refreshError);
