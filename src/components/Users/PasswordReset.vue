@@ -26,13 +26,7 @@
         :type="state.newPasswordHidden ? 'password' : 'text'"
         :rules="[
           (val) => !!val || 'Password is required',
-          (val) => val !== state.password || 'New password must be different from the old one',
-          (val) => val.length >= 8 || 'Password must be at least 8 characters long',
-          (val) => /[A-Z]/.test(val) || 'Password must contain at least one uppercase letter',
-          (val) => /[a-z]/.test(val) || 'Password must contain at least one lowercase letter',
-          (val) => /[0-9]/.test(val) || 'Password must contain at least one number',
-          (val) => /[^A-Za-z0-9]/.test(val) || 'Password must contain at least one special character',
-          (val) => !commonPasswordCheck(val) || 'This password is too common. Please choose a more unique password.'
+          (val) => val !== state.password || 'New password must be different from the old one'
         ]"
         autocomplete="new-password"
         outlined
@@ -45,6 +39,19 @@
           />
         </template>
       </q-input>
+
+      <!-- Password strength indicator -->
+      <div class="password-requirements q-mb-md">
+        <div class="text-subtitle2 q-mb-sm">Password Requirements:</div>
+        <ul>
+          <li v-for="req in passwordRequirements" :key="req.id"
+              :class="{ 'text-positive': req.validate(state.newPassword), 'text-negative': !req.validate(state.newPassword) }">
+            <q-icon :name="req.validate(state.newPassword) ? 'check_circle' : 'cancel'" size="xs" class="q-mr-xs" />
+            {{ req.label }}
+          </li>
+        </ul>
+      </div>
+
       <q-input
         v-model="state.newPasswordCheck"
         label="Confirm New Password"
@@ -102,20 +109,62 @@ const state = reactive({
   newPasswordCheckHidden: true,
 });
 
+// Common password check based on security standards
 const commonPasswordCheck = (password: string): boolean => {
-  const commonPasswords = ['password', '123456', 'qwerty', 'admin', 'letmein', 'welcome'];
-  return commonPasswords.includes(password.toLowerCase());
+  const commonPasswords = [
+    'password', '123456', 'qwerty', 'admin', 'letmein', 'welcome',
+    'abc123', 'monkey', '1234567', 'password123', 'admin123', '123456789',
+    'qwerty123', 'sunshine', 'princess', 'football'
+  ];
+
+  if (commonPasswords.includes(password.toLowerCase())) {
+    return true;
+  }
+
+  const allSameChars = /^(.)\1+$/.test(password);
+  const sequential = /^(0123|1234|2345|3456|4567|5678|6789|abcd|bcde|cdef|defg|efgh|fghi|ghij|hijk|ijkl|jklm|klmn|lmno|mnop|nopq|opqr|pqrs|qrst|rstu|stuv|tuvw|uvwx|vwxy|wxyz)/i.test(password);
+
+  return allSameChars || sequential;
 };
 
+// Password requirements for visual feedback
+const passwordRequirements = [
+  {
+    id: 'length',
+    label: 'At least 8 characters',
+    validate: (pass: string) => pass.length >= 8
+  },
+  {
+    id: 'uppercase',
+    label: 'At least one uppercase letter',
+    validate: (pass: string) => /[A-Z]/.test(pass)
+  },
+  {
+    id: 'lowercase',
+    label: 'At least one lowercase letter',
+    validate: (pass: string) => /[a-z]/.test(pass)
+  },
+  {
+    id: 'number',
+    label: 'At least one number',
+    validate: (pass: string) => /\d/.test(pass)
+  },
+  {
+    id: 'special',
+    label: 'At least one special character',
+    validate: (pass: string) => /[!@#$%^&*(),.?":{}|<>]/.test(pass)
+  },
+  {
+    id: 'common',
+    label: 'Not a commonly used password',
+    validate: (pass: string) => !commonPasswordCheck(pass)
+  }
+];
+
+// Updated password strength check
 const isPasswordStrong = computed(() => {
-  const { newPassword } = state;
-  const password = newPassword.length >= 8 &&
-         /[A-Z]/.test(newPassword) &&
-         /[a-z]/.test(newPassword) &&
-         /[0-9]/.test(newPassword) &&
-         /[^A-Za-z0-9]/.test(newPassword) &&
-         !commonPasswordCheck(newPassword);
-  return password;
+  return passwordRequirements.every(req => req.validate(state.newPassword)) &&
+         state.newPassword !== state.password;
 });
 
 const update = async () => {
@@ -124,6 +173,16 @@ const update = async () => {
   try {
     await passwordForm.value.validate();
   } catch (error) {
+    return;
+  }
+
+  // Additional validation before submission
+  if (!isPasswordStrong.value) {
+    Notify.create({
+      type: 'negative',
+      message: 'Please ensure your password meets all security requirements',
+      textColor: 'black'
+    });
     return;
   }
 
@@ -153,7 +212,7 @@ const update = async () => {
     console.error(error);
     Notify.create({
       type: 'negative',
-      message: 'Failed to update password. Please try again.',
+      message: 'Failed to update password. Please check your current password and try again.',
       textColor: 'black'
     });
   } finally {
@@ -167,6 +226,26 @@ const update = async () => {
   max-width: 400px;
   margin: 0 auto;
   padding: 1.5rem;
+}
+
+.password-requirements {
+  text-align: left;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  padding: 0.75rem;
+  margin-top: 0.5rem;
+
+  ul {
+    list-style-type: none;
+    padding-left: 0.5rem;
+    margin: 0;
+  }
+
+  li {
+    margin-bottom: 0.25rem;
+    display: flex;
+    align-items: center;
+  }
 }
 
 @media (max-width: 600px) {
