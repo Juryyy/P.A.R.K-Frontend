@@ -77,7 +77,8 @@
           color="primary"
           label="Update Password"
           type="submit"
-          :disable="!isPasswordStrong"
+          :disable="!isPasswordStrong || auth.loading.value"
+          :loading="auth.loading.value"
         >
           <template v-slot:loading>
             <q-spinner size="20px" />
@@ -90,14 +91,12 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed } from 'vue';
-import { useAuthStore } from '../../stores/authStore';
-import { QForm, Notify, Loading } from 'quasar';
-import { useUserStore } from 'src/stores/userStore';
+import { QForm } from 'quasar';
+import { useAuth } from 'src/composables/useAuth';
 
 const emit = defineEmits(['password-updated']);
 
-const authStore = useAuthStore();
-const userStore = useUserStore();
+const auth = useAuth();
 const passwordForm = ref<QForm | null>(null);
 
 const state = reactive({
@@ -178,45 +177,17 @@ const update = async () => {
 
   // Additional validation before submission
   if (!isPasswordStrong.value) {
-    Notify.create({
-      type: 'negative',
-      message: 'Please ensure your password meets all security requirements',
-      textColor: 'black'
-    });
     return;
   }
 
-  Loading.show();
+  const success = await auth.updatePassword(state.password, state.newPassword);
 
-  try {
-    await authStore.updatePassword(state.password, state.newPassword);
-    Notify.create({
-      type: 'positive',
-      message: 'Password updated successfully',
-      textColor: 'black'
-    });
+  if (success) {
     // Clear the form after successful update
     state.password = '';
     state.newPassword = '';
     state.newPasswordCheck = '';
-
-    await authStore.getToken();
-    userStore.getUserInfo();
-    await userStore.getProfile(Number(userStore.user.id));
-    if (userStore.user?.id) {
-      userStore.updatePasswordStatus();
-      await userStore.getProfile(Number(userStore.user.id));
-    }
     emit('password-updated');
-  } catch (error) {
-    console.error(error);
-    Notify.create({
-      type: 'negative',
-      message: 'Failed to update password. Please check your current password and try again.',
-      textColor: 'black'
-    });
-  } finally {
-    Loading.hide();
   }
 };
 </script>

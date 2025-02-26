@@ -43,7 +43,7 @@
                 label="Login"
                 type="submit"
                 color="primary"
-                :loading="loading"
+                :loading="auth.loading.value"
                 :disable="isAccountLocked"
               >
                 <template v-slot:loading>
@@ -95,8 +95,8 @@
                 label="Submit"
                 type="submit"
                 @click="validate"
-                :loading="loading"
-                :disable="loading || verificationCode.length !== 8"
+                :loading="auth.loading.value"
+                :disable="auth.loading.value || verificationCode.length !== 8"
               >
                 <template v-slot:loading>
                   <q-spinner size="20px" />
@@ -127,9 +127,9 @@
                 color="primary"
                 label="Reset Password"
                 type="submit"
-                @click="resetPassword"
-                :loading="loading"
-                :disable="loading"
+                @click="handlePasswordReset"
+                :loading="auth.loading.value"
+                :disable="auth.loading.value"
               >
                 <template v-slot:loading>
                   <q-spinner size="20px" />
@@ -147,23 +147,20 @@
 import { reactive, ref, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from 'src/stores/authStore';
-import { useUserStore } from 'src/stores/userStore';
-import { Loading, Notify } from 'quasar';
+import { useAuth } from 'src/composables/useAuth';
 
 const authStore = useAuthStore();
-const userStore = useUserStore();
 const router = useRouter();
+const auth = useAuth();
 
 const state = reactive({
   email: '',
   password: '',
   passwordHidden: true,
-  code: ''
 });
 
 const isCodeVerification = ref(false);
 const isForgotPassword = ref(false);
-const loading = ref(false);
 const verificationCode = ref('');
 const isAccountLocked = computed(() => authStore.isLocked);
 
@@ -184,19 +181,9 @@ const validate = async (event: Event) => {
   event.preventDefault();
   if (verificationCode.value.length !== 8) return;
 
-  loading.value = true;
-  try {
-    await authStore.verifyUser(state.email, verificationCode.value);
-    if (localStorage.getItem('token')) {
-      await loadUserData();
-    }
-  } catch (error) {
-    Notify.create({
-      type: 'negative',
-      message: 'Verification failed. Please check the code and try again.'
-    });
-  } finally {
-    loading.value = false;
+  const success = await auth.verifyCode(state.email, verificationCode.value);
+  if (success) {
+    router.push('/');
   }
 };
 
@@ -206,58 +193,25 @@ const onSubmit = async (event: Event) => {
   }
 
   if (isAccountLocked.value) {
-    Notify.create({
-      type: 'negative',
-      message: 'Account is temporarily locked due to too many failed attempts. Please try again later or reset your password.'
-    });
     return;
   }
 
   event.preventDefault();
-  loading.value = true;
-  try {
-    const success = await authStore.login(state.email, state.password);
-    if (success && authStore.verification === true) {
-      isCodeVerification.value = true;
-    }
-  } catch (error) {
-    Notify.create({
-      type: 'negative',
-      message: 'An error occurred. Please try again later.'
-    });
-  } finally {
-    loading.value = false;
+  const success = await auth.login(state.email, state.password);
+  if (success) {
+    isCodeVerification.value = true;
   }
 };
 
-const resetPassword = async (event: Event) => {
+const handlePasswordReset = async (event: Event) => {
   if (!state.email) {
     return;
   }
   event.preventDefault();
-  loading.value = true;
-  try {
-    await authStore.resetPassword(state.email);
-    Notify.create({
-      type: 'positive',
-      message: 'If your email is registered, a password reset email has been sent.'
-    });
-    clear();
-  } catch (error) {
-  } finally {
-    loading.value = false;
-  }
-};
 
-const loadUserData = async () => {
-  Loading.show();
-  try {
-    userStore.getUserInfo();
-    await userStore.getUsersAvatar();
-    await userStore.getUsersExams();
-    router.push('/');
-  } finally {
-    Loading.hide();
+  const success = await auth.resetPassword(state.email);
+  if (success) {
+    clear();
   }
 };
 
@@ -266,7 +220,6 @@ const clear = () => {
   isForgotPassword.value = false;
   state.email = '';
   state.password = '';
-  state.code = '';
   verificationCode.value = '';
 };
 </script>
