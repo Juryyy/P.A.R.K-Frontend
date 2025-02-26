@@ -23,6 +23,9 @@ const state = reactive({
 
 const initializeApp = async () => {
   try {
+    if (window.innerWidth <= 600) {
+      userStore.rightDrawerOpen = false;
+    }
     Loading.show({
       message: 'Loading data...',
       spinnerColor: 'amber',

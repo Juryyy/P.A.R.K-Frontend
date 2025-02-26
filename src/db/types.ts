@@ -185,7 +185,7 @@ export interface Location {
   id: number;
   name: string;
   venues: Venue[];
-  adminCentre: CentreEnum;
+  adminCentre: CentreEnum[];
 }
 
 export interface Author {

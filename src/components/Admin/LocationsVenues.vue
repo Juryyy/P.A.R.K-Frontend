@@ -33,6 +33,9 @@
             <q-chip v-for="centre in location.adminCentre" :key="centre" color="primary" text-color="white">{{ centre }}</q-chip>
           </div>
           <div>
+            <q-btn flat round color="primary" icon="edit" @click="editLocationDialog(location)">
+              <q-tooltip>Edit Location</q-tooltip>
+            </q-btn>
             <q-btn flat round color="negative" icon="delete" @click="removeLocation(location.id)">
               <q-tooltip>Remove Location</q-tooltip>
             </q-btn>
@@ -82,6 +85,12 @@
       </q-btn>
     </div>
   </div>
+
+  <LocationEdit
+    v-model:show="state.editLocation"
+    :location="selectedLocation!"
+  />
+
 
   <!-- Add Location Dialog -->
   <q-dialog v-model="state.showLocation">
@@ -149,10 +158,13 @@ import { useAdminStore } from 'src/stores/adminStore';
 import { Location } from 'src/db/types';
 import { Loading, Notify, Dialog } from 'quasar';
 import { CentreEnum } from 'src/db/types';
+import LocationEdit from './LocationEdit.vue';
+import { storeToRefs } from 'pinia';
 
 const adminStore = useAdminStore();
 
-const locations: Location[] = adminStore.locationsWithVenues;
+const { locationsWithVenues } = storeToRefs(adminStore);
+const locations: Location[] = locationsWithVenues.value;
 const locationsRef = ref(locations);
 const selectedLocation = ref<Location>();
 const venueName = ref('');
@@ -180,7 +192,15 @@ const columns = [
 const state = reactive({
   showLocation: false,
   showVenue: false,
+  editLocation: false,
+  editVenue: false,
 });
+
+
+const editLocationDialog = (location: Location) => {
+  selectedLocation.value = location;
+  state.editLocation = true;
+};
 
 const filteredLocations = computed(() => {
   if (selectedCentres.value.includes('All')) {
@@ -231,7 +251,6 @@ const addLocation = async () => {
       });
       return
     }
-    console.log(locationCentre.value);
     await adminStore.addLocation(locationName.value, locationCentre.value);
     await adminStore.getLocationsWithVenues();
     locationsRef.value = adminStore.locationsWithVenues;

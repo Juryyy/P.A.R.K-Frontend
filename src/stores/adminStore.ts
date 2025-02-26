@@ -42,7 +42,6 @@ export const useAdminStore = defineStore('admin', {
       centre: CentreEnum[]
     ) {
       try {
-        // Backend does not accept spaces in role
         const response = await api.post('/office/registerUser', {
           firstName,
           lastName,
@@ -246,5 +245,30 @@ export const useAdminStore = defineStore('admin', {
         });
       }
     },
+
+    async updateLocation(id: number, name: string, adminCentre: CentreEnum[]) {
+      try {
+        const response = await api.put('/office/updateLocation', {
+          id,
+          name,
+          adminCentre
+        });
+        Notify.create({
+          color: 'positive',
+          message: response.data.success,
+          position: 'bottom',
+          icon: 'check',
+          textColor: 'black',
+        });
+      }
+      catch (error : any) {
+        Notify.create({
+          color: 'negative',
+          message: error.response.data.error,
+          position: 'bottom',
+          icon: 'report_problem',
+        });
+      }
+    }
   },
 });
