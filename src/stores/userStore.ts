@@ -1,10 +1,15 @@
+// src/stores/userStore.ts
 import { defineStore } from 'pinia';
 import { api } from '../boot/axios';
 import { UserInfo, User } from '../db/types';
 import { ref } from 'vue';
-import { Notify } from 'quasar';
 import { jwtDecode } from 'jwt-decode';
 
+export interface UserResult {
+  success: boolean;
+  data?: any;
+  error?: string;
+}
 
 export const useUserStore = defineStore('user', {
   state: () => ({
@@ -13,7 +18,7 @@ export const useUserStore = defineStore('user', {
     userAvatar: ref(''),
     selectedUser: ref({} as User),
     selectedUserAvatar: ref(''),
-    users : ref([] as User[]),
+    users: ref([] as User[]),
     refreshTrigger: ref(0),
     lastRefreshTime: ref(0),
     updateConfirmation: ref(false),
@@ -21,8 +26,8 @@ export const useUserStore = defineStore('user', {
     rightDrawerOpen: ref(true),
   }),
   actions: {
-    triggerExamRefresh(){
-      this.refreshTrigger+=1;
+    triggerExamRefresh() {
+      this.refreshTrigger += 1;
     },
 
     setUserAvatar(newAvatarUrl: string) {
@@ -47,32 +52,39 @@ export const useUserStore = defineStore('user', {
       return this.user.id;
     },
 
-    async refreshUserInfo() {
-      this.getUserInfo();
-      this.user = { ...this.user };
+    async refreshUserInfo(): Promise<UserResult> {
+      try {
+        this.getUserInfo();
+        this.user = { ...this.user };
+        return { success: true };
+      } catch (error: any) {
+        return {
+          success: false,
+          error: error.message || 'Failed to refresh user information'
+        };
+      }
     },
 
-    async getUsersExams() {
+    async getUsersExams(): Promise<UserResult> {
       try {
         const currentTime = Date.now();
         if (currentTime - this.lastRefreshTime < 100) {
-          return this.usersExams;
+          return { success: true, data: this.usersExams };
         }
         this.lastRefreshTime = currentTime;
         const response = await api.get('/users/usersExams');
         this.usersExams = response.data;
         this.triggerExamRefresh()
-      } catch (error : any) {
-        Notify.create({
-          message: error.response.data.error,
-          color: 'red',
-          icon: 'report_problem',
-          position: 'bottom',
-        });
+        return { success: true, data: response.data };
+      } catch (error: any) {
+        return {
+          success: false,
+          error: error.response?.data?.error || 'Failed to get user exams'
+        };
       }
     },
 
-    async getUsersAvatar() {
+    async getUsersAvatar(): Promise<UserResult> {
       try {
         const response = await api.get('static/images/avatar', {
           responseType: 'arraybuffer',
@@ -86,31 +98,29 @@ export const useUserStore = defineStore('user', {
         const base64String = btoa(String.fromCharCode.apply(null, array));
 
         this.userAvatar = `data:image/jpeg;base64,${base64String}`;
-      } catch (error : any) {
-        Notify.create({
-          message: error.response.data.error,
-          color: 'red',
-          icon: 'report_problem',
-          position: 'bottom',
-        });
+        return { success: true };
+      } catch (error: any) {
+        return {
+          success: false,
+          error: error.response?.data?.error || 'Failed to get user avatar'
+        };
       }
     },
 
-    async getProfile(userId: number) {
+    async getProfile(userId: number): Promise<UserResult> {
       try {
         const response = await api.get(`/users/profile/${userId}`);
         this.selectedUser = response.data;
-      } catch (error : any) {
-        Notify.create({
-          message: error.response.data.error,
-          color: 'red',
-          icon: 'report_problem',
-          position: 'bottom',
-        });
+        return { success: true, data: response.data };
+      } catch (error: any) {
+        return {
+          success: false,
+          error: error.response?.data?.error || 'Failed to get user profile'
+        };
       }
     },
 
-    async getUserAvatarById(userId: number) {
+    async getUserAvatarById(userId: number): Promise<UserResult> {
       try {
         const response = await api.get(`static/images/${userId}`, {
           responseType: 'arraybuffer',
@@ -128,139 +138,114 @@ export const useUserStore = defineStore('user', {
         if (userId === this.user.id) {
           this.setUserAvatar(avatarUrl);
         }
-      } catch (error : any) {
-        Notify.create({
-          message: error.response.data.error,
-          color: 'red',
-          icon: 'report_problem',
-          position: 'bottom',
-        });
+        return { success: true };
+      } catch (error: any) {
+        return {
+          success: false,
+          error: error.response?.data?.error || 'Failed to get user avatar by ID'
+        };
       }
     },
 
-    async getAllUsers() {
+    async getAllUsers(): Promise<UserResult> {
       try {
         const response = await api.get('/users/allUsers');
         this.users = response.data;
-      } catch (error : any) {
-        Notify.create({
-          color: 'negative',
-          message: error.response.data.error,
-          position: 'bottom',
-          icon: 'report_problem',
-        });
+        return { success: true, data: response.data };
+      } catch (error: any) {
+        return {
+          success: false,
+          error: error.response?.data?.error || 'Failed to get all users'
+        };
       }
     },
 
-    async updateProfile(id: number, email: string, firstName: string, lastName: string, dateOfBirth : string, note : string | null, noteLonger : string | null, drivingLicense : boolean, phone : string | null, totaraDate: string | undefined, totaraDone: boolean, insperaAccount: boolean) {
+    async updateProfile(
+      id: number,
+      email: string,
+      firstName: string,
+      lastName: string,
+      dateOfBirth: string,
+      note: string | null,
+      noteLonger: string | null,
+      drivingLicense: boolean,
+      phone: string | null,
+      totaraDate: string | undefined,
+      totaraDone: boolean,
+      insperaAccount: boolean
+    ): Promise<UserResult> {
       try {
-      await api.put('/users/update', {
-        id,
-        email,
-        firstName,
-        lastName,
-        dateOfBirth,
-        note,
-        noteLonger,
-        drivingLicense,
-        phone,
-        totaraDate,
-        totaraDone,
-        insperaAccount,
-      });
-      Notify.create({
-        color: 'positive',
-        message: 'Profile updated',
-        position: 'bottom',
-        icon: 'check',
-        closeBtn: 'X',
-        textColor: 'black',
-      });
-      this.updateConfirmation = true;
-      }
-      catch (error : any) {
-        Notify.create({
-          color: 'negative',
-          message: error.response.data.error,
-          position: 'bottom',
-          icon: 'report_problem',
+        const response = await api.put('/users/update', {
+          id,
+          email,
+          firstName,
+          lastName,
+          dateOfBirth,
+          note,
+          noteLonger,
+          drivingLicense,
+          phone,
+          totaraDate,
+          totaraDone,
+          insperaAccount,
         });
+        this.updateConfirmation = true;
+        return { success: true, data: response.data };
+      } catch (error: any) {
+        return {
+          success: false,
+          error: error.response?.data?.error || 'Failed to update profile'
+        };
       }
-   },
+    },
 
-   async updateAdminNote (id: number, adminNote: string | null) {
-    try {
-      await api.put('/users/updateAdminNote', {
-        id,
-        adminNote,
-      });
-      Notify.create({
-        color: 'positive',
-        message: 'Admin note updated',
-        position: 'bottom',
-        icon: 'check',
-        closeBtn: 'X',
-        textColor: 'black',
-      });
-    } catch (error : any) {
-      Notify.create({
-        color: 'negative',
-        message: error.response.data.error,
-        position: 'bottom',
-        icon: 'report_problem',
-      });
-    }
-  },
+    async updateAdminNote(id: number, adminNote: string | null): Promise<UserResult> {
+      try {
+        const response = await api.put('/users/updateAdminNote', {
+          id,
+          adminNote,
+        });
+        return { success: true, data: response.data };
+      } catch (error: any) {
+        return {
+          success: false,
+          error: error.response?.data?.error || 'Failed to update admin note'
+        };
+      }
+    },
 
-  async uploadAvatar(file: File) {
-    const formData = new FormData();
-    formData.append('avatar', file);
-    try {
-      await api.post('/users/upload', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-      await this.getUsersAvatar();
-      Notify.create({
-        color: 'positive',
-        message: 'Avatar updated',
-        position: 'bottom',
-        icon: 'check',
-      });
-    } catch (error : any) {
-      Notify.create({
-        color: 'negative',
-        message: error.response.data.error,
-        position: 'bottom',
-        icon: 'report_problem',
-      });
-    }
-  },
+    async uploadAvatar(file: File): Promise<UserResult> {
+      try {
+        const formData = new FormData();
+        formData.append('avatar', file);
+        const response = await api.post('/users/upload', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+        return { success: true, data: response.data };
+      } catch (error: any) {
+        return {
+          success: false,
+          error: error.response?.data?.error || 'Failed to upload avatar'
+        };
+      }
+    },
 
-  async updateInsperaAccount(id: number, insperaAccount: boolean) {
-    try {
-      await api.put('/users/updateInspera', {
-        id,
-        insperaAccount,
-      });
-      Notify.create({
-        color: 'positive',
-        message: 'Inspera account updated',
-        position: 'bottom',
-        icon: 'check',
-        closeBtn: 'X',
-        textColor: 'black',
-      });
-    } catch (error : any) {
-      Notify.create({
-        color: 'negative',
-        message: error.response.data.error,
-        position: 'bottom',
-        icon: 'report_problem',
-      });
-    }
-  },
+    async updateInsperaAccount(id: number, insperaAccount: boolean): Promise<UserResult> {
+      try {
+        const response = await api.put('/users/updateInspera', {
+          id,
+          insperaAccount,
+        });
+        return { success: true, data: response.data };
+      } catch (error: any) {
+        return {
+          success: false,
+          error: error.response?.data?.error || 'Failed to update inspera account'
+        };
+      }
+    },
 
     clearSelectedUserInfo() {
       this.selectedUser = {} as User;
@@ -273,10 +258,10 @@ export const useUserStore = defineStore('user', {
 
     updatePasswordStatus() {
       this.user.passwordUpdated = true;
-  },
+    },
+
     toggleRightDrawer() {
       this.rightDrawerOpen = !this.rightDrawerOpen;
     },
   }
-
 });

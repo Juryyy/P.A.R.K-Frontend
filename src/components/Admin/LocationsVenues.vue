@@ -145,14 +145,13 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed } from 'vue';
-import { useAdminStore } from 'src/stores/adminStore';
 import { Location } from 'src/db/types';
-import { Loading, Notify, Dialog } from 'quasar';
+import { Dialog } from 'quasar';
 import { CentreEnum } from 'src/db/types';
+import { useAdmin } from 'src/composables/useAdmin';
+import { NotificationService } from 'src/utils/services/notificationService';
 
-const adminStore = useAdminStore();
-
-const locations: Location[] = adminStore.locationsWithVenues;
+const locations: Location[] = useAdmin().locationsWithVenues.value;
 const locationsRef = ref(locations);
 const selectedLocation = ref<Location>();
 const venueName = ref('');
@@ -208,41 +207,21 @@ const toggleFilter = (centre: string) => {
 
 const addLocation = async () => {
   if (!locationName.value) {
-    Notify.create({
-      message: 'Location name is required',
-      color: 'negative',
-      position: 'bottom',
-    });
+    NotificationService.error('Location name is required');
     return;
   }
-  Loading.show({
-    message: 'Adding location',
-    spinnerSize: 140,
-    spinnerColor: 'primary',
-    backgroundColor: 'grey-3'
-  });
 
-  try {
-    if(!locationCentre.value) {
-      Notify.create({
-        message: 'Centre is required',
-        color: 'negative',
-        position: 'bottom',
-      });
-      return
-    }
-    console.log(locationCentre.value);
-    await adminStore.addLocation(locationName.value, locationCentre.value);
-    await adminStore.getLocationsWithVenues();
-    locationsRef.value = adminStore.locationsWithVenues;
-    locationName.value = '';
-    locationCentre.value = [];
-    state.showLocation = false;
-  } catch (error) {
-    console.error(error);
-  } finally {
-    Loading.hide();
+  if(!locationCentre.value) {
+    NotificationService.error('Admin centre is required');
+    return;
   }
+
+  await useAdmin().addLocation(locationName.value, locationCentre.value);
+  await useAdmin().getLocationsWithVenues();
+  locationsRef.value = useAdmin().locationsWithVenues.value;
+  locationName.value = '';
+  locationCentre.value = [];
+  state.showLocation = false;
 };
 
 const removeLocation = async (locationId: number) => {
@@ -260,63 +239,29 @@ const removeLocation = async (locationId: number) => {
       flat: true
     },
   }).onOk(async () => {
-    Loading.show({
-      message: 'Removing location',
-      spinnerSize: 140,
-      spinnerColor: 'primary',
-      backgroundColor: 'grey-3'
-    });
-
-    try {
-      await adminStore.removeLocation(locationId);
-      await adminStore.getLocationsWithVenues();
-      locationsRef.value = adminStore.locationsWithVenues;
-    } catch (error) {
-      console.error(error);
-    } finally {
-      Loading.hide();
-    }
+      await useAdmin().removeLocation(locationId);
+      await useAdmin().getLocationsWithVenues();
+      locationsRef.value = useAdmin().locationsWithVenues.value;
   });
 };
 
 const addVenue = async (location: Location) => {
   if (!location) {
-    Notify.create({
-      message: 'No location selected',
-      color: 'negative',
-      position: 'bottom',
-    });
+    NotificationService.error('Location not found');
     return;
   }
 
   if (!venueName.value) {
-    Notify.create({
-      message: 'Venue name is required',
-      color: 'negative',
-      position: 'bottom',
-    });
+    NotificationService.error('Venue name is required');
     return;
   }
 
-  Loading.show({
-    message: 'Adding venue',
-    spinnerSize: 140,
-    spinnerColor: 'primary',
-    backgroundColor: 'grey-3'
-  });
-
-  try {
-    await adminStore.addVenue(location.id, venueName.value, venueLink.value);
-    await adminStore.getLocationsWithVenues();
-    locationsRef.value = adminStore.locationsWithVenues;
-    venueName.value = '';
-    venueLink.value = '';
-    state.showVenue = false;
-  } catch (error) {
-    console.error(error);
-  } finally {
-    Loading.hide();
-  }
+  await useAdmin().addVenue(location.id, venueName.value, venueLink.value);
+  await useAdmin().getLocationsWithVenues();
+  locationsRef.value = useAdmin().locationsWithVenues.value;
+  venueName.value = '';
+  venueLink.value = '';
+  state.showVenue = false;
 };
 
 const removeVenue = async (venue: number) => {
@@ -334,38 +279,21 @@ const removeVenue = async (venue: number) => {
       flat: true
     },
   }).onOk(async () => {
-    Loading.show({
-      message: 'Removing venue',
-      spinnerSize: 140,
-      spinnerColor: 'primary',
-      backgroundColor: 'grey-3'
-    });
-
-    try {
-      await adminStore.removeVenue(venue);
-      await adminStore.getLocationsWithVenues();
-      locationsRef.value = adminStore.locationsWithVenues;
-    } catch (error) {
-      console.error(error);
-    } finally {
-      Loading.hide();
-    }
+  await useAdmin().removeVenue(venue);
+  await useAdmin().getLocationsWithVenues();
+  locationsRef.value = useAdmin().locationsWithVenues.value;
   });
 };
 
 const showVenueDialog = (locationId: number) => {
   const location = locationsRef.value.find(loc => loc.id === locationId);
-  if (location) {
-    selectedLocation.value = location;
-    state.showVenue = true;
-  } else {
-    Notify.create({
-      message: 'Location not found',
-      color: 'negative',
-      position: 'bottom',
-      timeout: 2000,
-    });
+  if (!location) {
+    NotificationService.error('Location not found');
+    return
   }
+
+  selectedLocation.value = location;
+  state.showVenue = true;
 };
 
 const showMap = () => {

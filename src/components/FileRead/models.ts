@@ -1,12 +1,3 @@
-export interface Todo {
-  id: number;
-  content: string;
-}
-
-export interface Meta {
-  totalCount: number;
-}
-
 //Number of csv column in the file
 export type Candidate = {
   id: number;

@@ -102,7 +102,7 @@
                     {{ centre }}
                   </q-chip>
                 </div>
-                <q-popup-edit v-model="props.row.adminCentre" :disable="!currentUserRole.includes(RoleEnum.Office)">
+                <q-popup-edit v-model="props.row.adminCentre" :disable="!currentUserRole?.includes(RoleEnum.Office)">
                   <q-select
                     label="Centres"
                     v-model="props.row.adminCentre"
@@ -155,7 +155,7 @@
                     <q-tooltip>View {{ props.row.firstName }} {{ props.row.lastName }}'s profile</q-tooltip>
                   </q-btn>
                   <q-btn
-                    v-if="currentUserRole.includes(RoleEnum.Office)"
+                    v-if="currentUserRole?.includes(RoleEnum.Office)"
                     @click="deactivateUser(props.row)"
                     color="red"
                     icon="person_off"
@@ -172,7 +172,7 @@
           <template v-slot:bottom>
             <div class="row items-center justify-between full-width q-px-sm">
               <q-btn
-              :disable="!currentUserRole.includes(RoleEnum.Office)"
+              :disable="!currentUserRole?.includes(RoleEnum.Office)"
               class="on right"
               @click="state.newUser = true"
               color="primary"
@@ -258,18 +258,16 @@
 <script setup lang="ts">
 import { ref, reactive, computed, watch, nextTick } from 'vue';
 import { RoleEnum, LevelEnum, ExtendedUser, CentreEnum } from 'src/db/types';
-import { useUserStore } from 'src/stores/userStore';
-import { useAdminStore } from 'src/stores/adminStore';
 import { useRouter } from 'vue-router';
 import _ from 'lodash';
 import { getRoleColor, getLevelColor } from 'src/helpers/Color';
 import { sortRoles, sortLevels, sortCentres } from 'src/helpers/FormatRole';
+import { useUser } from 'src/composables/useUser';
+import { useAdmin } from 'src/composables/useAdmin';
 
-const userStore = useUserStore();
-const adminStore = useAdminStore();
 const router = useRouter();
 
-const usersRef = ref<ExtendedUser[]>(userStore.users.map(user => ({
+const usersRef = ref<ExtendedUser[]>(useUser().users.map(user => ({
   ...user,
   role: user.role || [],
   level: user.level || [],
@@ -303,11 +301,11 @@ const filteredUsersRef = computed(() => {
 
 const filteredUsersCount = computed(() => filteredUsersRef.value.length);
 
-const currentUserRole = computed(() => userStore.getUserRole());
+const currentUserRole = computed(() => useUser().getUserRole());
 
 const canEditSenior = computed(() => {
   const roles = currentUserRole.value;
-  return roles.includes(RoleEnum.Office) || roles.includes(RoleEnum.Developer);
+  return roles?.includes(RoleEnum.Office) || roles?.includes(RoleEnum.Developer);
 });
 
 const columns: any[] = [
@@ -356,11 +354,11 @@ const newUser = ref({
 const newUserForm = ref(null);
 
 async function addUser() {
-  await adminStore.registerUser(newUser.value.firstName, newUser.value.lastName, newUser.value.email, newUser.value.role, newUser.value.centre);
+  await useAdmin().registerUser(newUser.value.firstName, newUser.value.lastName, newUser.value.email, newUser.value.role, newUser.value.centre);
   newUser.value = { firstName: '', lastName: '', email: '', role: [], level: [], isSenior: false, centre: [] };
   state.newUser = false;
-  await userStore.getAllUsers();
-  usersRef.value = userStore.users.map(user => ({
+  await useUser().getAllUsers();
+  usersRef.value = useUser().users.map(user => ({
   ...user,
   role: user.role || [],
   level: user.level || [],
@@ -381,16 +379,16 @@ async function editUser(item: ExtendedUser) {
   const index = usersRef.value.indexOf(item);
   const updatedUser = { ...item };
   if (updatedUser.isRoleChanged) {
-    await adminStore.updateUserRole(updatedUser.id, updatedUser.role);
+    await useAdmin().updateUserRole(updatedUser.id, updatedUser.role);
   }
   if (updatedUser.isLevelChanged) {
-    await adminStore.updateUserLevel(updatedUser.id, updatedUser.level);
+    await useAdmin().updateUserLevel(updatedUser.id, updatedUser.level);
   }
   if (updatedUser.isSeniorChanged) {
-    await adminStore.updateUserIsSenior(updatedUser.id, updatedUser.isSenior);
+    await useAdmin().updateUserIsSenior(updatedUser.id, updatedUser.isSenior);
   }
   if (updatedUser.isCentreChanged) {
-    await adminStore.updateUserAdminCentre(updatedUser.id, updatedUser.adminCentre);
+    await useAdmin().updateUserAdminCentre(updatedUser.id, updatedUser.adminCentre);
   }
   usersRef.value[index] = updatedUser;
   updatedUser.isRoleChanged = false;
@@ -404,9 +402,9 @@ async function editUser(item: ExtendedUser) {
 }
 
 async function deactivateUser(user: ExtendedUser) {
-  await adminStore.deactivateUser(user.id);
-  await userStore.getAllUsers();
-  usersRef.value = userStore.users.map(user => ({
+  await useAdmin().deactivateUser(user.id);
+  await useUser().getAllUsers();
+  usersRef.value = useUser().users.map(user => ({
   ...user,
   role: user.role || [],
   level: user.level || [],

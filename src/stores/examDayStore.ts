@@ -1,8 +1,14 @@
+// src/stores/examDayStore.ts
 import { defineStore } from 'pinia';
 import { api } from '../boot/axios';
-import { Notify } from 'quasar';
 import { ref } from 'vue';
 import { CentreEnum, dayResponse, DayOfExams } from '../db/types';
+
+export interface ExamDayResult {
+  success: boolean;
+  data?: any;
+  error?: string;
+}
 
 export const useExamDayStore = defineStore('examDay', {
   state: () => ({
@@ -12,7 +18,7 @@ export const useExamDayStore = defineStore('examDay', {
     allExamDays: ref([]),
   }),
   actions: {
-    async loadExamDays(centre: CentreEnum) {
+    async loadExamDays(centre: CentreEnum): Promise<ExamDayResult> {
       try {
         const response = await api.get<DayOfExams[]>('/examDays/examDays', {
           params: { centre }
@@ -28,17 +34,16 @@ export const useExamDayStore = defineStore('examDay', {
         });
 
         this.upcomingExamDays = Array.from(existingExamDays.values());
+        return { success: true, data: this.upcomingExamDays };
       } catch (error: any) {
-        Notify.create({
-          color: 'negative',
-          message: error.response.data.error,
-          position: 'bottom',
-          icon: 'report_problem',
-        });
+        return {
+          success: false,
+          error: error.response?.data?.error || 'Failed to load exam days'
+        };
       }
     },
 
-    async loadExamDaysAvailability(centre: CentreEnum) {
+    async loadExamDaysAvailability(centre: CentreEnum): Promise<ExamDayResult> {
       try {
         const response = await api.get<DayOfExams[]>('/examDays/examDays', {
           params: { centre }
@@ -52,46 +57,42 @@ export const useExamDayStore = defineStore('examDay', {
               !this.availabilityExamDays.find(existingDay => existingDay.id === newDay.id)
             )
           );
+        return { success: true, data: this.availabilityExamDays };
       } catch (error: any) {
-        Notify.create({
-          color: 'negative',
-          message: error.response.data.error,
-          position: 'bottom',
-          icon: 'report_problem',
-        });
+        return {
+          success: false,
+          error: error.response?.data?.error || 'Failed to load exam days for availability'
+        };
       }
     },
 
-    async loadAllExamDays(centre: CentreEnum) {
+    async loadAllExamDays(centre: CentreEnum): Promise<ExamDayResult> {
       try {
-        const response = await api.get('/examDays/all',{
+        const response = await api.get('/examDays/all', {
           params: {
             centre: centre
           }
         });
         this.allExamDays = response.data;
-      } catch (error : any ) {
-        Notify.create({
-          color: 'negative',
-          message: error.response.data.error,
-          position: 'bottom',
-          icon: 'report_problem',
-        });
+        return { success: true, data: response.data };
+      } catch (error: any) {
+        return {
+          success: false,
+          error: error.response?.data?.error || 'Failed to load all exam days'
+        };
       }
     },
 
-    async loadResponsesForExamDay(id: number) {
+    async loadResponsesForExamDay(id: number): Promise<ExamDayResult> {
       try {
         const response = await api.get(`/responses/responsesExamDay/${id}`);
         this.responsesForExamDay = response.data;
-        console.log('responses:', this.responsesForExamDay);
-      } catch (error : any ) {
-        Notify.create({
-          color: 'negative',
-          message: error.response.data.error,
-          position: 'bottom',
-          icon: 'report_problem',
-        });
+        return { success: true, data: response.data };
+      } catch (error: any) {
+        return {
+          success: false,
+          error: error.response?.data?.error || 'Failed to load responses for exam day'
+        };
       }
     },
 
@@ -100,97 +101,62 @@ export const useExamDayStore = defineStore('examDay', {
       isForInvigilators: boolean,
       isForExaminers: boolean,
       centre: CentreEnum
-    ) {
+    ): Promise<ExamDayResult> {
       try {
-        await api.post('/examDays/create', {
+        const response = await api.post('/examDays/create', {
           date: date,
           isForInvigilators: isForInvigilators,
           isForExaminers: isForExaminers,
           centre: centre,
         });
-        Notify.create({
-          color: 'positive',
-          message: 'Exam day added',
-          position: 'bottom',
-          icon: 'check',
-          textColor: 'black',
-        });
-      } catch (error : any ) {
-        Notify.create({
-          color: 'negative',
-          message: error.response.data.error,
-          position: 'bottom',
-          icon: 'report_problem',
-        });
+        return { success: true, data: response.data };
+      } catch (error: any) {
+        return {
+          success: false,
+          error: error.response?.data?.error || 'Failed to add exam day'
+        };
       }
     },
 
-    async deleteExamDay(id: number) {
+    async deleteExamDay(id: number): Promise<ExamDayResult> {
       try {
-        await api.delete(`/examDays/delete/${id}`);
-        Notify.create({
-          color: 'positive',
-          message: 'Exam day deleted',
-          position: 'bottom',
-          icon: 'check',
-          textColor: 'black',
-        });
-      } catch (error : any ) {
-        Notify.create({
-          color: 'negative',
-          message: error.response.data.error,
-          position: 'bottom',
-          icon: 'report_problem',
-        });
+        const response = await api.delete(`/examDays/delete/${id}`);
+        return { success: true, data: response.data };
+      } catch (error: any) {
+        return {
+          success: false,
+          error: error.response?.data?.error || 'Failed to delete exam day'
+        };
       }
     },
 
-    async changeLock(id: number) {
+    async changeLock(id: number): Promise<ExamDayResult> {
       try {
-        await api.put(`/examDays/changeLock/${id}`);
-        Notify.create({
-          color: 'positive',
-          message: 'Lock changed',
-          position: 'bottom',
-          icon: 'check',
-          textColor: 'black',
-        });
-      } catch (error : any ) {
-        Notify.create({
-          color: 'negative',
-          message: error.response.data.error,
-          position: 'bottom',
-          icon: 'report_problem',
-        });
+        const response = await api.put(`/examDays/changeLock/${id}`);
+        return { success: true, data: response.data };
+      } catch (error: any) {
+        return {
+          success: false,
+          error: error.response?.data?.error || 'Failed to change lock status'
+        };
       }
     },
 
-      async informUsers(startDate : string, endDate : string, dateOfSubmits : string, centre : CentreEnum) {
-        try {
-          await api.post('/examDays/informUsers', {
-            startDate: startDate,
-            endDate: endDate,
-            dateOfSubmits: dateOfSubmits,
-            centre: centre,
-          });
-          Notify.create({
-            color: 'positive',
-            message: 'Users informed',
-            position: 'bottom',
-            icon: 'check',
-            textColor: 'black',
-          });
-        } catch (error: any) {
-          let errorMessage = 'Error during informing users';
-          errorMessage = error.response.data.error;
-
-          Notify.create({
-            color: 'negative',
-            message: errorMessage,
-            position: 'bottom',
-            icon: 'report_problem',
-          });
-        }
+    async informUsers(startDate: string, endDate: string, dateOfSubmits: string, centre: CentreEnum): Promise<ExamDayResult> {
+      try {
+        const response = await api.post('/examDays/informUsers', {
+          startDate: startDate,
+          endDate: endDate,
+          dateOfSubmits: dateOfSubmits,
+          centre: centre,
+        });
+        return { success: true, data: response.data };
+      } catch (error: any) {
+        return {
+          success: false,
+          error: error.response?.data?.error || 'Failed to inform users'
+        };
       }
-    },
+    }
+  },
 });

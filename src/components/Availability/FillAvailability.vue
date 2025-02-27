@@ -38,7 +38,7 @@
             <q-tr
               :props="props"
               :class="{ 'new-response': !props.row.hasSeen }"
-              @mounted="handleResponseSeen(props.row.id)"
+              @mounted="handleResponseSeen()"
             >
               <q-td v-for="col in props.cols" :key="col.name" :props="props">
                 <template v-if="col.name === 'date'">
@@ -99,17 +99,14 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { useAvailabilityStore } from '../../stores/availabilityStore';
-import { storeToRefs } from 'pinia';
 import { UserResponses, UserAnswers } from 'src/db/types';
+import { useAvailability } from 'src/composables/useAvailability';
 
 const props = defineProps<{
   centre: string;
 }>();
 
-const availabilityStore = useAvailabilityStore();
-const { userResponses } = storeToRefs(availabilityStore);
-
+const userResponses = computed(() => useAvailability().userResponses.value);
 const submitting = ref(false);
 
 const centreResponses = computed<UserResponses[]>(() => {
@@ -157,8 +154,8 @@ const getChipColor = (value: string) => {
   }
 };
 
-const handleResponseSeen = async (responseId: number) => {
-  await availabilityStore.loadResponsesForUser();
+const handleResponseSeen = async () => {
+  await useAvailability().loadResponsesForUser();
 };
 
 const handleSubmit = async () => {
@@ -169,7 +166,7 @@ const handleSubmit = async () => {
       response: day.response,
       centre: day.centre,
     }));
-    await availabilityStore.submitResponses(answers);
+    await useAvailability().submitResponses(answers);
   } finally {
     submitting.value = false;
   }

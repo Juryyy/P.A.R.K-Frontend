@@ -1,9 +1,14 @@
+// src/stores/candidateStore.ts
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import type { Candidate } from '../components/FileRead/models';
 import { api } from '../boot/axios';
-import { Notify } from 'quasar';
 
+export interface CandidateResult {
+  success: boolean;
+  data?: any;
+  error?: string;
+}
 
 export const useCandidateStore = defineStore('candidateImportStore', {
   state: () => ({
@@ -24,25 +29,19 @@ export const useCandidateStore = defineStore('candidateImportStore', {
       }
     },
 
-    async uploadCandidates(){
-      try{
+    async uploadCandidates(): Promise<CandidateResult> {
+      try {
         this.isProcessing = true;
         const response = await api.post('/candidates/create', this.candidates);
-        Notify.create({
-          color: 'positive',
-          message: response.data.success,
-          position: 'bottom',
-          icon: 'check',
-          textColor: 'black',
-        });
-      }catch(error : any){
-        Notify.create({
-          color: 'negative',
-          message: error.response.data.error,
-          position: 'bottom',
-          icon: 'report_problem',
-        });
-    }
-  },
+        this.isProcessing = false;
+        return { success: true, data: response.data };
+      } catch (error: any) {
+        this.isProcessing = false;
+        return {
+          success: false,
+          error: error.response?.data?.error || 'Failed to upload candidates'
+        };
+      }
+    },
   }
 });

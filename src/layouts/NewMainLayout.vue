@@ -12,9 +12,9 @@
         />
         <q-toolbar-title v-if="!isMobile"> P.A.R.K. App </q-toolbar-title>
         <q-toolbar-title v-else></q-toolbar-title>
-        <div v-if="!userStore.rightDrawerOpen" class="q-gutter-md row items-center">
+        <div v-if="!useUser().rightDrawerOpen" class="q-gutter-md row items-center">
           <q-avatar size="md" class="clickable-avatar" @click="viewUser(user)">
-            <img :src="userStore.userAvatar" alt="User Avatar" />
+            <img :src="useUser().userAvatar" alt="User Avatar" />
           </q-avatar>
           <div class="user-info row items-center">
             <q-icon
@@ -86,12 +86,12 @@
       </div>
     </q-drawer>
     </div>
-    <q-drawer v-model="userStore.rightDrawerOpen" side="right" elevated class="right-drawer">
+    <q-drawer v-model="useUser().rightDrawerOpen" side="right" elevated class="right-drawer">
       <div class="user-info-section">
         <q-img src="/background.jpg" style="height: 150px">
           <div class="bg-transparent absolute-center q-pa-md drawer-avatar-box">
             <q-avatar size="80px" class="q-mr-md clickable-avatar" @click="viewUser(user)">
-              <img :src="userStore.userAvatar" alt="User Avatar" />
+              <img :src="useUser().userAvatar" alt="User Avatar" />
             </q-avatar>
             <div>
               <div class="text-weight-bold">
@@ -203,53 +203,42 @@
 <script setup lang="ts">
 import { computed, onBeforeMount, ref, nextTick, watch, onMounted } from 'vue';
 import EssentialLink, { EssentialLinkProps } from 'components/Auth_nav/EssentialLink.vue';
-import { useUserStore } from 'src/stores/userStore';
-import { useAuthStore } from 'src/stores/authStore';
-import { useExamStore } from 'src/stores/examStore';
 import { router } from 'src/router/index';
 import { ExamWithVenueLink, RoleEnum } from 'src/db/types';
 import { Loading } from 'quasar';
+
 import { getRoleColor } from 'src/helpers/Color';
 import { sortRoles } from 'src/helpers/FormatRole';
 import { formatDateString, formatTimeString } from 'src/helpers/FormatTime';
-import { storeToRefs } from 'pinia';
-import { useAvailabilityStore } from 'src/stores/availabilityStore';
-import { useSubstitutionStore } from 'src/stores/substitutionStore';
 
-const userStore = useUserStore();
-const authStore = useAuthStore();
-const examStore = useExamStore();
-const availabilityStore = useAvailabilityStore();
-const substitutionStore = useSubstitutionStore();
+import { useUser } from 'src/composables/useUser';
+import { useAvailability } from 'src/composables/useAvailability';
+import { useSubstitution } from 'src/composables/useSubstitution';
+import { useAuth } from 'src/composables/useAuth';
+import { LoadingService } from 'src/utils/services/loadingService';
 
 onBeforeMount(async () => {
-  Loading.show({
-    message: 'Loading users exams',
-    spinnerColor: 'amber',
-    messageColor: 'amber',
-    backgroundColor: 'black',
-  });
-  usersExamsRef.value = userStore.usersExams as ExamWithVenueLink[];
-  await userStore.getUsersAvatar();
-  await availabilityStore.countNewResponses();
-  await substitutionStore.getCountOfOpenSubstitutions();
+  LoadingService.show('Loading data...');
+  usersExamsRef.value = useUser().usersExams as ExamWithVenueLink[];
+  await useUser().getUsersAvatar();
+  await useAvailability().countNewResponses();
+  await useSubstitution().getCountOfOpenSubstitutions();
   Loading.hide();
 });
 
 const logout = async () => {
-  await authStore.logout();
+  await useAuth().logout();
   router.push('/login');
 };
-const { usersExams, refreshTrigger} = storeToRefs(userStore);
+
 const usersExamsRef = ref<ExamWithVenueLink[]>([]);
-const user = computed(() => userStore.user);
+const user = computed(() => useUser().user);
 const showNoteDialog = ref(false);
 const selectedNote = ref('');
 const isInitialMount = ref(true);
 
-//This part is for fetching number for notification count
-const availabilityCount = computed(() => availabilityStore.newResponses);
-const subsCount = computed(() => substitutionStore.count);
+const availabilityCount = computed(() => useAvailability().newResponses.value);
+const subsCount = computed(() => useSubstitution().count.value);
 
 const shouldShowMoreLink = (note: string | undefined) => {
   const maxLength = 19;
@@ -343,7 +332,7 @@ const drawerLeft = ref(false);
 
 
 function toggleRightDrawer() {
-  userStore.toggleRightDrawer();
+  useUser().toggleRightDrawer();
 }
 
 const miniState = ref(true);
@@ -367,7 +356,6 @@ const addToGoogleCalendar = (exam: ExamWithVenueLink) => {
   const startDate = new Date(exam.startTime);
   const endDate = new Date(exam.endTime);
 
-  // Adjust the time by subtracting one hour
   startDate.setHours(startDate.getHours() - 1);
   endDate.setHours(endDate.getHours() - 1);
 
@@ -392,7 +380,7 @@ const viewExam = async (examId: number) => {
 };
 
 const getUserConfirmationStatus = (exam: ExamWithVenueLink) => {
-  const userId = userStore.user?.id;
+  const userId = useUser().user.value.id;
   const userConfirmation = exam.userConfirmations?.find(
     (confirmation) => confirmation.userId === userId && confirmation.examId === exam.id
   );
@@ -404,13 +392,13 @@ const getUserConfirmationStatus = (exam: ExamWithVenueLink) => {
 };
 
 watch(
-  () => refreshTrigger.value,
+  () => useUser().refreshTrigger,
   async () => {
     if (isInitialMount.value) {
       isInitialMount.value = false;
       return;
     }
-    const updatedExams = await userStore.getUsersExams();
+    const updatedExams = await useUser().getUsersExams();
     if (updatedExams) {
       usersExamsRef.value = updatedExams;
     }
@@ -418,7 +406,7 @@ watch(
 );
 
 onMounted(async () => {
-  const updatedExams = await userStore.getUsersExams();
+  const updatedExams = await useUser().getUsersExams();
   if (updatedExams) {
     usersExamsRef.value = updatedExams;
   }

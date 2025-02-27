@@ -290,20 +290,17 @@
 
 <script setup lang="ts">
 import { ref, reactive, onBeforeMount, computed} from 'vue';
-import { usePostStore } from 'src/stores/postStore';
-import { useUserStore } from 'src/stores/userStore';
-import { Post, RoleEnum, User, PostWithAvatar } from 'src/db/types';
+import { Post, RoleEnum, User } from 'src/db/types';
 import { Loading, Notify, Dialog } from 'quasar';
 import { getFileIcon } from 'src/helpers/FileType';
+import { useUser } from 'src/composables/useUser';
+import { usePost } from 'src/composables/usePost';
+import { NotificationService } from 'src/utils/services/notificationService';
 
-const postStore = usePostStore();
-const userStore = useUserStore();
+const user = useUser().user;
+const users = useUser().users
+const posts = ref(usePost().posts);
 
-const user = userStore.user;
-const { users } = useUserStore();
-const posts = postStore.posts;
-
-const postsRef = ref(posts);
 const usersRef = ref<User[]>(users);
 const loadingFiles = reactive<{ [key: number]: boolean }>({});
 const editingPost = reactive<{ [key: number]: boolean }>({});
@@ -317,10 +314,10 @@ const editedPost = reactive<Post>({
 
 const searchQuery = ref('');
 const filteredPosts = computed(() => {
-  if (!searchQuery.value) return postsRef.value;
+  if (!searchQuery.value) return posts.value;
 
   const query = searchQuery.value.toLowerCase();
-  return postsRef.value.filter((post) =>
+  return posts.value.filter((post) =>
     (post.title ?? '').toLowerCase().includes(query) ||
     (post.content ?? '').toLowerCase().includes(query) ||
     (post.taggedRoles ?? []).some(role => (role ?? '').toLowerCase().includes(query))
@@ -331,7 +328,7 @@ const editFileUploads = reactive<{ [key: number]: File[] }>({});
 
 onBeforeMount(async () => {
   roles.value = Object.values(RoleEnum);
-  usersRef.value = userStore.users.map((user) => ({ ...user }));
+  usersRef.value = useUser().users.map((user) => ({ ...user }));
 });
 
 const newPost = reactive<Post>({
@@ -383,12 +380,10 @@ const removeFile = (index: number) => {
 };
 
 const save = async () => {
-  Loading.show({
-    message: 'Uploading post...',
-    spinnerColor: 'amber',
-    messageColor: 'amber',
-    backgroundColor: 'black',
-  });
+  if (!newPost.title || !newPost.content) {
+    NotificationService.error('Title and content are required');
+    return;
+  }
 
   const formData = new FormData();
   formData.append('title', newPost.title);
@@ -404,24 +399,15 @@ const save = async () => {
     formData.append('files', file);
   });
 
-  try {
-    await postStore.addPost(formData);
-    show.value = false;
-    await postStore.getPosts();
-    postsRef.value = postStore.posts;
-    newPost.title = '';
-    newPost.content = '';
-    newPost.taggedRoles = [];
-    newPost.users = [];
-    selectedFiles.value = [];
-  } catch (error) {
-    Notify.create({
-      message: 'Failed to upload post',
-      color: 'negative',
-    });
-  } finally {
-    Loading.hide();
-  }
+  await usePost().addPost(formData);
+  show.value = false;
+  await usePost().getPosts();
+  posts.value.splice(0, posts.value.length, ...usePost().posts.value);
+  newPost.title = '';
+  newPost.content = '';
+  newPost.taggedRoles = [];
+  newPost.users = [];
+  selectedFiles.value = [];
 };
 
 const deletePost = async (postId: number) => {
@@ -437,27 +423,16 @@ const deletePost = async (postId: number) => {
       color: 'primary',
     },
   }).onOk(async () => {
-    Loading.show({
-    message: 'Deleting post...',
-    spinnerColor: 'red',
-    messageColor: 'red',
-    backgroundColor: 'black',
-  });
-  try {
-    await postStore.deletePost(postId);
-    await postStore.getPosts();
-    postsRef.value = postStore.posts;
-  }
-    finally {
-    Loading.hide();
-  }
+    await usePost().deletePost(postId);
+    await usePost().getPosts();
+    posts.value.splice(0, posts.value.length, ...usePost().posts.value);
   });
 };
 
 const downloadFile = async (fileId: number, fileName: string) => {
   loadingFiles[fileId] = true;
   try {
-    await postStore.downloadFile(fileId, fileName);
+    await usePost().downloadFile(fileId, fileName);
   } finally {
     loadingFiles[fileId] = false;
   }
@@ -468,7 +443,7 @@ const formatDate = (date: Date | undefined) => {
 };
 
 const userOptions = computed(() => {
-  return userStore.users.map((user) => ({
+  return useUser().users.map((user) => ({
     label: `${user.firstName} ${user.lastName}`,
     value: user.id,
   }));
@@ -479,14 +454,14 @@ type UpdateFunction = (callback: () => void) => void;
 const filterFn = (val: string, update: UpdateFunction) => {
   if (val === '') {
     update(() => {
-      usersRef.value = userStore.users.map((user) => ({ ...user }));
+      usersRef.value = useUser().users.map((user) => ({ ...user }));
     });
     return;
   }
 
   update(() => {
     const needle = val.toLowerCase();
-    usersRef.value = userStore.users.filter((user) =>
+    usersRef.value = useUser().users.filter((user) =>
       `${user.firstName} ${user.lastName}`.toLowerCase().includes(needle)
     );
   });
@@ -536,7 +511,7 @@ const removeEditFile = (postId: number, index: number) => {
 
 const removeExistingFile = (postId: number | undefined, fileId: number) => {
   if (postId !== undefined) {
-    const post = postsRef.value.find(p => p.id === postId);
+    const post = posts.value.find(p => p.id === postId);
     if (post && post.files) {
       post.files = post.files.filter(f => f.id !== fileId);
     }
@@ -544,20 +519,10 @@ const removeExistingFile = (postId: number | undefined, fileId: number) => {
 };
 
 const saveEdit = async (postId: number | undefined) => {
-  if (postId === undefined) return;
-
-  Loading.show({
-    message: 'Updating post...',
-    spinnerColor: 'primary',
-    messageColor: 'primary',
-    backgroundColor: 'black',
-  });
-  Notify.create({
-    message: 'Not implemented yet!',
-    color: 'warning',
-    icon: 'warning',
-  });
-  Loading.hide();
+  if (postId === undefined){
+    NotificationService.error('Could not find post to edit');
+    return;
+  }
   cancelEdit(postId);
 };
 </script>

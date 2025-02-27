@@ -6,14 +6,12 @@
 
 <script setup lang="ts">
 import { reactive } from 'vue';
-import { useUserStore } from 'src/stores/userStore';
-import { useAuthStore } from './stores/authStore';
 import { useRouter } from 'vue-router';
 import { LoadingService } from './utils/services/loadingService';
 import { NotificationService } from './utils/services/notificationService';
+import { useUser } from './composables/useUser';
+import { useAuth } from './composables/useAuth';
 
-const userStore = useUserStore();
-const authStore = useAuthStore();
 const router = useRouter();
 
 const state = reactive({
@@ -37,38 +35,38 @@ const initializeApp = async () => {
     }
 
     try {
-      const user = userStore.getUserInfo();
+      const user = useUser().getUserInfo();
 
-      if (!user.email) {
-        const tokenResult = await authStore.getToken();
-        if (!tokenResult.success) {
+      if (!user?.email) {
+        const tokenResult = await useAuth().getToken();
+        if (!tokenResult) {
           router.push('/login');
           state.isLoaded = true;
           return;
         }
 
-        userStore.getUserInfo();
+        useUser().getUserInfo();
       }
 
       await Promise.all([
-        userStore.getUsersExams(),
-        userStore.getUsersAvatar()
+        useUser().getUsersExams(),
+        useUser().getUsersAvatar()
       ]);
 
       state.isLoaded = true;
     } catch (error) {
       try {
-        const tokenResult = await authStore.getToken();
-        if (!tokenResult.success) {
+        const tokenResult = await useAuth().getToken();
+        if (!tokenResult) {
           router.push('/login');
           state.isLoaded = true;
           return;
         }
 
-        userStore.getUserInfo();
+        useUser().getUserInfo();
         await Promise.all([
-          userStore.getUsersExams(),
-          userStore.getUsersAvatar()
+          useUser().getUsersExams(),
+          useUser().getUsersAvatar()
         ]);
 
         state.isLoaded = true;
@@ -92,3 +90,5 @@ const initializeApp = async () => {
 };
 
 initializeApp();
+
+</script>

@@ -180,17 +180,16 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue';
-import { useExamDayStore } from '../../stores/examDayStore';
+import { useExamDay } from '../../composables/useExamDay';
 import { CentreEnum } from 'src/db/types';
-import { useQuasar } from 'quasar';
+import { Dialog } from 'quasar';
+import { NotificationService } from 'src/utils/services/notificationService';
 
 const props = defineProps<{
   centre: CentreEnum;
 }>();
 
-const $q = useQuasar();
-const examDayStore = useExamDayStore();
-const examDays = computed(() => examDayStore.availabilityExamDays);
+const examDays = computed(() => useExamDay().availabilityExamDays.value);
 const search = ref('');
 const currentDate = new Date();
 
@@ -232,13 +231,12 @@ const filteredExamDays = computed(() => {
 
 const addDate = async () => {
   const sDate = new Date(state.date);
-  await examDayStore.addExamDay(sDate, state.invigilators, state.examiners, props.centre);
-  await examDayStore.loadExamDaysAvailability(props.centre);
+  await useExamDay().addExamDay(sDate, state.invigilators, state.examiners, props.centre);
+  await useExamDay().loadExamDaysAvailability(props.centre);
 };
 
 const openInformDialog = () => {
-  const nonLockedDays = examDays.value
-    .filter(day => !day.isLocked && day.adminCentre === props.centre);
+  const nonLockedDays = examDays.value?.filter(day => !day.isLocked && day.adminCentre === props.centre) || [];
 
   if (nonLockedDays.length > 0) {
     informUsersForm.startDate = formatDateForInput(nonLockedDays[0].date);
@@ -254,16 +252,13 @@ const formatDateForInput = (date: Date | string) => {
 
 const submitInformUsers = async () => {
   if (!informUsersForm.startDate || !informUsersForm.endDate || !informUsersForm.dateOfSubmission) {
-    $q.notify({
-      message: 'All fields are required!',
-      color: 'negative',
-    });
+    NotificationService.error('Please fill in all fields');
     return;
   }
 
   state.loadingSend = true;
   try {
-    await examDayStore.informUsers(informUsersForm.startDate, informUsersForm.endDate, informUsersForm.dateOfSubmission, props.centre);
+    await useExamDay().informUsers(informUsersForm.startDate, informUsersForm.endDate, informUsersForm.dateOfSubmission, props.centre);
   } catch (error) {
     console.error(error);
   } finally {
@@ -283,7 +278,7 @@ const formatDate = (date: Date) => {
 };
 
 const deleteExamDay = async (id: number) => {
-  $q.dialog({
+  Dialog.create({
     title: 'Confirm Deletion',
     message: 'Are you sure you want to delete this exam day?',
     ok: {
@@ -296,19 +291,8 @@ const deleteExamDay = async (id: number) => {
     },
     persistent: true
   }).onOk(async () => {
-    try {
-      $q.loading.show();
-      await examDayStore.deleteExamDay(id);
-      await examDayStore.loadExamDaysAvailability(props.centre);
-    } catch (error) {
-      console.error('Error deleting exam day:', error);
-      $q.notify({
-        message: 'Failed to delete exam day',
-        color: 'negative'
-      });
-    } finally {
-      $q.loading.hide();
-    }
+      await useExamDay().deleteExamDay(id);
+      await useExamDay().loadExamDaysAvailability(props.centre);
   });
 };
 
@@ -358,13 +342,13 @@ const colorPick = (date: string) => {
 const changeLock = async (id: number) => {
   const examDay = examDays.value.find(day => day.id === id);
   if (examDay) {
-    await examDayStore.changeLock(id);
-    await examDayStore.loadExamDaysAvailability(props.centre);
+    await useExamDay().changeLock(id);
+    await useExamDay().loadExamDaysAvailability(props.centre);
   }
 };
 
 onMounted(async () => {
-  await examDayStore.loadExamDaysAvailability(props.centre);
+  await useExamDay().loadExamDaysAvailability(props.centre);
 });
 
 </script>

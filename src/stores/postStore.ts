@@ -1,8 +1,14 @@
+// src/stores/postStore.ts
 import { defineStore } from 'pinia';
 import { api } from '../boot/axios';
-import { Notify } from 'quasar';
 import { ref } from 'vue';
-import { Post, RoleEnum, PostWithAvatar } from 'src/db/types';
+import { PostWithAvatar } from 'src/db/types';
+
+export interface PostResult {
+  success: boolean;
+  data?: any;
+  error?: string;
+}
 
 export const usePostStore = defineStore('post', {
   state: () => ({
@@ -10,7 +16,7 @@ export const usePostStore = defineStore('post', {
     newPost: ref<PostWithAvatar | null>(null),
   }),
   actions: {
-    async addPost(formData: FormData) {
+    async addPost(formData: FormData): Promise<PostResult> {
       try {
         const response = await api.post('/posts/create', formData, {
           headers: {
@@ -19,38 +25,29 @@ export const usePostStore = defineStore('post', {
         });
         const newPost = response.data as PostWithAvatar;
         this.posts.unshift(newPost);
-        Notify.create({
-          color: 'positive',
-          message: 'Post added',
-          position: 'bottom',
-          icon: 'check',
-          textColor: 'black',
-        });
-      } catch (error : any) {
-        Notify.create({
-          color: 'negative',
-          message: error.response.data.error,
-          position: 'bottom',
-          icon: 'report_problem',
-        });
+        return { success: true, data: newPost };
+      } catch (error: any) {
+        return {
+          success: false,
+          error: error.response?.data?.error || 'Failed to add post'
+        };
       }
     },
 
-    async getPosts() {
+    async getPosts(): Promise<PostResult> {
       try {
         const response = await api.get('/posts/posts');
         this.posts = response.data as PostWithAvatar[];
-      } catch (error : any) {
-        Notify.create({
-          color: 'negative',
-          message: error.response.data.error,
-          position: 'bottom',
-          icon: 'report_problem',
-        });
+        return { success: true, data: response.data };
+      } catch (error: any) {
+        return {
+          success: false,
+          error: error.response?.data?.error || 'Failed to get posts'
+        };
       }
     },
 
-    async downloadFile(fileId: number, fileName: string) {
+    async downloadFile(fileId: number, fileName: string): Promise<PostResult> {
       try {
         const response = await api.get(
           `/onedrive/files/post/download/${fileId}`,
@@ -69,62 +66,37 @@ export const usePostStore = defineStore('post', {
         window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
 
-        Notify.create({
-          color: 'positive',
-          message: 'File downloaded',
-          position: 'bottom',
-          icon: 'check',
-          textColor: 'black',
-        });
-      } catch (error : any) {
-        Notify.create({
-          color: 'negative',
-          message: error.response.data.error,
-          position: 'bottom',
-          icon: 'report_problem',
-        });
+        return { success: true };
+      } catch (error: any) {
+        return {
+          success: false,
+          error: error.response?.data?.error || 'Failed to download file'
+        };
       }
     },
 
-    async deleteFile(fileId: number) {
+    async deleteFile(fileId: number): Promise<PostResult> {
       try {
-        await api.delete(`/onedrive/files/post/delete/${fileId}`);
-
-        Notify.create({
-          color: 'positive',
-          message: 'File deleted',
-          position: 'bottom',
-          icon: 'check',
-          textColor: 'black',
-        });
-      } catch (error : any) {
-        Notify.create({
-          color: 'negative',
-          message: error.response.data.error,
-          position: 'bottom',
-          icon: 'report_problem',
-        });
+        const response = await api.delete(`/onedrive/files/post/delete/${fileId}`);
+        return { success: true, data: response.data };
+      } catch (error: any) {
+        return {
+          success: false,
+          error: error.response?.data?.error || 'Failed to delete file'
+        };
       }
     },
 
-    async deletePost(postId: number) {
+    async deletePost(postId: number): Promise<PostResult> {
       try {
-        await api.delete(`/posts/delete/${postId}`);
+        const response = await api.delete(`/posts/delete/${postId}`);
         this.posts = this.posts.filter(post => post.id !== postId);
-        Notify.create({
-          color: 'positive',
-          message: 'Post deleted',
-          position: 'bottom',
-          icon: 'check',
-          textColor: 'black',
-        });
-      } catch (error : any) {
-        Notify.create({
-          color: 'negative',
-          message: error.response.data.error,
-          position: 'bottom',
-          icon: 'report_problem',
-        });
+        return { success: true, data: response.data };
+      } catch (error: any) {
+        return {
+          success: false,
+          error: error.response?.data?.error || 'Failed to delete post'
+        };
       }
     },
 

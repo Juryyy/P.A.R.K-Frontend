@@ -326,26 +326,23 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, watch, onMounted} from 'vue';
-import { useExamDayStore } from 'src/stores/examDayStore';
-import { useExamStore } from 'src/stores/examStore';
-import { useAdminStore } from 'src/stores/adminStore';
-import { Loading, Notify, QForm } from 'quasar';
+import { Loading, QForm } from 'quasar';
 import { DayOfExams, Exam, LevelEnum, ExamTypeEnum, Location, Venue, CentreEnum } from 'src/db/types';
 import { router } from 'src/router/index';
 import { formatTimeString } from 'src/helpers/FormatTime';
 import { nextTick } from 'vue';
 import { getLevelColor } from 'src/helpers/Color';
+import { useExamDay } from 'src/composables/useExamDay';
+import { useAdmin } from 'src/composables/useAdmin';
+import { useExam } from 'src/composables/useExam';
+import { NotificationService } from 'src/utils/services/notificationService';
 
 const props = defineProps<{
   centre: CentreEnum;
 }>();
 
-const examDayStore = useExamDayStore();
-const examStore = useExamStore();
-const adminStore = useAdminStore();
-
-const examDays: DayOfExams[] = examDayStore.upcomingExamDays;
-const exams: Exam[] = examStore.upcomingExams;
+const examDays: DayOfExams[] = useExamDay().upcomingExamDays.value;
+const exams: Exam[] = useExam().upcomingExams;
 
 const levelOptions = Object.values(LevelEnum);
 const examTypes = Object.values(ExamTypeEnum);
@@ -372,13 +369,13 @@ const examLocations = ref(['']);
 
 const examForm = ref<QForm | null>(null);
 
-examLocations.value = adminStore.locationsWithVenues
+examLocations.value = useAdmin().locationsWithVenues.value
   .filter((location: Location) => location.adminCentre.includes(props.centre))
   .map((location: Location) => location.name);
 
 const updateExamVenues = () => {
   inputExam.venue = '';
-  const selectedLoc: Location | undefined = adminStore.locationsWithVenues.find(
+  const selectedLoc: Location | undefined = useAdmin().locationsWithVenues.value.find(
     (location: Location) => location.name === inputExam.location
   );
 
@@ -388,25 +385,10 @@ const updateExamVenues = () => {
 };
 
 onMounted(async () => {
-  //Uncomment the following lines if the page is taking too long to load
-  //Loading.show({
-  //  message: 'Loading exam days...',
-  //  spinnerColor: 'amber',
-  //  messageColor: 'amber',
-  //  backgroundColor: 'black',
-  //});
-  await examDayStore.loadExamDays(props.centre);
-  console.log(examDayStore.upcomingExamDays);
-  //Loading.show({
-  //  message: 'Loading upcoming exams...',
-  //  spinnerColor: 'amber',
-  //  messageColor: 'amber',
-  //  backgroundColor: 'black',
-  //});
-  await adminStore.getLocationsWithVenues();
-  await examStore.loadUpcomingExams();
-  examsRef.value = examStore.upcomingExams.filter((exam) => exam.adminCentre === props.centre);
-  Loading.hide();
+  await useExamDay().loadExamDays(props.centre);
+  await useAdmin().getLocationsWithVenues();
+  await useExam().loadUpcomingExams();
+  examsRef.value = useExam().upcomingExams.filter((exam) => exam.adminCentre === props.centre);
 });
 
 const resetInputExam = () => {
@@ -456,22 +438,14 @@ const addExam = async () => {
   const selectedDate = state.selectedDate;
 
   if (!state.isExamDayAvailable) {
-    Notify.create({
-      message: 'No exam day available for the selected date',
-      color: 'red',
-      icon: 'error'
-    });
+    NotificationService.error('No exam day found for selected date');
     return;
   }
 
   if (examForm.value) {
     const isValid = await examForm.value.validate();
     if (!isValid) {
-      Notify.create({
-        message: 'Please fill all required fields correctly',
-        color: 'red',
-        icon: 'error'
-      });
+      NotificationService.error('Please fill in all required fields');
       return;
     }
   }
@@ -490,27 +464,16 @@ const addExam = async () => {
     });
 
     if (matchingExamDay && matchingExamDay.id !== undefined) {
-      Loading.show({
-        message: 'Adding exam...',
-        spinnerColor: 'amber',
-        messageColor: 'amber',
-        backgroundColor: 'black',
-      });
-      await examStore.createExam({
+      await useExam().createExam({
         ...inputExam,
         dayOfExamsId: matchingExamDay.id,
         adminCentre: props.centre,
       });
-      await examStore.loadUpcomingExams();
-      examsRef.value = examStore.upcomingExams.filter((exam) => exam.adminCentre === props.centre);
+      await useExam().loadUpcomingExams();
+      examsRef.value = useExam().upcomingExams.filter((exam) => exam.adminCentre === props.centre);
       state.showAddExam = false;
-      Loading.hide();
     } else {
-      Notify.create({
-        message: 'No exam day found for selected date',
-        color: 'red',
-        icon: 'report_problem',
-      });
+      NotificationService.error('No exam day found for selected date');
     }
   }
 };

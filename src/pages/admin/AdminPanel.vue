@@ -14,7 +14,20 @@
       <LocationsVenues/>
     </q-tab-panel>
     <q-tab-panel name="exams" v-if=loaded class="cards-container">
-      <ExamsList/>
+
+      <q-select
+        v-model="selectedCentre"
+        :options="centres"
+        label="Centre"
+        emit-value
+        map-options
+        use-input
+        hide-selected
+        fill-input
+        dense
+        class="q-mb-md"
+      ></q-select>
+      <ExamsList :centre="selectedCentre"/>
     </q-tab-panel>
   </q-tab-panels>
 
@@ -22,28 +35,21 @@
 <script setup lang="ts">
 import { onBeforeMount, ref } from 'vue';
 import LocationsVenues from 'src/components/Admin/LocationsVenues.vue';
-import UserList from 'src/components/Users/UserList.vue';
-import { useAdminStore } from 'src/stores/adminStore';
-import { Loading } from 'quasar';
 import ExamsList from 'src/components/Admin/ExamsList.vue';
+import { CentreEnum } from 'src/db/types';
+import { useAdmin } from 'src/composables/useAdmin';
 
-const adminStore = useAdminStore();
-
+const selectedCentre = ref<CentreEnum>(CentreEnum.Brno);
+const centres = Object.values(CentreEnum).map((value) => ({ label: value, value }));
 const tab = ref('locations');
 const loaded = ref(false);
 
 onBeforeMount(async () => {
   loaded.value = false;
-  Loading.show({
-    message: 'Loading data',
-    spinnerColor: 'amber',
-    messageColor: 'amber',
-    backgroundColor: 'black',
-  });
-  await adminStore.getLocationsWithVenues();
-  Loading.hide();
+  await useAdmin().getLocationsWithVenues();
   loaded.value = true;
 });
+
 </script>
 <style lang="scss" scoped>
 .cards-container {

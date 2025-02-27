@@ -179,16 +179,13 @@
 import { reactive, computed, ref } from 'vue'
 import { formatDateString, formatTimeString } from 'src/helpers/FormatTime'
 import { getRoleColor } from 'src/helpers/Color'
-import { useSubstitutionStore } from 'stores/substitutionStore'
 import { SubstitutionRequest, SubstitutionStatusEnum } from 'src/db/types'
-import { useUserStore } from 'stores/userStore'
-import { storeToRefs } from 'pinia'
+import { useSubstitution } from 'src/composables/useSubstitution'
+import { useUser } from 'src/composables/useUser'
 
-const substitutionStore = useSubstitutionStore()
-const userStore = useUserStore()
-
-const { substitutions, myApplications } = storeToRefs(substitutionStore)
-const { user } = storeToRefs(userStore)
+const substitutions = useSubstitution().substitutions;
+const myApplications = useSubstitution().myApplications;
+const user = useUser().user;
 
 const loadingStates = reactive<{ [key: number]: boolean }>({})
 
@@ -260,9 +257,9 @@ const isOwnedByUser = computed(() => (substitutionId: number) => {
 const cancelSubstitution = async (substitutionId: number) => {
   loadingStates[substitutionId] = true;
   try {
-    await substitutionStore.cancelSubstitution(substitutionId);
-    await substitutionStore.loadSubstitutions();
-    await substitutionStore.loadMyApplications();
+    await useSubstitution().cancelSubstitution(substitutionId);
+    await useSubstitution().loadSubstitutions();
+    await useSubstitution().loadMyApplications();
   } finally {
     loadingStates[substitutionId] = false;
   }
@@ -295,9 +292,9 @@ const withdrawApplication = async (substitutionId: number) => {
   }
   loadingStates[substitutionId] = true;
   try {
-    await substitutionStore.withdrawApplication(applicationId); // Assuming your store has this method
-    await substitutionStore.loadSubstitutions(); // Refresh data
-    await substitutionStore.loadMyApplications();
+    await useSubstitution().withdrawApplication(applicationId);
+    await useSubstitution().loadSubstitutions();
+    await useSubstitution().loadMyApplications();
   } finally {
     loadingStates[substitutionId] = false;
   }
@@ -320,9 +317,9 @@ const getStatusColor = (status: SubstitutionStatusEnum) => {
 const applyForSubstitution = async (substitutionId: number) => {
   loadingStates[substitutionId] = true
   try {
-    await substitutionStore.applyForSubstitution(substitutionId)
-    await substitutionStore.loadSubstitutions()
-    await substitutionStore.loadMyApplications();
+    await useSubstitution().applyForSubstitution(substitutionId)
+    await useSubstitution().loadSubstitutions()
+    await useSubstitution().loadMyApplications();
   } finally {
     loadingStates[substitutionId] = false
   }

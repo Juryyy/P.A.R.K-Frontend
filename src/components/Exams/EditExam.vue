@@ -408,18 +408,14 @@
 import { dayResponse, Exam, Location, Venue, ExamTypeEnum, LevelEnum } from 'src/db/types';
 import { ref, reactive, computed, watch } from 'vue';
 import { formatTimeString } from 'src/helpers/FormatTime';
-import { useExamStore } from 'src/stores/examStore';
-import { useExamDayStore } from 'src/stores/examDayStore';
 import { useRouter } from 'vue-router';
-import { useAdminStore } from 'src/stores/adminStore';
 import { Dialog, Notify } from 'quasar';
 import { getLevelColor } from 'src/helpers/Color';
 import { getFileIcon } from 'src/helpers/FileType';
-import { CentreEnum } from 'src/db/types';
+import { useExam } from 'src/composables/useExam';
+import { useAdmin } from 'src/composables/useAdmin';
+import { useExamDay } from 'src/composables/useExamDay';
 
-const examStore = useExamStore();
-const examDayStore = useExamDayStore();
-const adminStore = useAdminStore();
 const router = useRouter();
 
 const props = defineProps<{
@@ -442,8 +438,8 @@ const scheduleUrl = ref('');
 
 const fetchExamsForDay = async () => {
   if (props.exam && props.exam.dayOfExamsId) {
-    await examStore.getExamsForDay(props.exam.dayOfExamsId);
-    examsInDay.value = examStore.pastExams;
+    await useExam().getExamsForDay(props.exam.dayOfExamsId);
+    examsInDay.value = useExam().pastExams;
     currentExamIndex.value = examsInDay.value.findIndex(e => e.id === props.exam.id);
   }
 };
@@ -457,7 +453,7 @@ const navigateExam = async (direction: 'prev' | 'next') => {
   const newExam = examsInDay.value[currentExamIndex.value];
   if (newExam) {
     await router.push(`/admin/exams/${newExam.id}`);
-    await examStore.getExam(newExam.id);
+    await useExam().getExam(newExam.id);
     initializeEditableExam();
   }
 };
@@ -467,12 +463,12 @@ const isExamLocked = computed(() => {
 });
 
 const initializeLocations = () => {
-  examLocations.value = adminStore.locationsWithVenues.map((location: Location) => location.name);
+  examLocations.value = useAdmin().locationsWithVenues.value.map((location: Location) => location.name);
 };
 
 const updateExamVenues = () => {
   if (editableExam.value) {
-    const selectedLoc = adminStore.locationsWithVenues.find(
+    const selectedLoc = useAdmin().locationsWithVenues.value.find(
       (location: Location) => location.name === editableExam.value?.location
     );
 
@@ -550,9 +546,9 @@ const addToExam = async (
   position: string
 ) => {
   if (!isExamLocked.value) {
-    await examStore.addWorker(examId, userId, override, position);
-    await examDayStore.loadResponsesForExamDay(dayId);
-    await examStore.getExam(examId);
+    await useExam().addWorker(examId, userId, override, position);
+    await useExamDay().loadResponsesForExamDay(dayId);
+    await useExam().getExam(examId);
   }
 };
 
@@ -562,10 +558,10 @@ const removeFromExam = async (
   position: string
 ) => {
   if (!isExamLocked.value) {
-    await examStore.removeWorker(examId, userId, position);
-    await examStore.getExam(examId);
+    await useExam().removeWorker(examId, userId, position);
+    await useExam().getExam(examId);
     const dayId = props.responses[0].dayOfExamsId;
-    await examDayStore.loadResponsesForExamDay(dayId);
+    await useExamDay().loadResponsesForExamDay(dayId);
   }
 };
 
@@ -582,11 +578,11 @@ const removeFile = (index: number) => {
 const uploadFiles = async () => {
   if (selectedFiles.value.length > 0) {
     for (const file of selectedFiles.value) {
-      await examStore.uploadExamSchedule(file, props.exam.id);
+      await useExam().uploadExamSchedule(file, props.exam.id);
     }
     selectedFiles.value = [];
 
-    await examStore.getExam(props.exam.id);
+    await useExam().getExam(props.exam.id);
     initializeEditableExam();
   }
 };
@@ -601,7 +597,7 @@ const downloadExamDayReport = async (fileId: number, fileName: string) => {
   }
   loadingFiles[fileId] = true;
   try {
-    await examStore.downloadExamDayReport(fileId, fileName);
+    await useExam().downloadExamDayReport(fileId, fileName);
   } finally {
     loadingFiles[fileId] = false;
   }
@@ -618,7 +614,7 @@ const downloadFile = async (fileId: number, fileName: string) => {
   }
   loadingFiles[fileId] = true;
   try {
-    await examStore.downloadExamFile(fileId, fileName);
+    await useExam().downloadExamFile(fileId, fileName);
   } finally {
     loadingFiles[fileId] = false;
   }
@@ -678,8 +674,8 @@ const goToUserProfile = (userId: number) => {
 
 const saveChanges = async () => {
   if (editableExam.value && !isExamLocked.value) {
-    await examStore.updateExam(editableExam.value);
-    await examStore.getExam(editableExam.value.id);
+    await useExam().updateExam(editableExam.value);
+    await useExam().getExam(editableExam.value.id);
     initializeEditableExam();
     editmode.value = false;
   }
@@ -720,8 +716,8 @@ const prepareExam = async () => {
       });
     }
     else if (editableExam.value) {
-      await examStore.updatePrepared(editableExam.value.id, !editableExam.value.isPrepared);
-      await examStore.getExam(editableExam.value.id);
+      await useExam().updatePrepared(editableExam.value.id, !editableExam.value.isPrepared);
+      await useExam().getExam(editableExam.value.id);
       initializeEditableExam();
     }
   });
@@ -740,8 +736,8 @@ const prepareExam = async () => {
       },
     }).onOk(async () => {
       if (editableExam.value) {
-        await examStore.updatePrepared(editableExam.value.id, !editableExam.value.isPrepared);
-        await examStore.getExam(editableExam.value.id);
+        await useExam().updatePrepared(editableExam.value.id, !editableExam.value.isPrepared);
+        await useExam().getExam(editableExam.value.id);
         initializeEditableExam();
       }
     });
@@ -762,8 +758,8 @@ const complete = async () => {
     },
   }).onOk(async () => {
     if (editableExam.value) {
-      await examStore.updateCompleted(editableExam.value.id, !editableExam.value.isCompleted);
-      await examStore.getExam(editableExam.value.id);
+      await useExam().updateCompleted(editableExam.value.id, !editableExam.value.isCompleted);
+      await useExam().getExam(editableExam.value.id);
       initializeEditableExam();
     }
   });
@@ -783,7 +779,7 @@ const deleteExam = async () => {
     },
   }).onOk(async () => {
     if (editableExam.value) {
-      await examStore.deleteExam(editableExam.value.id);
+      await useExam().deleteExam(editableExam.value.id);
       router.push('/admin/exams');
     }
   });
@@ -803,8 +799,8 @@ const deleteFile = async (fileId: number, fileName: string) => {
     },
   }).onOk(async () => {
     if (fileId) {
-      await examStore.deleteExamFile(fileId);
-      await examStore.getExam(props.exam.id);
+      await useExam().deleteExamFile(fileId);
+      await useExam().getExam(props.exam.id);
       initializeEditableExam();
     }
   });
@@ -850,8 +846,8 @@ const saveScheduleUrl = async () => {
       schedule: scheduleUrl.value
     };
 
-    await examStore.updateExam(editableExam.value);
-    await examStore.getExam(editableExam.value.id);
+    await useExam().updateExam(editableExam.value);
+    await useExam().getExam(editableExam.value.id);
     initializeEditableExam();
 
     scheduleUrl.value = ''; // Clear the input
@@ -869,8 +865,8 @@ const removeSchedule = async () => {
       schedule: undefined
     };
 
-    await examStore.updateExam(editableExam.value);
-    await examStore.getExam(editableExam.value.id);
+    await useExam().updateExam(editableExam.value);
+    await useExam().getExam(editableExam.value.id);
     initializeEditableExam();
 
   } catch (error) {

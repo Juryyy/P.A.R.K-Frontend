@@ -62,55 +62,30 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, computed } from 'vue';
-import { useExamStore } from 'src/stores/examStore';
-import { useExamDayStore } from 'src/stores/examDayStore';
-import { DayOfExamsC, Exam } from 'src/db/types';
-import { Loading, Notify } from 'quasar';
+import { ref, onMounted, computed } from 'vue';
+import { CentreEnum, DayOfExamsC, Exam } from 'src/db/types';
 import { formatTimeString } from 'src/helpers/FormatTime';
 import { groupBy } from 'lodash';
-
-const examStore = useExamStore();
-const examDayStore = useExamDayStore();
+import { useExamDay } from 'src/composables/useExamDay';
+import { useExam } from 'src/composables/useExam';
 
 const daysOfExams = ref<DayOfExamsC[]>([]);
 const expandedDays = ref<Set<number>>(new Set());
 
+const props = defineProps<{
+  centre: CentreEnum;
+}>();
+
 const fetchDaysOfExams = async () => {
-  try {
-    Loading.show({ message: 'Fetching exam days', spinnerSize: 140, spinnerColor: 'amber', backgroundColor: 'black' });
-    await examDayStore.loadAllExamDays();
-    daysOfExams.value = examDayStore.allExamDays;
-  } catch (error) {
-    console.error('Error fetching days of exams:', error);
-    Notify.create({
-      color: 'negative',
-      message: 'Failed to fetch exam days',
-      icon: 'report_problem'
-    });
-  } finally {
-    Loading.hide();
-  }
+  daysOfExams.value = (await useExamDay().loadAllExamDays(props.centre)) || [];
 };
 
 const fetchExamsForDay = async (dayId: number) => {
-  try {
-    Loading.show({ message: 'Fetching exams', spinnerSize: 140, spinnerColor: 'amber', backgroundColor: 'black' });
-    await examStore.getExamsForDay(dayId);
-  } catch (error) {
-    console.error('Error fetching exams:', error);
-    Notify.create({
-      color: 'negative',
-      message: 'Failed to fetch exams',
-      icon: 'report_problem'
-    });
-  } finally {
-    Loading.hide();
-  }
+    await useExam().getExamsForDay(dayId);
 };
 
 const examsForDay = (dayId: number): Exam[] => {
-  return examStore.pastExams.filter(exam => exam.dayOfExamsId === dayId);
+  return useExam().pastExams.filter(exam => exam.dayOfExamsId === dayId);
 };
 
 const toggleDay = async (dayId: number, isExpanded: boolean) => {
@@ -137,8 +112,8 @@ const formatDate = (date: Date) => {
 const groupedDays = computed(() => groupDaysByMonthAndYear(daysOfExams.value));
 
 const isNewYear = (monthYear: string) => {
-  const [year, month] = monthYear.split('-');
-  return month === '0'; // January is 0
+  const [month] = monthYear.split('-');
+  return month === '0';
 };
 
 const groupDaysByMonthAndYear = (days: DayOfExamsC[]) => {
@@ -153,7 +128,6 @@ const formatMonthYear = (dateString: string) => {
   const [year, month] = dateString.split('-');
   return new Date(parseInt(year), parseInt(month)).toLocaleString('en-US', { month: 'long', year: 'numeric' });
 };
-
 
 onMounted(fetchDaysOfExams);
 </script>

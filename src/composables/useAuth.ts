@@ -143,5 +143,8 @@ export function useAuth() {
     logout,
     resetPassword,
     loading,
+
+    isLocked: authStore.isLocked,
+    verification: authStore.verification,
   };
 }

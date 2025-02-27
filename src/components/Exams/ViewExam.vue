@@ -397,20 +397,16 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, watch } from 'vue';
-import { useExamStore } from 'src/stores/examStore';
 import { QForm } from 'quasar';
-import { AbsentCandidates, Exam, SubstitutionRequestInfo } from 'src/db/types';
+import { AbsentCandidates, Exam } from 'src/db/types';
 import { formatTimeString } from 'src/helpers/FormatTime';
 import { getLevelColor } from 'src/helpers/Color';
 import { getFileIcon } from 'src/helpers/FileType';
 import { RoleEnum } from 'src/db/types';
-import { useUserStore } from 'src/stores/userStore';
-import { useQuasar } from 'quasar';
-import { useSubstitutionStore } from 'src/stores/substitutionStore';
-
-const examStore = useExamStore();
-const $q = useQuasar();
-const substituteStore = useSubstitutionStore();
+import { useExam } from 'src/composables/useExam';
+import { useSubstitution } from 'src/composables/useSubstitution';
+import { useUser } from 'src/composables/useUser';
+import { Dialog } from 'quasar';
 
 const props = defineProps<{
   exam: Exam;
@@ -425,12 +421,11 @@ const absent = ref<number>();
 const examForm = ref<QForm | null>(null);
 
 const examSubs = computed(() => {
-  return substituteStore.examSubs;
+  return useSubstitution().examSubs;
 });
 
 
-const userStore = useUserStore();
-const currentUser = computed(() => userStore.user);
+const currentUser = computed(() => useUser().user);
 
 const levels = computed(() => {
   return editableExam.value?.levels.join(', ');
@@ -485,7 +480,7 @@ const requestSubstitute = (
   userId: number,
   role: RoleEnum
 ) => {
-  $q.dialog({
+  Dialog.create({
     title: 'Request Substitute',
     message: 'Are you sure you want to request a substitute? You will be removed from the exam, if substitution is found.',
     ok: {
@@ -497,8 +492,8 @@ const requestSubstitute = (
       color: 'negative',
     }
   }).onOk(async () => {
-  await substituteStore.createSubstitution(new Date(), examId, 'Requesting substitute', role, userId);
-  await substituteStore.loadSubsForExam(examId);
+  await useSubstitution().createSubstitution(new Date(), examId, 'Requesting substitute', role, userId);
+  await useSubstitution().loadSubsForExam(examId);
   });
 };
 
@@ -523,7 +518,7 @@ const saveExamDayReport = async () => {
     return;
   }
 
-  await examStore.uploadExamDayReport(
+  await useExam().uploadExamDayReport(
     editableExam.value.id,
     candidates.value,
     absent.value,
@@ -540,7 +535,7 @@ const downloadFile = async (fileId: number, fileName: string) => {
   }
   loadingFiles[fileId] = true;
   try {
-    await examStore.downloadExamFile(fileId, fileName);
+    await useExam().downloadExamFile(fileId, fileName);
   } finally {
     loadingFiles[fileId] = false;
   }
@@ -562,7 +557,7 @@ const downloadExamDayReport = async () => {
 
   loadingFiles[editableExam.value.dayReport.id] = true;
   try {
-    await examStore.downloadExamDayReport(
+    await useExam().downloadExamDayReport(
       editableExam.value.dayReport.id,
       editableExam.value.dayReport?.name ?? ''
     );
@@ -625,7 +620,7 @@ const getConfirmationTooltip = (userId: number, roleKey: string) => {
 
 const hasRequestedSubstitution = (userId: number, roleKey: string) => {
   const roleEnum = roleKeyToEnum(roleKey);
-  return examSubs.value.some(
+  return examSubs.value.value.some(
     sub => sub.requestedById === userId &&
            sub.originalRole === roleEnum &&
            sub.status === 'Open'
@@ -641,17 +636,19 @@ const toggleConfirmation = async (userId: number, roleKey: string) => {
   try {
     const currentStatus = getConfirmationStatus(userId, roleKey);
     const roleEnum = roleKeyToEnum(roleKey);
-    await examStore.toggleExamConfirmation(
+    await useExam().toggleExamConfirmation(
       editableExam.value.id,
       roleEnum,
       !currentStatus
     );
 
-    await examStore.getExam(editableExam.value.id);
-    await userStore.getUsersExams();
+    await useExam().getExam(editableExam.value.id);
+    await useUser().getUsersExams();
 
-    if (examStore.selectedExam) {
-      editableExam.value = examStore.selectedExam;
+    let exam = useExam().selectedExam;
+
+    if (exam) {
+      editableExam.value = exam
       initializeEditableExam();
     }
   } catch (error) {
@@ -686,9 +683,6 @@ const getRoleIcon = (key: string) => {
   }
 };
 
-const getInitials = (firstName: string, lastName: string) => {
-  return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
-};
 </script>
 
 <style lang="scss" scoped>

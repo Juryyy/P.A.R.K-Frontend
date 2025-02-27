@@ -1,8 +1,14 @@
+// src/stores/availabilityStore.ts
 import { defineStore } from 'pinia';
 import { api } from '../boot/axios';
-import { Notify } from 'quasar';
 import { ref } from 'vue';
 import { UserAnswers } from '../db/types';
+
+export interface AvailabilityResult {
+  success: boolean;
+  data?: any;
+  error?: string;
+}
 
 export const useAvailabilityStore = defineStore('availability', {
   state: () => ({
@@ -10,53 +16,41 @@ export const useAvailabilityStore = defineStore('availability', {
     newResponses: ref<number>()
   }),
   actions: {
-    async loadResponsesForUser() {
+    async loadResponsesForUser(): Promise<AvailabilityResult> {
       try {
         const response = await api.get('/responses/responses');
         this.userResponses = response.data;
-      } catch (error : any) {
-        Notify.create({
-          color: 'negative',
-          message: error.response.data.error,
-          position: 'bottom',
-          icon: 'report_problem',
-        });
+        return { success: true, data: response.data };
+      } catch (error: any) {
+        return {
+          success: false,
+          error: error.response?.data?.error || 'Failed to load responses for user'
+        };
       }
     },
 
-    async countNewResponses() {
+    async countNewResponses(): Promise<AvailabilityResult> {
       try {
         const response = await api.get('/responses/responses/new');
         this.newResponses = response.data;
-      } catch (error : any) {
-        Notify.create({
-          color: 'negative',
-          message: error.response.data.error,
-          position: 'bottom',
-          icon: 'report_problem',
-        });
+        return { success: true, data: response.data };
+      } catch (error: any) {
+        return {
+          success: false,
+          error: error.response?.data?.error || 'Failed to count new responses'
+        };
       }
     },
 
-    async submitResponses(answers: UserAnswers[]) {
+    async submitResponses(answers: UserAnswers[]): Promise<AvailabilityResult> {
       try {
-        await api.put('/responses/update', answers);
-        Notify.create({
-          color: 'positive',
-          message: 'Responses updated',
-          position: 'bottom',
-          icon: 'check',
-          textColor: 'black',
-        });
-        await this.countNewResponses();
-        await this.loadResponsesForUser();
-      } catch (error : any) {
-        Notify.create({
-          color: 'negative',
-          message: error.response.data.error,
-          position: 'bottom',
-          icon: 'report_problem',
-        });
+        const response = await api.put('/responses/update', answers);
+        return { success: true, data: response.data };
+      } catch (error: any) {
+        return {
+          success: false,
+          error: error.response?.data?.error || 'Failed to submit responses'
+        };
       }
     },
   },

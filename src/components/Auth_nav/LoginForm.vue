@@ -146,10 +146,8 @@
 <script setup lang="ts">
 import { reactive, ref, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
-import { useAuthStore } from 'src/stores/authStore';
 import { useAuth } from 'src/composables/useAuth';
 
-const authStore = useAuthStore();
 const router = useRouter();
 const auth = useAuth();
 
@@ -162,7 +160,7 @@ const state = reactive({
 const isCodeVerification = ref(false);
 const isForgotPassword = ref(false);
 const verificationCode = ref('');
-const isAccountLocked = computed(() => authStore.isLocked);
+const isAccountLocked = computed(() => useAuth().isLocked);
 
 const displayCode = computed(() => {
   const code = verificationCode.value.padEnd(8, ' ');
@@ -173,7 +171,7 @@ const formatVerificationCode = () => {
   verificationCode.value = verificationCode.value.replace(/[^0-9]/g, '').slice(0, 8);
 };
 
-watch(() => authStore.verification, (newValue) => {
+watch(() => useAuth().verification, (newValue) => {
   isCodeVerification.value = newValue;
 });
 
@@ -181,7 +179,7 @@ const validate = async (event: Event) => {
   event.preventDefault();
   if (verificationCode.value.length !== 8) return;
 
-  const success = await auth.verifyCode(state.email, verificationCode.value);
+  const success = await useAuth().verifyCode(state.email, verificationCode.value);
   if (success) {
     router.push('/');
   }
@@ -197,7 +195,7 @@ const onSubmit = async (event: Event) => {
   }
 
   event.preventDefault();
-  const success = await auth.login(state.email, state.password);
+  const success = await useAuth().login(state.email, state.password);
   if (success) {
     isCodeVerification.value = true;
   }
@@ -209,7 +207,7 @@ const handlePasswordReset = async (event: Event) => {
   }
   event.preventDefault();
 
-  const success = await auth.resetPassword(state.email);
+  const success = await useAuth().resetPassword(state.email);
   if (success) {
     clear();
   }

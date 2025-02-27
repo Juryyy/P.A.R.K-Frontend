@@ -1,4 +1,5 @@
 <template>
+  <!-- DEPRECATED DONT USE -> UserInfoNew.vue is used now-->
   <div class="profile-container q-pa-md">
     <q-card class="profile-card" v-if="editableUser">
       <q-banner v-if="editableUser.deactivated" class="text-white bg-red-6">

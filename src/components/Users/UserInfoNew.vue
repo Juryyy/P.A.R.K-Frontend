@@ -415,31 +415,21 @@
 import { ref, computed, watch, reactive } from 'vue';
 import { RoleEnum, User} from 'src/db/types';
 import { defineProps } from 'vue';
-import { useUserStore } from 'src/stores/userStore';
 import { getRoleColor, getLevelColor } from 'src/helpers/Color';
 import { formatDateString } from 'src/helpers/FormatTime';
 import { deepEqual, normalizeDateString } from 'src/helpers/deepEqual';
 import { parseISO, format } from 'date-fns';
 import { Cropper, CircleStencil } from 'vue-advanced-cropper';
 import 'vue-advanced-cropper/dist/style.css';
-import { useQuasar } from 'quasar';
-import { useAuthStore } from 'src/stores/authStore';
+import { useAuth } from 'src/composables/useAuth';
+import { useUser } from 'src/composables/useUser';
+import { NotificationService } from 'src/utils/services/notificationService';
+
 
 const props = defineProps<{
   user: User | null;
   userAvatar: string | null;
 }>();
-
-const $q = useQuasar();
-const userStore = useUserStore();
-const authStore = useAuthStore();
-
-const adaptiveLabel = computed(() => {
-  if ($q.screen.lt.sm) {
-    return 'Detailed Note (optional)';
-  }
-  return 'Detailed Note (optional) - Please give us more detailed information about your availability';
-});
 
 type EditableFieldKey = 'firstName' | 'lastName' | 'email' | 'dateOfBirth' | 'phone' | 'note' | 'noteLonger' | 'totaraDate';
 
@@ -533,7 +523,7 @@ const updateField = (key: EditableFieldKey, value: string | number | null) => {
   }
 };
 
-const currentUser = userStore.user;
+const currentUser = useUser().user;
 
 const isCurrentUser = computed(() => currentUser?.id === editableUser.value?.id);
 
@@ -588,20 +578,14 @@ const updateProfile = async () => {
     normalizedTotaraDate === normalizedEditableTotaraDate &&
     normalizedDateOfBirth === normalizedEditableDateOfBirth;
 
-  // Check if there are any changes
-
   if (!hasChanges.value && datesUnchanged) {
-    $q.notify({
-      type: 'info',
-      message: 'No changes detected. Nothing to update.',
-      textColor: 'black',
-    });
+    NotificationService.info('No changes detected.');
     return;
   }
 
   isUpdating.value = true;
   try {
-    await userStore.updateProfile(
+    await useUser().updateProfile(
       editableUser.value.id,
       editableFields.email,
       editableFields.firstName,
@@ -617,14 +601,14 @@ const updateProfile = async () => {
     );
 
 
-    if(userStore.updateConfirmation){
-      userStore.changeConfirmation(false);
-      await userStore.getProfile(editableUser.value.id);
-      await authStore.getToken();
-      await userStore.refreshUserInfo();
-      if (userStore.selectedUser) {
-        editableUser.value = { ...userStore.selectedUser };
-        initialUser.value = { ...userStore.selectedUser };
+    if(useUser().updateConfirmation){
+      useUser().changeConfirmation(false);
+      await useUser().getProfile(editableUser.value.id);
+      await useAuth().getToken();
+      await useUser().refreshUserInfo();
+      if (useUser().selectedUser) {
+        editableUser.value = { ...useUser().selectedUser };
+        initialUser.value = { ...useUser().selectedUser };
         updateEditableFields();
       }
   }
@@ -639,23 +623,23 @@ const updateAdminNote = async () => {
   isUpdating.value = true;
   try {
     if(hasAdminNoteChanges.value){
-    await userStore.updateAdminNote(
+    await useUser().updateAdminNote(
       editableUser.value.id,
       editableUser.value.adminNote
     );
     }
 
     if(hasInsperaAccountChanges.value){
-    await userStore.updateInsperaAccount(
+    await useUser().updateInsperaAccount(
       editableUser.value.id,
       editableUser.value.insperaAccount
     );
     }
 
-    await userStore.getProfile(editableUser.value.id);
-    if (userStore.selectedUser) {
-      editableUser.value = { ...userStore.selectedUser };
-      initialUser.value = { ...userStore.selectedUser };
+    await useUser().getProfile(editableUser.value.id);
+    if (useUser().selectedUser) {
+      editableUser.value = { ...useUser().selectedUser };
+      initialUser.value = { ...useUser().selectedUser };
     }
   } finally {
     isUpdating.value = false;
@@ -695,9 +679,9 @@ const cropAndUpload = async () => {
 
           if (editableUser.value) {
             try {
-              await userStore.uploadAvatar(croppedFile);
-              await userStore.getProfile(editableUser.value.id);
-              await userStore.getUserAvatarById(editableUser.value.id);
+              await useUser().uploadAvatar(croppedFile);
+              await useUser().getProfile(editableUser.value.id);
+              await useUser().getUserAvatarById(editableUser.value.id);
             } catch (error) {
               console.error('Error uploading avatar:', error);
             }
