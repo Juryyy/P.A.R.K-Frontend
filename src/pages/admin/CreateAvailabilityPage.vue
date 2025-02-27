@@ -29,15 +29,12 @@
 </template>
 
 <script setup lang="ts">
-import { useExamDayStore } from 'src/stores/examDayStore';
-import { onMounted, reactive, ref } from 'vue';
-import { Loading } from 'quasar';
+import { onMounted, reactive} from 'vue';
 import CreateAvailability from 'src/components/Availability/CreateAvailability.vue';
-import { useUserStore } from 'src/stores/userStore';
 import { CentreEnum } from 'src/db/types';
+import { useUser } from 'src/composables/useUser';
+import { useExamDay } from 'src/composables/useExamDay';
 
-const examDayStore = useExamDayStore();
-const userStore = useUserStore();
 
 const centres = Object.values(CentreEnum);
 
@@ -47,21 +44,18 @@ const state = reactive({
 });
 
 onMounted(async () => {
-  userStore.getUserInfo();
-  Loading.show({
-    message: 'Loading exam days...',
-    spinnerColor: 'amber',
-    messageColor: 'amber',
-    backgroundColor: 'black',
-  });
+  const user = useUser().getUserInfo();
 
-  if (userStore.user?.adminCentre && userStore.user.adminCentre.length > 0) {
-    state.tab = userStore.user.adminCentre[0];
+  for (const centre of user?.adminCentre) {
+    await useExamDay().loadExamDays(centre);
+  }
+
+  if (useUser().user?.adminCentre && useUser().user.adminCentre.length > 0) {
+    state.tab = useUser().user.adminCentre[0];
   } else {
     state.tab = centres[0];
   }
 
   state.loaded = true;
-  Loading.hide();
 });
 </script>

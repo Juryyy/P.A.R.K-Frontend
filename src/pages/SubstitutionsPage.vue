@@ -11,6 +11,7 @@ import SubstitutionList from 'components/Exams/SubstitutionList.vue'
 import { onMounted, reactive } from 'vue'
 import { useSubstitutionStore } from 'stores/substitutionStore'
 import { Loading } from 'quasar'
+import { useUser } from 'src/composables/useUser'
 
 const substitutionStore = useSubstitutionStore()
 
@@ -28,6 +29,7 @@ onMounted(async () => {
   })
   await substitutionStore.loadSubstitutions()
   await substitutionStore.loadMyApplications()
+  useUser().getUserInfo();
   Loading.hide()
   state.isLoaded = true
 })

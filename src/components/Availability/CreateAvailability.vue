@@ -112,7 +112,7 @@
                       <q-btn
                         :icon="props.row.isLocked ? 'lock' : 'lock_open'"
                         :color="props.row.isLocked ? 'grey' : 'orange'"
-                        @click="changeLock(props.row.id)"
+                        @click="changeLock(props.row)"
                         flat
                         round
                         dense
@@ -189,7 +189,7 @@ const props = defineProps<{
   centre: CentreEnum;
 }>();
 
-const examDays = computed(() => useExamDay().availabilityExamDays.value);
+const examDays = useExamDay().availabilityExamDays.value;
 const search = ref('');
 const currentDate = new Date();
 
@@ -214,7 +214,7 @@ const columns : any = [
 ];
 
 const filteredExamDays = computed(() => {
-  const centreFilteredAndSorted = [...examDays.value]
+  const centreFilteredAndSorted = [...examDays]
     .filter(day => day.adminCentre === props.centre)
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
@@ -236,7 +236,7 @@ const addDate = async () => {
 };
 
 const openInformDialog = () => {
-  const nonLockedDays = examDays.value?.filter(day => !day.isLocked && day.adminCentre === props.centre) || [];
+  const nonLockedDays = examDays.filter(day => !day.isLocked && day.adminCentre === props.centre) || [];
 
   if (nonLockedDays.length > 0) {
     informUsersForm.startDate = formatDateForInput(nonLockedDays[0].date);
@@ -299,7 +299,7 @@ const deleteExamDay = async (id: number) => {
 const highlightDays = (date: string) => {
   const [year, month, day] = date.split('/');
   const formattedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
-  const result = examDays.value.some(examDay => {
+  const result = examDays.some(examDay => {
     const examDate = new Date(examDay.date);
     return examDate.toISOString().split('T')[0] === formattedDate &&
            examDay.adminCentre === props.centre;
@@ -319,7 +319,7 @@ const disablePastDates = (date: string) => {
 const colorPick = (date: string) => {
   const [year, month, day] = date.split('/');
   const formattedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
-  const examDay = examDays.value.find((day) => {
+  const examDay = examDays.find((day) => {
     const examDate = new Date(day.date);
     return examDate.toISOString().split('T')[0] === formattedDate && day.adminCentre === props.centre;;
   });
@@ -339,12 +339,9 @@ const colorPick = (date: string) => {
 };
 
 
-const changeLock = async (id: number) => {
-  const examDay = examDays.value.find(day => day.id === id);
-  if (examDay) {
-    await useExamDay().changeLock(id);
-    await useExamDay().loadExamDaysAvailability(props.centre);
-  }
+const changeLock = async (row: any) => {
+  await useExamDay().changeLock(row.id);
+  await useExamDay().loadExamDaysAvailability(props.centre);
 };
 
 onMounted(async () => {

@@ -208,7 +208,7 @@ const canViewRole = (userRoles: string[], requiredRole: string) => {
 
 const filteredSubstitutions = computed(() => {
   let filtered = substitutions.value.filter(substitution =>
-    canViewRole(user.value.role, substitution.originalRole)
+    canViewRole(user.role, substitution.originalRole)
   )
 
   if (activeFilters.value.roles.length > 0) {
@@ -219,7 +219,7 @@ const filteredSubstitutions = computed(() => {
 
   if (activeFilters.value.showMyRequests) {
     filtered = filtered.filter(sub =>
-      sub.requestedBy.id === user.value.id
+      sub.requestedBy.id === user.id
     )
   }
 
@@ -246,12 +246,12 @@ const hasUserApplied = computed(() => (substitutionId: number) => {
 
 const isButtonDisabled = computed(() => (substitution: SubstitutionRequest) => {
   return substitution.status !== 'Open' ||
-         substitution.requestedBy.id === user.value.id ||
+         substitution.requestedBy.id === user.id ||
          hasUserApplied.value(substitution.id);
 });
 
 const isOwnedByUser = computed(() => (substitutionId: number) => {
-  return substitutions.value.some(substitution => substitution.id === substitutionId && substitution.requestedBy.id === user.value.id);
+  return substitutions.value.some(substitution => substitution.id === substitutionId && substitution.requestedBy.id === user.id);
 });
 
 const cancelSubstitution = async (substitutionId: number) => {
@@ -266,7 +266,7 @@ const cancelSubstitution = async (substitutionId: number) => {
 };
 
 const getButtonTooltip = computed(() => (substitution: SubstitutionRequest) => {
-  if (substitution.requestedBy.id === user.value.id) {
+  if (substitution.requestedBy.id === user.id) {
     return 'You cannot apply for your own substitution request';
   }
   if (hasUserApplied.value(substitution.id)) {
