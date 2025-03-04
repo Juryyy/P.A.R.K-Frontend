@@ -82,7 +82,9 @@ export function useAuth() {
       const result = await authStore.resetPassword(email);
 
       if (result.success) {
-        NotificationService.success('Password reset instructions sent to your email');
+        NotificationService.success(
+          'Password reset instructions sent to your email'
+        );
         return true;
       } else {
         NotificationService.error(result.error || 'Password reset failed');
@@ -96,7 +98,10 @@ export function useAuth() {
     }
   };
 
-  const updatePassword = async (password: string, newPassword: string): Promise<boolean> => {
+  const updatePassword = async (
+    password: string,
+    newPassword: string
+  ): Promise<boolean> => {
     loading.value = true;
     try {
       const result = await authStore.updatePassword(password, newPassword);

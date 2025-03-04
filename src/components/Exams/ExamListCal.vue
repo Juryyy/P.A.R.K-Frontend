@@ -5,7 +5,9 @@
       <div class="col-12 col-md-4">
         <q-card class="calendar-card">
           <q-card-section class="q-pb-none">
-            <div class="text-h5 text-weight-bold q-mb-md text-primary">Exam Date Selection</div>
+            <div class="text-h5 text-weight-bold q-mb-md text-primary">
+              Exam Date Selection
+            </div>
             <q-date
               v-model="state.selectedDate"
               first-day-of-week="1"
@@ -20,7 +22,9 @@
           </q-card-section>
 
           <q-card-section>
-            <div class="text-subtitle1 text-weight-medium q-mb-sm">Status Indicators:</div>
+            <div class="text-subtitle1 text-weight-medium q-mb-sm">
+              Status Indicators:
+            </div>
             <div class="legend-container q-gutter-y-sm">
               <div class="legend-item">
                 <q-chip color="red" size="md" class="legend-chip">
@@ -51,7 +55,9 @@
           <q-card-section>
             <div class="row items-center justify-between q-mb-lg">
               <div>
-                <div class="text-h5 text-weight-bold text-primary">{{ formatDate(state.selectedDate) }} -  {{props.centre}}</div>
+                <div class="text-h5 text-weight-bold text-primary">
+                  {{ formatDate(state.selectedDate) }} - {{ props.centre }}
+                </div>
                 <div class="text-caption text-grey-7">Selected date exams</div>
               </div>
               <q-btn
@@ -64,7 +70,8 @@
                 class="q-px-md"
               >
                 <q-tooltip v-if="!state.isExamDayAvailable">
-                  There is no availability for this date. Please select a date with existing availability.
+                  There is no availability for this date. Please select a date
+                  with existing availability.
                 </q-tooltip>
               </q-btn>
             </div>
@@ -82,14 +89,24 @@
                 <q-icon name="search" color="primary" />
               </template>
               <template v-slot:append>
-                <q-icon name="clear" @click="search = ''" class="cursor-pointer" v-if="search" />
+                <q-icon
+                  name="clear"
+                  @click="search = ''"
+                  class="cursor-pointer"
+                  v-if="search"
+                />
               </template>
             </q-input>
 
             <!-- Empty State -->
-            <div v-if="filteredExams.length === 0" class="empty-state q-pa-xl text-center">
+            <div
+              v-if="filteredExams.length === 0"
+              class="empty-state q-pa-xl text-center"
+            >
               <q-icon name="event_busy" size="4rem" color="grey-5" />
-              <div class="text-h6 text-grey-7 q-mt-md">No exams scheduled for this date</div>
+              <div class="text-h6 text-grey-7 q-mt-md">
+                No exams scheduled for this date
+              </div>
             </div>
 
             <!-- Exam Cards -->
@@ -101,10 +118,15 @@
                 flat
                 bordered
               >
-                <q-card-section @click="editExam(exam.id)" class="cursor-pointer">
+                <q-card-section
+                  @click="editExam(exam.id)"
+                  class="cursor-pointer"
+                >
                   <div class="row items-start justify-between">
                     <div class="col-grow">
-                      <div class="text-h6 text-weight-bold">{{ exam.type }}</div>
+                      <div class="text-h6 text-weight-bold">
+                        {{ exam.type }}
+                      </div>
                       <div class="text-subtitle1 q-mt-sm">
                         <q-icon name="location_on" size="sm" color="primary" />
                         {{ exam.location }} - {{ exam.venue }}
@@ -130,7 +152,8 @@
                     <div class="text-right">
                       <div class="text-subtitle2 text-weight-medium">
                         <q-icon name="schedule" size="sm" color="primary" />
-                        {{ formatTimeString(exam.startTime) }} - {{ formatTimeString(exam.endTime) }}
+                        {{ formatTimeString(exam.startTime) }} -
+                        {{ formatTimeString(exam.endTime) }}
                       </div>
                     </div>
                   </div>
@@ -164,7 +187,7 @@
     <q-dialog v-model="state.showAddExam" persistent class="exam-dialog">
       <q-card class="exam-card">
         <q-card-section class="header-section">
-          <div class="text-h6">Add New Exam - {{props.centre}}</div>
+          <div class="text-h6">Add New Exam - {{ props.centre }}</div>
         </q-card-section>
 
         <q-card-section class="form-section">
@@ -173,7 +196,11 @@
               <!-- Location & Venue Section -->
               <div class="form-group">
                 <div class="input-wrapper">
-                  <q-icon name="location_on" class="field-icon" color="primary" />
+                  <q-icon
+                    name="location_on"
+                    class="field-icon"
+                    color="primary"
+                  />
                   <q-select
                     dense
                     filled
@@ -181,7 +208,7 @@
                     label="Location"
                     :options="examLocations"
                     @update:model-value="updateExamVenues"
-                    :rules="[val => !!val || 'Location is required']"
+                    :rules="[(val) => !!val || 'Location is required']"
                     class="full-width"
                   />
                 </div>
@@ -191,9 +218,11 @@
                     dense
                     filled
                     v-model="inputExam.venue"
-                    :label="!inputExam.location ? 'Select a location first' : 'Venue'"
+                    :label="
+                      !inputExam.location ? 'Select a location first' : 'Venue'
+                    "
                     :options="examVenues"
-                    :rules="[val => !!val || 'Venue is required']"
+                    :rules="[(val) => !!val || 'Venue is required']"
                     class="full-width"
                     :disable="!inputExam.location"
                   />
@@ -203,14 +232,14 @@
               <!-- Type & Levels Section -->
               <div class="form-group">
                 <div class="input-wrapper">
-                  <q-icon name="school" class="field-icon" color="primary"/>
+                  <q-icon name="school" class="field-icon" color="primary" />
                   <q-select
                     dense
                     filled
                     v-model="inputExam.type"
                     label="Exam Type"
                     :options="examTypes"
-                    :rules="[val => !!val || 'Exam type is required']"
+                    :rules="[(val) => !!val || 'Exam type is required']"
                     class="full-width"
                   />
                 </div>
@@ -224,7 +253,10 @@
                     :options="levelOptions"
                     multiple
                     use-chips
-                    :rules="[val => val.length > 0 || 'At least one level must be selected']"
+                    :rules="[
+                      (val) =>
+                        val.length > 0 || 'At least one level must be selected',
+                    ]"
                     class="full-width"
                   >
                     <template v-slot:selected-item="scope">
@@ -243,7 +275,7 @@
               <!-- Time Section -->
               <div class="form-group">
                 <div class="input-wrapper">
-                  <q-icon name="schedule" class="field-icon" color="primary"/>
+                  <q-icon name="schedule" class="field-icon" color="primary" />
                   <q-input
                     dense
                     filled
@@ -255,7 +287,7 @@
                   />
                 </div>
                 <div class="input-wrapper">
-                  <q-icon name="schedule" class="field-icon" color="primary"/>
+                  <q-icon name="schedule" class="field-icon" color="primary" />
                   <q-input
                     dense
                     filled
@@ -309,7 +341,7 @@
 
     <!-- Full Note Dialog -->
     <q-dialog v-model="showNoteDialog">
-      <q-card style="min-width: 350px; max-width: 80vw;">
+      <q-card style="min-width: 350px; max-width: 80vw">
         <q-card-section>
           <div class="text-h5">Full Note</div>
         </q-card-section>
@@ -317,7 +349,13 @@
           <p class="text-body1">{{ fullNote }}</p>
         </q-card-section>
         <q-card-actions align="right">
-          <q-btn flat label="Close" color="primary" v-close-popup size="large" />
+          <q-btn
+            flat
+            label="Close"
+            color="primary"
+            v-close-popup
+            size="large"
+          />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -325,9 +363,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, watch, onMounted} from 'vue';
+import { ref, reactive, computed, watch, onMounted } from 'vue';
 import { Loading, QForm } from 'quasar';
-import { DayOfExams, Exam, LevelEnum, ExamTypeEnum, Location, Venue, CentreEnum } from 'src/db/types';
+import {
+  DayOfExams,
+  Exam,
+  LevelEnum,
+  ExamTypeEnum,
+  Location,
+  Venue,
+  CentreEnum,
+} from 'src/db/types';
 import { router } from 'src/router/index';
 import { formatTimeString } from 'src/helpers/FormatTime';
 import { nextTick } from 'vue';
@@ -369,15 +415,18 @@ const examLocations = ref(['']);
 
 const examForm = ref<QForm | null>(null);
 
-examLocations.value = useAdmin().locationsWithVenues.value
-  .filter((location: Location) => location.adminCentre.includes(props.centre))
+examLocations.value = useAdmin()
+  .locationsWithVenues.value.filter((location: Location) =>
+    location.adminCentre.includes(props.centre)
+  )
   .map((location: Location) => location.name);
 
 const updateExamVenues = () => {
   inputExam.venue = '';
-  const selectedLoc: Location | undefined = useAdmin().locationsWithVenues.value.find(
-    (location: Location) => location.name === inputExam.location
-  );
+  const selectedLoc: Location | undefined =
+    useAdmin().locationsWithVenues.value.find(
+      (location: Location) => location.name === inputExam.location
+    );
 
   if (selectedLoc) {
     examVenues.value = selectedLoc.venues.map((venue: Venue) => venue.name);
@@ -388,7 +437,9 @@ onMounted(async () => {
   await useExamDay().loadExamDays(props.centre);
   await useAdmin().getLocationsWithVenues();
   await useExam().loadUpcomingExams();
-  examsRef.value = useExam().upcomingExams.filter((exam) => exam.adminCentre === props.centre);
+  examsRef.value = useExam().upcomingExams.filter(
+    (exam) => exam.adminCentre === props.centre
+  );
 });
 
 const resetInputExam = () => {
@@ -405,18 +456,19 @@ const resetInputExam = () => {
 const state = reactive({
   show: false,
   selectedExamDay: undefined as DayOfExams | undefined,
-  selectedDate: `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}-${currentDate.getDate().toString().padStart(2, '0')}`,
+  selectedDate: `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1)
+    .toString()
+    .padStart(2, '0')}-${currentDate.getDate().toString().padStart(2, '0')}`,
   years: false,
   showAddExam: false,
   isExamDayAvailable: false,
 });
 
-
 const checkExamDayAvailability = (date: string) => {
   if (!date) return false;
 
   const selectedDate = new Date(date);
-  const isAvailable = examDays.some(examDay => {
+  const isAvailable = examDays.some((examDay) => {
     const examDayDate = new Date(examDay.date);
     return (
       selectedDate.getDate() === examDayDate.getDate() &&
@@ -429,10 +481,13 @@ const checkExamDayAvailability = (date: string) => {
   return isAvailable;
 };
 
-watch(() => state.selectedDate, (newDate) => {
-  state.isExamDayAvailable = checkExamDayAvailability(newDate);
-}, { immediate: true });
-
+watch(
+  () => state.selectedDate,
+  (newDate) => {
+    state.isExamDayAvailable = checkExamDayAvailability(newDate);
+  },
+  { immediate: true }
+);
 
 const addExam = async () => {
   const selectedDate = state.selectedDate;
@@ -470,7 +525,9 @@ const addExam = async () => {
         adminCentre: props.centre,
       });
       await useExam().loadUpcomingExams();
-      examsRef.value = useExam().upcomingExams.filter((exam) => exam.adminCentre === props.centre);
+      examsRef.value = useExam().upcomingExams.filter(
+        (exam) => exam.adminCentre === props.centre
+      );
       state.showAddExam = false;
     } else {
       NotificationService.error('No exam day found for selected date');
@@ -488,13 +545,16 @@ const highlightDays = (date: string) => {
   return examDays.some((examDay) => {
     const [year, month, day] = normalizedDate.split('-').map(Number);
     const qDate = new Date(Date.UTC(year, month - 1, day));
-    const examStartDate = new Date(Date.UTC(
-      new Date(examDay.date).getUTCFullYear(),
-      new Date(examDay.date).getUTCMonth(),
-      new Date(examDay.date).getUTCDate()
-    ));
+    const examStartDate = new Date(
+      Date.UTC(
+        new Date(examDay.date).getUTCFullYear(),
+        new Date(examDay.date).getUTCMonth(),
+        new Date(examDay.date).getUTCDate()
+      )
+    );
     return (
-      qDate.toISOString().split('T')[0] === examStartDate.toISOString().split('T')[0] &&
+      qDate.toISOString().split('T')[0] ===
+        examStartDate.toISOString().split('T')[0] &&
       examDay.adminCentre === props.centre
     );
   });
@@ -503,7 +563,9 @@ const highlightDays = (date: string) => {
 const colorPick = (date: string) => {
   const normalizedDate = date.replace(/\//g, '-');
   const [year, month, day] = normalizedDate.split('-').map(Number);
-  const formattedDate = new Date(Date.UTC(year, month - 1, day)).toISOString().split('T')[0];
+  const formattedDate = new Date(Date.UTC(year, month - 1, day))
+    .toISOString()
+    .split('T')[0];
 
   const examsForDate = examsRef.value.filter((exam) => {
     const examStartDate = new Date(exam.startTime).toISOString().split('T')[0];
@@ -511,7 +573,8 @@ const colorPick = (date: string) => {
   });
 
   const examExists = examsForDate.length > 0;
-  const allExamsCompleted = examExists && examsForDate.every((exam) => exam.isPrepared);
+  const allExamsCompleted =
+    examExists && examsForDate.every((exam) => exam.isPrepared);
   const isHighlighted = highlightDays(formattedDate);
 
   if (isHighlighted) {
@@ -525,18 +588,18 @@ const colorPick = (date: string) => {
   return 'green';
 };
 
-
 const filteredExams = computed(() => {
   if (state.selectedDate) {
     return examsRef.value.filter((exam) => {
-      const examStartDate = new Date(exam.startTime).toISOString().split('T')[0];
+      const examStartDate = new Date(exam.startTime)
+        .toISOString()
+        .split('T')[0];
       return examStartDate === state.selectedDate;
     });
   } else {
     return [];
   }
 });
-
 
 const truncatedNote = (note: string | undefined) => {
   const maxLength = 25;
@@ -568,7 +631,20 @@ const cardClass = (exam: Exam) => {
 
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
-  const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const months = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ];
 
   const year = date.getFullYear();
   const month = months[date.getMonth()];
@@ -580,18 +656,24 @@ const formatDate = (dateString: string) => {
 const timeRules = computed(() => ({
   startTime: [
     (val: any) => !!val || 'Start time is required',
-    (val: any) => !inputExam.endTime || val < inputExam.endTime || 'Start time must be before end time'
+    (val: any) =>
+      !inputExam.endTime ||
+      val < inputExam.endTime ||
+      'Start time must be before end time',
   ],
   endTime: [
     (val: any) => !!val || 'End time is required',
-    (val: any) => !inputExam.startTime || val > inputExam.startTime || 'End time must be after start time'
-  ]
-}))
-
+    (val: any) =>
+      !inputExam.startTime ||
+      val > inputExam.startTime ||
+      'End time must be after start time',
+  ],
+}));
 </script>
 
 <style lang="scss" scoped>
-.calendar-card, .exam-list-card {
+.calendar-card,
+.exam-list-card {
   height: 100%;
 }
 
@@ -607,11 +689,11 @@ const timeRules = computed(() => ({
 }
 
 .positive-border {
-  border-left-color: #21BA45 !important;
+  border-left-color: #21ba45 !important;
 }
 
 .complete-border {
-  border-left-color: #FFD700 !important;
+  border-left-color: #ffd700 !important;
 }
 
 // Global style to increase base font size
@@ -624,7 +706,6 @@ const timeRules = computed(() => ({
   overflow-y: auto;
   max-width: 90vw;
 }
-
 
 // Adjust input styles for better consistency
 :deep(.q-field) {
@@ -689,7 +770,7 @@ const timeRules = computed(() => ({
   .input-wrapper {
     position: relative;
     display: flex;
-    align-items:baseline;
+    align-items: baseline;
     gap: 8px;
 
     .field-icon {
@@ -698,7 +779,7 @@ const timeRules = computed(() => ({
     }
 
     :deep(.q-field) {
-      flex:1;
+      flex: 1;
 
       .q-field__control {
         height: 44px;
@@ -753,5 +834,4 @@ const timeRules = computed(() => ({
     }
   }
 }
-
 </style>

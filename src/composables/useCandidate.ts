@@ -30,11 +30,15 @@ export function useCandidate() {
           candidateStore.candidates = [];
           return true;
         } else {
-          NotificationService.error(result.error || 'Failed to upload candidates');
+          NotificationService.error(
+            result.error || 'Failed to upload candidates'
+          );
           return false;
         }
       } catch (error) {
-        NotificationService.error('An error occurred while uploading candidates');
+        NotificationService.error(
+          'An error occurred while uploading candidates'
+        );
         return false;
       }
     }, 'Uploading candidates...');
@@ -47,6 +51,6 @@ export function useCandidate() {
     isImported,
     setCandidates,
     removeCandidate,
-    uploadCandidates
+    uploadCandidates,
   };
 }

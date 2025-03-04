@@ -2,7 +2,6 @@
   <div class="p-4 bg-gray-100 q-ma-sm">
     <q-page class="rounded-lg shadow-md">
       <div class="p-4">
-
         <q-table
           bordered
           :title="'Users: ' + filteredUsersCount"
@@ -12,26 +11,29 @@
           row-key="id"
           class="primary-header"
         >
-        <template v-slot:top>
-          <div class="row items-center justify-between q-pb-md">
-            <h5 class="q-my-none">Users: {{ filteredUsersCount }}</h5>
-            <q-input
-              v-model="searchQuery"
-              placeholder="Search users..."
-              class="col-grow q-ml-md"
-              outlined
-              dense
-              bg-color="white"
-              debounce="100"
-            >
-              <template v-slot:prepend>
-                <q-icon name="search" />
-              </template>
-            </q-input>
-          </div>
-        </template>
+          <template v-slot:top>
+            <div class="row items-center justify-between q-pb-md">
+              <h5 class="q-my-none">Users: {{ filteredUsersCount }}</h5>
+              <q-input
+                v-model="searchQuery"
+                placeholder="Search users..."
+                class="col-grow q-ml-md"
+                outlined
+                dense
+                bg-color="white"
+                debounce="100"
+              >
+                <template v-slot:prepend>
+                  <q-icon name="search" />
+                </template>
+              </q-input>
+            </div>
+          </template>
           <template v-slot:body="props">
-            <q-tr :props="props" :class="props.rowIndex % 2 === 0 ? 'bg-gray-50' : 'bg-white'">
+            <q-tr
+              :props="props"
+              :class="props.rowIndex % 2 === 0 ? 'bg-gray-50' : 'bg-white'"
+            >
               <q-td key="firstName">{{ props.row.firstName }}</q-td>
               <q-td key="lastName">{{ props.row.lastName }}</q-td>
               <q-td key="email">{{ props.row.email }}</q-td>
@@ -48,7 +50,10 @@
                     {{ role }}
                   </q-chip>
                 </div>
-                <q-popup-edit v-model="props.row.role" :disable="!canEditSenior">
+                <q-popup-edit
+                  v-model="props.row.role"
+                  :disable="!canEditSenior"
+                >
                   <q-select
                     label="Roles"
                     v-model="props.row.role"
@@ -75,7 +80,10 @@
                     {{ level }}
                   </q-chip>
                 </div>
-                <q-popup-edit v-model="props.row.level" :disable="!canEditSenior">
+                <q-popup-edit
+                  v-model="props.row.level"
+                  :disable="!canEditSenior"
+                >
                   <q-select
                     label="Levels"
                     v-model="props.row.level"
@@ -102,7 +110,10 @@
                     {{ centre }}
                   </q-chip>
                 </div>
-                <q-popup-edit v-model="props.row.adminCentre" :disable="!currentUserRole?.includes(RoleEnum.Office)">
+                <q-popup-edit
+                  v-model="props.row.adminCentre"
+                  :disable="!currentUserRole?.includes(RoleEnum.Office)"
+                >
                   <q-select
                     label="Centres"
                     v-model="props.row.adminCentre"
@@ -124,25 +135,50 @@
                   :class="{ 'cursor-pointer': canEditSenior }"
                   @click="canEditSenior && toggleIsSenior(props.row)"
                 >
-                  <q-tooltip>{{ props.row.isSenior ? 'Senior' : 'Not Senior' }}</q-tooltip>
+                  <q-tooltip>{{
+                    props.row.isSenior ? 'Senior' : 'Not Senior'
+                  }}</q-tooltip>
                 </q-icon>
               </q-td>
               <q-td key="Exams">
-                {{ `${props.row._count.supervisedExams} | ${props.row._count.invigilatedExams} | ${props.row._count.examinedExams}` }}
+                {{
+                  `${props.row._count.supervisedExams} | ${props.row._count.invigilatedExams} | ${props.row._count.examinedExams}`
+                }}
               </q-td>
               <q-td key="actions">
                 <div class="flex gap-3">
                   <q-btn
                     v-if="canEditSenior"
                     @click="editUser(props.row)"
-                    :color="props.row.isRoleChanged || props.row.isLevelChanged || props.row.isSeniorChanged || props.row.isCentreChanged ? 'blue' : 'grey'"
+                    :color="
+                      props.row.isRoleChanged ||
+                      props.row.isLevelChanged ||
+                      props.row.isSeniorChanged ||
+                      props.row.isCentreChanged
+                        ? 'blue'
+                        : 'grey'
+                    "
                     icon="manage_accounts"
                     size="md"
                     round
                     flat
-                    :disable="!(props.row.isRoleChanged || props.row.isLevelChanged || props.row.isSeniorChanged || props.row.isCentreChanged)"
+                    :disable="
+                      !(
+                        props.row.isRoleChanged ||
+                        props.row.isLevelChanged ||
+                        props.row.isSeniorChanged ||
+                        props.row.isCentreChanged
+                      )
+                    "
                   >
-                    <q-tooltip>{{ props.row.isRoleChanged || props.row.isLevelChanged || props.row.isSeniorChanged || props.row.isCentreChanged ? `Update ${props.row.firstName} ${props.row.lastName}` : 'No changes' }}</q-tooltip>
+                    <q-tooltip>{{
+                      props.row.isRoleChanged ||
+                      props.row.isLevelChanged ||
+                      props.row.isSeniorChanged ||
+                      props.row.isCentreChanged
+                        ? `Update ${props.row.firstName} ${props.row.lastName}`
+                        : 'No changes'
+                    }}</q-tooltip>
                   </q-btn>
                   <q-btn
                     @click="viewUser(props.row)"
@@ -152,7 +188,10 @@
                     round
                     flat
                   >
-                    <q-tooltip>View {{ props.row.firstName }} {{ props.row.lastName }}'s profile</q-tooltip>
+                    <q-tooltip
+                      >View {{ props.row.firstName }} {{ props.row.lastName }}'s
+                      profile</q-tooltip
+                    >
                   </q-btn>
                   <q-btn
                     v-if="currentUserRole?.includes(RoleEnum.Office)"
@@ -163,7 +202,10 @@
                     round
                     flat
                   >
-                    <q-tooltip>Deactivate {{ props.row.firstName }} {{ props.row.lastName }}'s account</q-tooltip>
+                    <q-tooltip
+                      >Deactivate {{ props.row.firstName }}
+                      {{ props.row.lastName }}'s account</q-tooltip
+                    >
                   </q-btn>
                 </div>
               </q-td>
@@ -172,22 +214,22 @@
           <template v-slot:bottom>
             <div class="row items-center justify-between full-width q-px-sm">
               <q-btn
-              :disable="!currentUserRole?.includes(RoleEnum.Office)"
-              class="on right"
-              @click="state.newUser = true"
-              color="primary"
-              icon="person_add"
-              label="Add user"
-            />
-            <q-pagination
-            v-model="pagination.page"
-            :max="maxPages"
-            boundary-numbers
-            boundary-links
-            direction-links
-            outline
-            color="primary"
-            />
+                :disable="!currentUserRole?.includes(RoleEnum.Office)"
+                class="on right"
+                @click="state.newUser = true"
+                color="primary"
+                icon="person_add"
+                label="Add user"
+              />
+              <q-pagination
+                v-model="pagination.page"
+                :max="maxPages"
+                boundary-numbers
+                boundary-links
+                direction-links
+                outline
+                color="primary"
+              />
             </div>
             <q-dialog v-model="state.newUser" persistent>
               <q-card>
@@ -221,7 +263,10 @@
                       fill-input
                       label="Roles"
                       use-chips
-                      :rules="[(val) => !!val.length || 'At least one role is required']"
+                      :rules="[
+                        (val) =>
+                          !!val.length || 'At least one role is required',
+                      ]"
                       lazy-rules
                     />
                     <q-select
@@ -233,7 +278,10 @@
                       fill-input
                       label="Centres"
                       use-chips
-                      :rules="[(val) => !!val.length || 'At least one centre is required']"
+                      :rules="[
+                        (val) =>
+                          !!val.length || 'At least one centre is required',
+                      ]"
                       lazy-rules
                     />
                   </q-form>
@@ -243,7 +291,11 @@
                       label="Cancel"
                       @click="state.newUser = false"
                     />
-                    <q-btn color="primary" label="Add user" @click="submitForm" />
+                    <q-btn
+                      color="primary"
+                      label="Add user"
+                      @click="submitForm"
+                    />
                   </q-card-actions>
                 </q-card-section>
               </q-card>
@@ -267,20 +319,22 @@ import { useAdmin } from 'src/composables/useAdmin';
 
 const router = useRouter();
 
-const usersRef = ref<ExtendedUser[]>(useUser().users.map(user => ({
-  ...user,
-  role: user.role || [],
-  level: user.level || [],
-  isSenior: user.isSenior || false,
-  isRoleChanged: false,
-  isLevelChanged: false,
-  isSeniorChanged: false,
-  isCentreChanged: false,
-  originalRoles: [...(user.role || [])],
-  originalLevels: [...(user.level || [])],
-  originalIsSenior: user.isSenior || false,
-  originalCentres: [...(user.adminCentre || [])],
-})));
+const usersRef = ref<ExtendedUser[]>(
+  useUser().users.map((user) => ({
+    ...user,
+    role: user.role || [],
+    level: user.level || [],
+    isSenior: user.isSenior || false,
+    isRoleChanged: false,
+    isLevelChanged: false,
+    isSeniorChanged: false,
+    isCentreChanged: false,
+    originalRoles: [...(user.role || [])],
+    originalLevels: [...(user.level || [])],
+    originalIsSenior: user.isSenior || false,
+    originalCentres: [...(user.adminCentre || [])],
+  }))
+);
 
 const searchQuery = ref('');
 
@@ -290,12 +344,13 @@ const filteredUsersRef = computed(() => {
   }
 
   const query = searchQuery.value.toLowerCase();
-  return usersRef.value.filter(user =>
-    user.firstName.toLowerCase().includes(query) ||
-    user.lastName.toLowerCase().includes(query) ||
-    user.email.toLowerCase().includes(query) ||
-    user.role.some(role => role.toLowerCase().includes(query)) ||
-    user.level.some(level => level.toLowerCase().includes(query))
+  return usersRef.value.filter(
+    (user) =>
+      user.firstName.toLowerCase().includes(query) ||
+      user.lastName.toLowerCase().includes(query) ||
+      user.email.toLowerCase().includes(query) ||
+      user.role.some((role) => role.toLowerCase().includes(query)) ||
+      user.level.some((level) => level.toLowerCase().includes(query))
   );
 });
 
@@ -305,31 +360,86 @@ const currentUserRole = computed(() => useUser().getUserRole());
 
 const canEditSenior = computed(() => {
   const roles = currentUserRole.value;
-  return roles?.includes(RoleEnum.Office) || roles?.includes(RoleEnum.Developer);
+  return (
+    roles?.includes(RoleEnum.Office) || roles?.includes(RoleEnum.Developer)
+  );
 });
 
 const columns: any[] = [
-  { name: 'firstName', required: true, label: 'First name', align: 'left', field: 'firstName', sortable: true },
-  { name: 'lastName', align: 'left', label: 'Last name', field: 'lastName', sortable: true },
-  { name: 'email', align: 'left', label: 'Email', field: 'email', sortable: true },
+  {
+    name: 'firstName',
+    required: true,
+    label: 'First name',
+    align: 'left',
+    field: 'firstName',
+    sortable: true,
+  },
+  {
+    name: 'lastName',
+    align: 'left',
+    label: 'Last name',
+    field: 'lastName',
+    sortable: true,
+  },
+  {
+    name: 'email',
+    align: 'left',
+    label: 'Email',
+    field: 'email',
+    sortable: true,
+  },
   { name: 'role', align: 'left', label: 'Role', field: 'role', sortable: true },
-  { name: 'level', align: 'left', label: 'Levels', field: 'level', sortable: true },
-  { name: 'adminCentre', align: 'left', label: 'Centres', field: 'adminCentre', sortable: true },
-  { name: 'isSenior', align: 'left', label: 'Senior', field: 'isSenior', sortable: true },
-  { name: 'Exams', align: 'left', label: 'Exams (S | I | E)', field: (row: ExtendedUser) => `${row._count.supervisedExams} | ${row._count.invigilatedExams} | ${row._count.examinedExams}`, sortable: true },
-  { name: 'actions', align: 'left', label: 'Actions', field: 'actions' }
+  {
+    name: 'level',
+    align: 'left',
+    label: 'Levels',
+    field: 'level',
+    sortable: true,
+  },
+  {
+    name: 'adminCentre',
+    align: 'left',
+    label: 'Centres',
+    field: 'adminCentre',
+    sortable: true,
+  },
+  {
+    name: 'isSenior',
+    align: 'left',
+    label: 'Senior',
+    field: 'isSenior',
+    sortable: true,
+  },
+  {
+    name: 'Exams',
+    align: 'left',
+    label: 'Exams (S | I | E)',
+    field: (row: ExtendedUser) =>
+      `${row._count.supervisedExams} | ${row._count.invigilatedExams} | ${row._count.examinedExams}`,
+    sortable: true,
+  },
+  { name: 'actions', align: 'left', label: 'Actions', field: 'actions' },
 ];
 
 const Roles = computed(() => {
-  return Object.entries(RoleEnum).map(([key, value]) => ({ label: value, value: key as RoleEnum }));
+  return Object.entries(RoleEnum).map(([key, value]) => ({
+    label: value,
+    value: key as RoleEnum,
+  }));
 });
 
 const Centres = computed(() => {
-  return Object.entries(CentreEnum).map(([key, value]) => ({ label: value, value: key as CentreEnum }));
+  return Object.entries(CentreEnum).map(([key, value]) => ({
+    label: value,
+    value: key as CentreEnum,
+  }));
 });
 
 const Levels = computed(() => {
-  return Object.entries(LevelEnum).map(([key, value]) => ({ label: value, value: key as LevelEnum }));
+  return Object.entries(LevelEnum).map(([key, value]) => ({
+    label: value,
+    value: key as LevelEnum,
+  }));
 });
 
 const viewUser = async (user: ExtendedUser) => {
@@ -338,7 +448,7 @@ const viewUser = async (user: ExtendedUser) => {
 };
 
 const state = reactive({
-  newUser: false
+  newUser: false,
 });
 
 const newUser = ref({
@@ -354,25 +464,39 @@ const newUser = ref({
 const newUserForm = ref(null);
 
 async function addUser() {
-  await useAdmin().registerUser(newUser.value.firstName, newUser.value.lastName, newUser.value.email, newUser.value.role, newUser.value.centre);
-  newUser.value = { firstName: '', lastName: '', email: '', role: [], level: [], isSenior: false, centre: [] };
+  await useAdmin().registerUser(
+    newUser.value.firstName,
+    newUser.value.lastName,
+    newUser.value.email,
+    newUser.value.role,
+    newUser.value.centre
+  );
+  newUser.value = {
+    firstName: '',
+    lastName: '',
+    email: '',
+    role: [],
+    level: [],
+    isSenior: false,
+    centre: [],
+  };
   state.newUser = false;
   await useUser().getAllUsers();
-  usersRef.value = useUser().users.map(user => ({
-  ...user,
-  role: user.role || [],
-  level: user.level || [],
-  adminCentre: user.adminCentre || [],
-  isSenior: user.isSenior || false,
-  isRoleChanged: false,
-  isLevelChanged: false,
-  isCentreChanged: false,
-  isSeniorChanged: false,
-  originalRoles: [...(user.role || [])],
-  originalLevels: [...(user.level || [])],
-  originalCentres: [...(user.adminCentre || [])],
-  originalIsSenior: user.isSenior || false,
-}));
+  usersRef.value = useUser().users.map((user) => ({
+    ...user,
+    role: user.role || [],
+    level: user.level || [],
+    adminCentre: user.adminCentre || [],
+    isSenior: user.isSenior || false,
+    isRoleChanged: false,
+    isLevelChanged: false,
+    isCentreChanged: false,
+    isSeniorChanged: false,
+    originalRoles: [...(user.role || [])],
+    originalLevels: [...(user.level || [])],
+    originalCentres: [...(user.adminCentre || [])],
+    originalIsSenior: user.isSenior || false,
+  }));
 }
 
 async function editUser(item: ExtendedUser) {
@@ -388,7 +512,10 @@ async function editUser(item: ExtendedUser) {
     await useAdmin().updateUserIsSenior(updatedUser.id, updatedUser.isSenior);
   }
   if (updatedUser.isCentreChanged) {
-    await useAdmin().updateUserAdminCentre(updatedUser.id, updatedUser.adminCentre);
+    await useAdmin().updateUserAdminCentre(
+      updatedUser.id,
+      updatedUser.adminCentre
+    );
   }
   usersRef.value[index] = updatedUser;
   updatedUser.isRoleChanged = false;
@@ -404,21 +531,21 @@ async function editUser(item: ExtendedUser) {
 async function deactivateUser(user: ExtendedUser) {
   await useAdmin().deactivateUser(user.id);
   await useUser().getAllUsers();
-  usersRef.value = useUser().users.map(user => ({
-  ...user,
-  role: user.role || [],
-  level: user.level || [],
-  adminCentre: user.adminCentre || [],
-  isSenior: user.isSenior || false,
-  isRoleChanged: false,
-  isLevelChanged: false,
-  isCentreChanged: false,
-  isSeniorChanged: false,
-  originalRoles: [...(user.role || [])],
-  originalLevels: [...(user.level || [])],
-  originalCentres: [...(user.adminCentre || [])],
-  originalIsSenior: user.isSenior || false,
-}));
+  usersRef.value = useUser().users.map((user) => ({
+    ...user,
+    role: user.role || [],
+    level: user.level || [],
+    adminCentre: user.adminCentre || [],
+    isSenior: user.isSenior || false,
+    isRoleChanged: false,
+    isLevelChanged: false,
+    isCentreChanged: false,
+    isSeniorChanged: false,
+    originalRoles: [...(user.role || [])],
+    originalLevels: [...(user.level || [])],
+    originalCentres: [...(user.adminCentre || [])],
+    originalIsSenior: user.isSenior || false,
+  }));
 }
 
 const handleRoleChange = (user: ExtendedUser) => {
@@ -426,7 +553,10 @@ const handleRoleChange = (user: ExtendedUser) => {
 };
 
 const handleLevelChange = (user: ExtendedUser) => {
-  user.isLevelChanged = !_.isEqual(user.originalLevels.sort(), user.level.sort());
+  user.isLevelChanged = !_.isEqual(
+    user.originalLevels.sort(),
+    user.level.sort()
+  );
 };
 
 const handleIsSeniorChange = (user: ExtendedUser) => {
@@ -434,7 +564,10 @@ const handleIsSeniorChange = (user: ExtendedUser) => {
 };
 
 const handleCentreChange = (user: ExtendedUser) => {
-  user.isCentreChanged = !_.isEqual(user.originalCentres.sort(), user.adminCentre.sort());
+  user.isCentreChanged = !_.isEqual(
+    user.originalCentres.sort(),
+    user.adminCentre.sort()
+  );
 };
 
 const toggleIsSenior = (user: ExtendedUser) => {
@@ -442,24 +575,40 @@ const toggleIsSenior = (user: ExtendedUser) => {
   handleIsSeniorChange(user);
 };
 
-watch(usersRef, (newUsers) => {
-  newUsers.forEach(newUser => {
-    newUser.isRoleChanged = !_.isEqual(sortRoles(newUser.originalRoles), sortRoles(newUser.role));
-    newUser.isLevelChanged = !_.isEqual(sortLevels(newUser.originalLevels), sortLevels(newUser.level));
-    newUser.isCentreChanged = !_.isEqual(sortCentres(newUser.originalCentres), sortCentres(newUser.adminCentre));
-    newUser.isSeniorChanged = newUser.originalIsSenior !== newUser.isSenior;
-  });
-}, { deep: true });
+watch(
+  usersRef,
+  (newUsers) => {
+    newUsers.forEach((newUser) => {
+      newUser.isRoleChanged = !_.isEqual(
+        sortRoles(newUser.originalRoles),
+        sortRoles(newUser.role)
+      );
+      newUser.isLevelChanged = !_.isEqual(
+        sortLevels(newUser.originalLevels),
+        sortLevels(newUser.level)
+      );
+      newUser.isCentreChanged = !_.isEqual(
+        sortCentres(newUser.originalCentres),
+        sortCentres(newUser.adminCentre)
+      );
+      newUser.isSeniorChanged = newUser.originalIsSenior !== newUser.isSenior;
+    });
+  },
+  { deep: true }
+);
 
 function submitForm() {
   const form = newUserForm.value as any;
-  form.validate().then((valid: boolean) => {
-    if (valid) {
-      addUser();
-    }
-  }).catch((errors: any) => {
-    console.error(errors);
-  });
+  form
+    .validate()
+    .then((valid: boolean) => {
+      if (valid) {
+        addUser();
+      }
+    })
+    .catch((errors: any) => {
+      console.error(errors);
+    });
 }
 
 const pagination = ref({
@@ -490,5 +639,4 @@ const maxPages = computed(() => {
   font-size: 12px;
   height: 28px;
 }
-
 </style>

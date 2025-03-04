@@ -7,30 +7,30 @@
 </template>
 
 <script setup lang="ts">
-import SubstitutionList from 'components/Exams/SubstitutionList.vue'
-import { onMounted, reactive } from 'vue'
-import { useSubstitutionStore } from 'stores/substitutionStore'
-import { Loading } from 'quasar'
-import { useUser } from 'src/composables/useUser'
+import SubstitutionList from 'components/Exams/SubstitutionList.vue';
+import { onMounted, reactive } from 'vue';
+import { useSubstitutionStore } from 'stores/substitutionStore';
+import { Loading } from 'quasar';
+import { useUser } from 'src/composables/useUser';
 
-const substitutionStore = useSubstitutionStore()
+const substitutionStore = useSubstitutionStore();
 
 const state = reactive({
   isLoaded: false,
-})
+});
 
 onMounted(async () => {
-  state.isLoaded = false
+  state.isLoaded = false;
   Loading.show({
     message: 'Loading substitutions...',
     spinnerColor: 'amber',
     messageColor: 'amber',
     backgroundColor: 'black',
-  })
-  await substitutionStore.loadSubstitutions()
-  await substitutionStore.loadMyApplications()
+  });
+  await substitutionStore.loadSubstitutions();
+  await substitutionStore.loadMyApplications();
   useUser().getUserInfo();
-  Loading.hide()
-  state.isLoaded = true
-})
+  Loading.hide();
+  state.isLoaded = true;
+});
 </script>

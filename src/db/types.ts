@@ -54,7 +54,7 @@ export interface AbsentCandidates {
   id: number | undefined;
   firstName: string;
   lastName: string;
-  level: string
+  level: string;
 }
 
 export interface userConfirmations {
@@ -102,11 +102,11 @@ export enum RoleEnum {
   Office = 'Office',
   Supervisor = 'Supervisor',
   Invigilator = 'Invigilator',
-  Developer  = 'Developer',
+  Developer = 'Developer',
   Examiner = 'Examiner',
 }
 
-export enum CentreEnum{
+export enum CentreEnum {
   Brno = 'Brno',
   Praha = 'Praha',
 }
@@ -147,10 +147,10 @@ export interface UserResponsesWithType {
 
 export interface dayResponse {
   dayOfExamsId: number;
-  id : number;
-  response : string;
-  userName : string;
-  userRole : string[];
+  id: number;
+  response: string;
+  userName: string;
+  userRole: string[];
   assigned: boolean;
   userId: number;
   userNote?: string | null;
@@ -214,7 +214,7 @@ export interface PostWithAvatar extends Omit<Post, 'author'> {
   };
 }
 
-export interface File{
+export interface File {
   id?: number;
   name: string;
   postId?: number;
@@ -224,7 +224,7 @@ export interface File{
   post?: Post;
 }
 
-export interface DayReport{
+export interface DayReport {
   id: number;
   name: string;
   examId: number;
@@ -232,7 +232,7 @@ export interface DayReport{
   authorId: number;
 }
 
-export enum SubstitutionStatusEnum{
+export enum SubstitutionStatusEnum {
   Open = 'Open',
   Assigned = 'Assigned',
   Closed = 'Closed',
@@ -276,5 +276,5 @@ export interface SubstitutionApplication {
 export enum ApplicationStatusEnum {
   Pending = 'Pending',
   Accepted = 'Accepted',
-  Rejected = 'Rejected'
+  Rejected = 'Rejected',
 }

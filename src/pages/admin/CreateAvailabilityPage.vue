@@ -29,12 +29,11 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive} from 'vue';
+import { onMounted, reactive } from 'vue';
 import CreateAvailability from 'src/components/Availability/CreateAvailability.vue';
 import { CentreEnum } from 'src/db/types';
 import { useUser } from 'src/composables/useUser';
 import { useExamDay } from 'src/composables/useExamDay';
-
 
 const centres = Object.values(CentreEnum);
 

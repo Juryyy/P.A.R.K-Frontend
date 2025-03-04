@@ -1,39 +1,55 @@
 <template>
-    <div class="q-pa-md">
-      <!-- Filter Section -->
-      <div class="row items-center q-gutter-sm q-mb-md">
-        <q-icon name="filter_list" color="grey-7" size="sm" />
-        <q-chip
-          clickable
-          :selected="selectedCentres.includes('All')"
-          @click="toggleFilter('All')"
-          color="grey"
-          text-color="white"
-        >
-          All
-        </q-chip>
-        <q-chip
-          v-for="centre in Object.values(CentreEnum)"
-          :key="centre"
-          clickable
-          :selected="selectedCentres.includes(centre)"
-          @click="toggleFilter(centre)"
-          color="grey"
-          text-color="white"
-        >
-          {{ centre }}
-        </q-chip>
-      </div>
+  <div class="q-pa-md">
+    <!-- Filter Section -->
+    <div class="row items-center q-gutter-sm q-mb-md">
+      <q-icon name="filter_list" color="grey-7" size="sm" />
+      <q-chip
+        clickable
+        :selected="selectedCentres.includes('All')"
+        @click="toggleFilter('All')"
+        color="grey"
+        text-color="white"
+      >
+        All
+      </q-chip>
+      <q-chip
+        v-for="centre in Object.values(CentreEnum)"
+        :key="centre"
+        clickable
+        :selected="selectedCentres.includes(centre)"
+        @click="toggleFilter(centre)"
+        color="grey"
+        text-color="white"
+      >
+        {{ centre }}
+      </q-chip>
+    </div>
 
-      <q-card class="q-mb-md location-card" v-for="location in filteredLocations" :key="location.id">
+    <q-card
+      class="q-mb-md location-card"
+      v-for="location in filteredLocations"
+      :key="location.id"
+    >
       <q-card-section>
         <div class="row items-center justify-between q-mb-md">
           <h4 class="text-h5 q-my-none">{{ location.name }}</h4>
           <div>
-            <q-chip v-for="centre in location.adminCentre" :key="centre" color="primary" text-color="white">{{ centre }}</q-chip>
+            <q-chip
+              v-for="centre in location.adminCentre"
+              :key="centre"
+              color="primary"
+              text-color="white"
+              >{{ centre }}</q-chip
+            >
           </div>
           <div>
-            <q-btn flat round color="negative" icon="delete" @click="removeLocation(location.id)">
+            <q-btn
+              flat
+              round
+              color="negative"
+              icon="delete"
+              @click="removeLocation(location.id)"
+            >
               <q-tooltip>Remove Location</q-tooltip>
             </q-btn>
           </div>
@@ -53,10 +69,22 @@
               </q-td>
               <q-td key="actions" :props="props">
                 <div class="row q-gutter-sm justify-end">
-                  <q-btn flat round color="primary" icon="map" @click="showVenue(props.row.gLink)">
+                  <q-btn
+                    flat
+                    round
+                    color="primary"
+                    icon="map"
+                    @click="showVenue(props.row.gLink)"
+                  >
                     <q-tooltip>Open in Maps</q-tooltip>
                   </q-btn>
-                  <q-btn flat round color="negative" icon="delete" @click="removeVenue(props.row.id)">
+                  <q-btn
+                    flat
+                    round
+                    color="negative"
+                    icon="delete"
+                    @click="removeVenue(props.row.id)"
+                  >
                     <q-tooltip>Remove Venue</q-tooltip>
                   </q-btn>
                 </div>
@@ -65,7 +93,13 @@
           </template>
         </q-table>
         <div class="text-right q-mt-sm">
-          <q-btn flat round color="primary" icon="add" @click="showVenueDialog(location.id)">
+          <q-btn
+            flat
+            round
+            color="primary"
+            icon="add"
+            @click="showVenueDialog(location.id)"
+          >
             <q-tooltip>Add Venue</q-tooltip>
           </q-btn>
         </div>
@@ -73,11 +107,18 @@
     </q-card>
 
     <div class="row items-center q-gutter-sm">
-      <q-btn unelevated color="primary" icon-right="add" label="Add Location" @click="state.showLocation = true" />
+      <q-btn
+        unelevated
+        color="primary"
+        icon-right="add"
+        label="Add Location"
+        @click="state.showLocation = true"
+      />
       <q-btn flat round color="primary" icon="help" size="sm">
         <q-tooltip class="bg-primary">
           Location is a general place, like Brno, Praha or Zlín
-          <br>Venue is the actual place, ex. Biskupské gymnázium, with full address
+          <br />Venue is the actual place, ex. Biskupské gymnázium, with full
+          address
         </q-tooltip>
       </q-btn>
     </div>
@@ -115,7 +156,9 @@
   <q-dialog v-model="state.showVenue">
     <q-card style="min-width: 350px">
       <q-card-section>
-        <div class="text-h6" v-if="selectedLocation">Add Venue to {{selectedLocation.name}}</div>
+        <div class="text-h6" v-if="selectedLocation">
+          Add Venue to {{ selectedLocation.name }}
+        </div>
       </q-card-section>
 
       <q-card-section class="q-pt-none">
@@ -137,7 +180,11 @@
 
       <q-card-actions align="right" class="text-primary">
         <q-btn flat label="Cancel" v-close-popup />
-        <q-btn unelevated label="Add Venue" @click="addVenue(selectedLocation!)" />
+        <q-btn
+          unelevated
+          label="Add Venue"
+          @click="addVenue(selectedLocation!)"
+        />
       </q-card-actions>
     </q-card>
   </q-dialog>
@@ -160,7 +207,6 @@ const locationName = ref('');
 const locationCentre = ref<CentreEnum[]>([]);
 const selectedCentres = ref<string[]>(['All']);
 
-
 const columns = [
   {
     name: 'name',
@@ -173,7 +219,7 @@ const columns = [
     label: 'Actions',
     field: 'actions',
     align: 'right' as const,
-  }
+  },
 ];
 
 const state = reactive({
@@ -185,10 +231,12 @@ const filteredLocations = computed(() => {
   if (selectedCentres.value.includes('All')) {
     return locationsRef.value;
   }
-  return locationsRef.value.filter(location =>
-    Array.isArray(location.adminCentre) && location.adminCentre.some(centre =>
-      selectedCentres.value.includes(centre)
-    )
+  return locationsRef.value.filter(
+    (location) =>
+      Array.isArray(location.adminCentre) &&
+      location.adminCentre.some((centre) =>
+        selectedCentres.value.includes(centre)
+      )
   );
 });
 
@@ -211,7 +259,7 @@ const addLocation = async () => {
     return;
   }
 
-  if(!locationCentre.value) {
+  if (!locationCentre.value) {
     NotificationService.error('Admin centre is required');
     return;
   }
@@ -227,21 +275,22 @@ const addLocation = async () => {
 const removeLocation = async (locationId: number) => {
   Dialog.create({
     title: 'Remove Location',
-    message: 'Are you sure you want to remove this location? All associated venues will be removed.',
+    message:
+      'Are you sure you want to remove this location? All associated venues will be removed.',
     ok: {
       label: 'Remove',
       color: 'negative',
-      flat: true
+      flat: true,
     },
     cancel: {
       label: 'Cancel',
       color: 'primary',
-      flat: true
+      flat: true,
     },
   }).onOk(async () => {
-      await useAdmin().removeLocation(locationId);
-      await useAdmin().getLocationsWithVenues();
-      locationsRef.value = useAdmin().locationsWithVenues.value;
+    await useAdmin().removeLocation(locationId);
+    await useAdmin().getLocationsWithVenues();
+    locationsRef.value = useAdmin().locationsWithVenues.value;
   });
 };
 
@@ -271,25 +320,25 @@ const removeVenue = async (venue: number) => {
     ok: {
       label: 'Remove',
       color: 'negative',
-      flat: true
+      flat: true,
     },
     cancel: {
       label: 'Cancel',
       color: 'primary',
-      flat: true
+      flat: true,
     },
   }).onOk(async () => {
-  await useAdmin().removeVenue(venue);
-  await useAdmin().getLocationsWithVenues();
-  locationsRef.value = useAdmin().locationsWithVenues.value;
+    await useAdmin().removeVenue(venue);
+    await useAdmin().getLocationsWithVenues();
+    locationsRef.value = useAdmin().locationsWithVenues.value;
   });
 };
 
 const showVenueDialog = (locationId: number) => {
-  const location = locationsRef.value.find(loc => loc.id === locationId);
+  const location = locationsRef.value.find((loc) => loc.id === locationId);
   if (!location) {
     NotificationService.error('Location not found');
-    return
+    return;
   }
 
   selectedLocation.value = location;
@@ -297,13 +346,15 @@ const showVenueDialog = (locationId: number) => {
 };
 
 const showMap = () => {
-  const url = `https://www.google.com/maps?q=${encodeURIComponent(venueName.value)}`;
+  const url = `https://www.google.com/maps?q=${encodeURIComponent(
+    venueName.value
+  )}`;
   window.open(url, '_blank');
-}
+};
 
 const showVenue = (gLink: string) => {
   window.open(gLink, '_blank');
-}
+};
 </script>
 
 <style scoped>

@@ -15,7 +15,7 @@ declare module '@vue/runtime-core' {
 
 const api = axios.create({
   baseURL: config.backendUrl,
-  withCredentials: true
+  withCredentials: true,
 });
 
 api.interceptors.response.use(

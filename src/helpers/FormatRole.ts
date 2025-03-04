@@ -26,7 +26,7 @@ const roleOrder: { [key in RoleEnum]: number } = {
   [RoleEnum.Supervisor]: 2,
   [RoleEnum.Examiner]: 3,
   [RoleEnum.Invigilator]: 4,
-  [RoleEnum.Developer]: 5
+  [RoleEnum.Developer]: 5,
 };
 
 export const sortRoles = (roles: RoleEnum[]): RoleEnum[] => {
@@ -35,7 +35,7 @@ export const sortRoles = (roles: RoleEnum[]): RoleEnum[] => {
 
 const centreOrder: { [key in string]: number } = {
   [CentreEnum.Brno]: 1,
-  [CentreEnum.Praha]: 2
+  [CentreEnum.Praha]: 2,
 };
 
 export const sortCentres = (centres: CentreEnum[]): CentreEnum[] => {

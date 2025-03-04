@@ -69,63 +69,63 @@ const routes: RouteRecordRaw[] = [
       {
         path: '/admin',
         children: [
-      {
-        path: 'import-candidates',
-        component: () => import('pages/admin/CandidatesImport.vue'),
-        name: 'ImportCandidates',
-        beforeEnter: [checkOffice, checkIfUserIsActivated],
-        meta: {
-          title: 'Import Candidates',
-        },
+          {
+            path: 'import-candidates',
+            component: () => import('pages/admin/CandidatesImport.vue'),
+            name: 'ImportCandidates',
+            beforeEnter: [checkOffice, checkIfUserIsActivated],
+            meta: {
+              title: 'Import Candidates',
+            },
+          },
+          {
+            path: 'exams',
+            component: () => import('pages/admin/ExamsPage.vue'),
+            name: 'Exams',
+            beforeEnter: [checkOffice, checkIfUserIsActivated],
+            meta: {
+              title: 'Exams',
+            },
+          },
+          {
+            path: 'exams/:id',
+            component: () => import('pages/admin/ExamPage.vue'),
+            name: 'Exam',
+            beforeEnter: [checkOffice, checkIfUserIsActivated],
+            props: true,
+            meta: {
+              title: 'Exam',
+            },
+          },
+          {
+            path: 'create-availability',
+            component: () => import('pages/admin/CreateAvailabilityPage.vue'),
+            name: 'CreateAvailability',
+            beforeEnter: [checkOffice, checkIfUserIsActivated],
+            meta: {
+              title: 'Create Availability',
+            },
+          },
+          {
+            path: 'admin-panel',
+            component: () => import('pages/admin/AdminPanel.vue'),
+            name: 'AdminPanel',
+            beforeEnter: [checkOffice, checkIfUserIsActivated],
+            meta: {
+              title: 'Admin Panel',
+            },
+          },
+          {
+            path: 'users',
+            component: () => import('pages/admin/UsersPage.vue'),
+            name: 'Users',
+            beforeEnter: [checkOffice, checkIfUserIsActivated],
+            meta: {
+              title: 'Users',
+            },
+          },
+        ],
       },
-      {
-        path: 'exams',
-        component: () => import('pages/admin/ExamsPage.vue'),
-        name: 'Exams',
-        beforeEnter: [checkOffice, checkIfUserIsActivated],
-        meta: {
-          title: 'Exams',
-        },
-      },
-      {
-        path: 'exams/:id',
-        component: () => import('pages/admin/ExamPage.vue'),
-        name: 'Exam',
-        beforeEnter: [checkOffice, checkIfUserIsActivated],
-        props: true,
-        meta: {
-          title: 'Exam',
-        },
-      },
-      {
-        path: 'create-availability',
-        component: () => import('pages/admin/CreateAvailabilityPage.vue'),
-        name: 'CreateAvailability',
-        beforeEnter: [checkOffice, checkIfUserIsActivated],
-        meta: {
-          title: 'Create Availability',
-        },
-      },
-      {
-        path: 'admin-panel',
-        component: () => import('pages/admin/AdminPanel.vue'),
-        name: 'AdminPanel',
-        beforeEnter: [checkOffice, checkIfUserIsActivated],
-        meta: {
-          title: 'Admin Panel',
-        },
-      },
-      {
-        path: 'users',
-        component: () => import('pages/admin/UsersPage.vue'),
-        name: 'Users',
-        beforeEnter: [checkOffice, checkIfUserIsActivated],
-        meta: {
-          title: 'Users',
-        },
-      },
-    ],
-    },
     ],
   },
   {
@@ -174,14 +174,12 @@ function checkAuth(
       return;
     }
 
-    Notify.create(
-      {
-        message: 'Your account is not activated',
-        position: 'bottom',
-        icon: 'report_problem',
-        color: 'warning',
-      }
-    );
+    Notify.create({
+      message: 'Your account is not activated',
+      position: 'bottom',
+      icon: 'report_problem',
+      color: 'warning',
+    });
     next('/user/' + user.id);
     return;
   }
@@ -206,7 +204,11 @@ async function checkOfficeTrue(to: RouteLocationNormalized): Promise<boolean> {
   const user = useUserStore().getUserInfo();
   const examId = Number(to.params.id);
   await useExamStore().getExam(examId);
-  return (user.role && (user.role.includes('Office') || user.role.includes('Developer'))) ?? false;
+  return (
+    (user.role &&
+      (user.role.includes('Office') || user.role.includes('Developer'))) ??
+    false
+  );
 }
 
 async function checkIfAssigned(to: RouteLocationNormalized): Promise<boolean> {
@@ -230,9 +232,10 @@ async function checkIfAssigned(to: RouteLocationNormalized): Promise<boolean> {
       return false;
     }
 
-    const hasAccess = exam.supervisors.some(supervisor => supervisor.id === user.id) ||
-      exam.invigilators.some(invigilator => invigilator.id === user.id) ||
-      exam.examiners.some(examiner => examiner.id === user.id);
+    const hasAccess =
+      exam.supervisors.some((supervisor) => supervisor.id === user.id) ||
+      exam.invigilators.some((invigilator) => invigilator.id === user.id) ||
+      exam.examiners.some((examiner) => examiner.id === user.id);
 
     if (!hasAccess) {
       return false;
@@ -245,7 +248,6 @@ async function checkIfAssigned(to: RouteLocationNormalized): Promise<boolean> {
   }
 }
 
-
 async function examCheck(
   to: RouteLocationNormalized,
   from: RouteLocationNormalized,
@@ -256,13 +258,11 @@ async function examCheck(
   } else if (await checkIfAssigned(to)) {
     next();
   } else {
-    Notify.create(
-      {
-        message: 'You are not authorized to access this page',
-        position: 'bottom',
-        color: 'warning',
-      }
-    );
+    Notify.create({
+      message: 'You are not authorized to access this page',
+      position: 'bottom',
+      color: 'warning',
+    });
     next('/');
   }
 }
@@ -295,15 +295,13 @@ function checkIfUserIsActivated(
       return;
     }
 
-    Notify.create(
-      {
-        message: 'Your account is not activated',
-        position: 'bottom',
-        icon: 'report_problem',
-        color: 'orange-6',
-      }
-    );
-    if(from.name === 'UserProfile'){
+    Notify.create({
+      message: 'Your account is not activated',
+      position: 'bottom',
+      icon: 'report_problem',
+      color: 'orange-6',
+    });
+    if (from.name === 'UserProfile') {
       return;
     }
     next('/user/' + user.id);

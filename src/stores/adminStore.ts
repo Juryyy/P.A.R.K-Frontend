@@ -27,7 +27,7 @@ export const useAdminStore = defineStore('admin', {
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Failed to update user role'
+          error: error.response?.data?.error || 'Failed to update user role',
         };
       }
     },
@@ -45,13 +45,13 @@ export const useAdminStore = defineStore('admin', {
           lastName,
           email,
           role,
-          centre
+          centre,
         });
         return { success: true, data: response.data };
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Failed to register user'
+          error: error.response?.data?.error || 'Failed to register user',
         };
       }
     },
@@ -64,7 +64,9 @@ export const useAdminStore = defineStore('admin', {
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Failed to get locations with venues'
+          error:
+            error.response?.data?.error ||
+            'Failed to get locations with venues',
         };
       }
     },
@@ -76,12 +78,15 @@ export const useAdminStore = defineStore('admin', {
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Failed to deactivate user'
+          error: error.response?.data?.error || 'Failed to deactivate user',
         };
       }
     },
 
-    async updateUserAdminCentre(id: number, adminCentre: CentreEnum[]): Promise<AdminResult> {
+    async updateUserAdminCentre(
+      id: number,
+      adminCentre: CentreEnum[]
+    ): Promise<AdminResult> {
       try {
         const response = await api.put('/office/updateUserCentre', {
           id,
@@ -91,38 +96,45 @@ export const useAdminStore = defineStore('admin', {
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Failed to update user centre'
+          error: error.response?.data?.error || 'Failed to update user centre',
         };
       }
     },
 
-    async addLocation(location: string, adminCentre: CentreEnum[]): Promise<AdminResult> {
+    async addLocation(
+      location: string,
+      adminCentre: CentreEnum[]
+    ): Promise<AdminResult> {
       try {
         const response = await api.post('/office/addLocation', {
           location,
-          adminCentre
+          adminCentre,
         });
         return { success: true, data: response.data };
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Failed to add location'
+          error: error.response?.data?.error || 'Failed to add location',
         };
       }
     },
 
-    async addVenue(location: number, venue: string, link: string): Promise<AdminResult> {
+    async addVenue(
+      location: number,
+      venue: string,
+      link: string
+    ): Promise<AdminResult> {
       try {
         const response = await api.post('/office/addVenue', {
           location,
           venue,
-          link
+          link,
         });
         return { success: true, data: response.data };
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Failed to add venue'
+          error: error.response?.data?.error || 'Failed to add venue',
         };
       }
     },
@@ -134,7 +146,7 @@ export const useAdminStore = defineStore('admin', {
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Failed to remove location'
+          error: error.response?.data?.error || 'Failed to remove location',
         };
       }
     },
@@ -146,7 +158,7 @@ export const useAdminStore = defineStore('admin', {
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Failed to remove venue'
+          error: error.response?.data?.error || 'Failed to remove venue',
         };
       }
     },
@@ -161,12 +173,15 @@ export const useAdminStore = defineStore('admin', {
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Failed to update user level'
+          error: error.response?.data?.error || 'Failed to update user level',
         };
       }
     },
 
-    async updateUserIsSenior(id: number, isSenior: boolean): Promise<AdminResult> {
+    async updateUserIsSenior(
+      id: number,
+      isSenior: boolean
+    ): Promise<AdminResult> {
       try {
         const response = await api.post('/office/updateUserSenior', {
           id,
@@ -176,7 +191,9 @@ export const useAdminStore = defineStore('admin', {
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Failed to update user senior status'
+          error:
+            error.response?.data?.error ||
+            'Failed to update user senior status',
         };
       }
     },

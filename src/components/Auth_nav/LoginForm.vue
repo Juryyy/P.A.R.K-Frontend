@@ -3,14 +3,23 @@
     <div class="login-container">
       <div class="login-header">
         <h1 class="text-h4 q-mb-md">
-          P<span class="red-dot">·</span>A<span class="red-dot">·</span>R<span class="red-dot">·</span>K<span class="red-dot">·</span> Application
+          P<span class="red-dot">·</span>A<span class="red-dot">·</span>R<span
+            class="red-dot"
+            >·</span
+          >K<span class="red-dot">·</span> Application
         </h1>
-        <p class="text-subtitle1 q-mb-lg">Secure access to your administrative tools</p>
+        <p class="text-subtitle1 q-mb-lg">
+          Secure access to your administrative tools
+        </p>
       </div>
       <q-card class="login-card">
         <q-card-section>
           <p class="text-h6 q-mb-md">Login details</p>
-          <q-form v-if="!isCodeVerification && !isForgotPassword" @submit="onSubmit" class="">
+          <q-form
+            v-if="!isCodeVerification && !isForgotPassword"
+            @submit="onSubmit"
+            class=""
+          >
             <q-input
               filled
               v-model="state.email"
@@ -38,7 +47,12 @@
             </q-input>
 
             <div class="row justify-between items-center">
-              <q-btn label="Forgot Password?" flat color="primary" @click="isForgotPassword = true" />
+              <q-btn
+                label="Forgot Password?"
+                flat
+                color="primary"
+                @click="isForgotPassword = true"
+              />
               <q-btn
                 label="Login"
                 type="submit"
@@ -69,7 +83,9 @@
                 maxlength="8"
                 @input="formatVerificationCode"
                 class="verification-code-input"
-                :rules="[val => val.length === 8 || 'Please enter all 8 digits']"
+                :rules="[
+                  (val) => val.length === 8 || 'Please enter all 8 digits',
+                ]"
               />
               <div class="verification-code-display">
                 <span
@@ -168,18 +184,26 @@ const displayCode = computed(() => {
 });
 
 const formatVerificationCode = () => {
-  verificationCode.value = verificationCode.value.replace(/[^0-9]/g, '').slice(0, 8);
+  verificationCode.value = verificationCode.value
+    .replace(/[^0-9]/g, '')
+    .slice(0, 8);
 };
 
-watch(() => useAuth().verification, (newValue) => {
-  isCodeVerification.value = newValue;
-});
+watch(
+  () => useAuth().verification,
+  (newValue) => {
+    isCodeVerification.value = newValue;
+  }
+);
 
 const validate = async (event: Event) => {
   event.preventDefault();
   if (verificationCode.value.length !== 8) return;
 
-  const success = await useAuth().verifyCode(state.email, verificationCode.value);
+  const success = await useAuth().verifyCode(
+    state.email,
+    verificationCode.value
+  );
   if (success) {
     router.push('/');
   }
@@ -309,36 +333,47 @@ const clear = () => {
 }
 
 .code-digit-filled {
-  border-color: #1976D2;
-  background-color: #E3F2FD;
+  border-color: #1976d2;
+  background-color: #e3f2fd;
 }
 
 .code-digit-cursor {
   position: absolute;
   width: 2px;
   height: 24px;
-  background-color: #1976D2;
+  background-color: #1976d2;
   animation: blink 1s infinite;
 }
 
 @keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
 }
 
 .verification-code-container:hover .code-digit:not(.code-digit-filled) {
-  border-color: #1976D2;
+  border-color: #1976d2;
 }
 
 .verification-code-input:focus + .verification-code-display .code-digit {
-  border-color: #1976D2;
+  border-color: #1976d2;
   box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.2);
 }
 
 @keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 .verification-code-container:hover .code-digit:not(.code-digit-filled) {

@@ -7,7 +7,7 @@
           Available Substitutions
         </div>
       </q-card-section>
-      <q-card-section  class="q-pb-none">
+      <q-card-section class="q-pb-none">
         <SubstitutionFilterComponent
           :substitutions="substitutions"
           :user-id="user.id"
@@ -22,50 +22,56 @@
       <q-card-section class="q-pa-md">
         <template v-if="hasSubstitutions">
           <div class="substitution-grid">
-            <div v-for="(substitution, index) in filteredSubstitutions"
-                 :key="substitution.id"
-                 :class="[
-                   'col-12',
-                   filteredSubstitutions.length === 1 ? 'col-md-12' : 'col-md-6',
-                   filteredSubstitutions.length === 1 ? 'col-lg-12' : 'col-lg-6',
-                   // Add left padding to align with first card if it's third+ card
-                   index >= 2 ? 'q-pl-md-auto' : ''
-                 ]">
-                <q-card
-                 bordered
-                 class="sub-item-card"
-                 :class="{'your-request': isOwnedByUser(substitution.id),
-                   'available': isAvailableForUser(substitution),
-                   'applied': hasUserApplied(substitution.id)
-                 }"
-                  >
-                  <div
-                    v-if="isOwnedByUser(substitution.id)"
-                    class="status-banner your-request q--avoid-card-border"
-                  >
-                    Your Request
-                  </div>
-                  <div
-                    v-else-if="isAvailableForUser(substitution)"
-                    class="status-banner available q--avoid-card-border"
-                  >
-                    Available
-                  </div>
-                  <div
-                    v-else-if="hasUserApplied(substitution.id)"
-                    class="status-banner applied q--avoid-card-border"
-                  >
-                    Applied
-                  </div>
+            <div
+              v-for="(substitution, index) in filteredSubstitutions"
+              :key="substitution.id"
+              :class="[
+                'col-12',
+                filteredSubstitutions.length === 1 ? 'col-md-12' : 'col-md-6',
+                filteredSubstitutions.length === 1 ? 'col-lg-12' : 'col-lg-6',
+                // Add left padding to align with first card if it's third+ card
+                index >= 2 ? 'q-pl-md-auto' : '',
+              ]"
+            >
+              <q-card
+                bordered
+                class="sub-item-card"
+                :class="{
+                  'your-request': isOwnedByUser(substitution.id),
+                  available: isAvailableForUser(substitution),
+                  applied: hasUserApplied(substitution.id),
+                }"
+              >
+                <div
+                  v-if="isOwnedByUser(substitution.id)"
+                  class="status-banner your-request q--avoid-card-border"
+                >
+                  Your Request
+                </div>
+                <div
+                  v-else-if="isAvailableForUser(substitution)"
+                  class="status-banner available q--avoid-card-border"
+                >
+                  Available
+                </div>
+                <div
+                  v-else-if="hasUserApplied(substitution.id)"
+                  class="status-banner applied q--avoid-card-border"
+                >
+                  Applied
+                </div>
 
                 <q-card-section>
                   <!-- Exam Info Header -->
                   <div class="row items-center justify-between q-mb-md">
-                    <div class="text-h6 text-weight-bold text-primary">{{ substitution.exam.type }}</div>
+                    <div class="text-h6 text-weight-bold text-primary">
+                      {{ substitution.exam.type }}
+                    </div>
                     <q-chip
                       :color="getStatusColor(substitution.status)"
                       text-color="white"
-                      class="shadow-2">
+                      class="shadow-2"
+                    >
                       {{ substitution.status }}
                     </q-chip>
                   </div>
@@ -74,7 +80,8 @@
                   <div class="row q-gutter-sm q-mb-md">
                     <q-chip outline color="primary" class="shadow-1">
                       <q-icon name="location_on" left />
-                      {{ substitution.exam.venue }} - {{ substitution.exam.location }}
+                      {{ substitution.exam.venue }} -
+                      {{ substitution.exam.location }}
                     </q-chip>
                     <q-chip outline color="secondary" class="shadow-1">
                       <q-icon name="event" left />
@@ -82,26 +89,33 @@
                     </q-chip>
                     <q-chip outline color="accent" class="shadow-1">
                       <q-icon name="schedule" left />
-                      {{ formatTimeString(substitution.exam.startTime) }} - {{ formatTimeString(substitution.exam.endTime) }}
+                      {{ formatTimeString(substitution.exam.startTime) }} -
+                      {{ formatTimeString(substitution.exam.endTime) }}
                     </q-chip>
                   </div>
 
                   <!-- Role and Requestor -->
                   <div class="row q-col-gutter-sm q-mb-md">
                     <div class="col-12 col-sm-6">
-                      <div class="text-subtitle2 text-grey-7">Required Role:</div>
+                      <div class="text-subtitle2 text-grey-7">
+                        Required Role:
+                      </div>
                       <q-chip
                         :color="getRoleColor(substitution.originalRole)"
                         text-color="white"
-                        class="shadow-2">
+                        class="shadow-2"
+                      >
                         <q-icon name="badge" class="q-mr-xs" />
                         {{ substitution.originalRole }}
                       </q-chip>
                     </div>
                     <div class="col-12 col-sm-6">
-                      <div class="text-subtitle2 text-grey-7">Requested By:</div>
+                      <div class="text-subtitle2 text-grey-7">
+                        Requested By:
+                      </div>
                       <div class="text-body1 text-weight-medium">
-                        {{ substitution.requestedBy.firstName }} {{ substitution.requestedBy.lastName }}
+                        {{ substitution.requestedBy.firstName }}
+                        {{ substitution.requestedBy.lastName }}
                       </div>
                     </div>
                   </div>
@@ -111,49 +125,57 @@
                   <div class="row items-center justify-between">
                     <div class="applications-info text-body2">
                       <q-icon name="people" size="sm" class="q-mr-xs" />
-                      <span>{{ substitution._count.applications }} applications</span>
+                      <span
+                        >{{
+                          substitution._count.applications
+                        }}
+                        applications</span
+                      >
                     </div>
 
                     <!-- Apply Button -->
                     <q-btn
-                    v-if="!hasUserApplied(substitution.id) && !isOwnedByUser(substitution.id)"
-                    color="primary"
-                    label="Apply"
-                    :disable="isButtonDisabled(substitution)"
-                    @click="applyForSubstitution(substitution.id)"
-                    :loading="loadingStates[substitution.id]"
-                    class="q-px-md shadow-2"
-                  >
-                    <q-tooltip>
-                      {{ getButtonTooltip(substitution) }}
-                    </q-tooltip>
-                  </q-btn>
+                      v-if="
+                        !hasUserApplied(substitution.id) &&
+                        !isOwnedByUser(substitution.id)
+                      "
+                      color="primary"
+                      label="Apply"
+                      :disable="isButtonDisabled(substitution)"
+                      @click="applyForSubstitution(substitution.id)"
+                      :loading="loadingStates[substitution.id]"
+                      class="q-px-md shadow-2"
+                    >
+                      <q-tooltip>
+                        {{ getButtonTooltip(substitution) }}
+                      </q-tooltip>
+                    </q-btn>
 
-                  <q-btn
-                    v-else-if="hasUserApplied(substitution.id)"
-                    color="negative"
-                    label="Withdraw"
-                    @click="withdrawApplication(substitution.id)"
-                    :loading="loadingStates[substitution.id]"
-                    class="q-px-md shadow-2"
-                  >
-                    <q-tooltip>
-                      Click to withdraw your application
-                    </q-tooltip>
-                  </q-btn>
+                    <q-btn
+                      v-else-if="hasUserApplied(substitution.id)"
+                      color="negative"
+                      label="Withdraw"
+                      @click="withdrawApplication(substitution.id)"
+                      :loading="loadingStates[substitution.id]"
+                      class="q-px-md shadow-2"
+                    >
+                      <q-tooltip>
+                        Click to withdraw your application
+                      </q-tooltip>
+                    </q-btn>
 
-                  <q-btn
-                    v-else-if="isOwnedByUser(substitution.id)"
-                    color="warning"
-                    label="Revoke"
-                    @click="cancelSubstitution(substitution.id)"
-                    :loading="loadingStates[substitution.id]"
-                    class="q-px-md shadow-2"
-                  >
-                    <q-tooltip>
-                      Click to revoke this substitution request
-                    </q-tooltip>
-                  </q-btn>
+                    <q-btn
+                      v-else-if="isOwnedByUser(substitution.id)"
+                      color="warning"
+                      label="Revoke"
+                      @click="cancelSubstitution(substitution.id)"
+                      :loading="loadingStates[substitution.id]"
+                      class="q-px-md shadow-2"
+                    >
+                      <q-tooltip>
+                        Click to revoke this substitution request
+                      </q-tooltip>
+                    </q-btn>
                   </div>
                 </q-card-section>
               </q-card>
@@ -176,18 +198,18 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, computed, ref } from 'vue'
-import { formatDateString, formatTimeString } from 'src/helpers/FormatTime'
-import { getRoleColor } from 'src/helpers/Color'
-import { SubstitutionRequest, SubstitutionStatusEnum } from 'src/db/types'
-import { useSubstitution } from 'src/composables/useSubstitution'
-import { useUser } from 'src/composables/useUser'
+import { reactive, computed, ref } from 'vue';
+import { formatDateString, formatTimeString } from 'src/helpers/FormatTime';
+import { getRoleColor } from 'src/helpers/Color';
+import { SubstitutionRequest, SubstitutionStatusEnum } from 'src/db/types';
+import { useSubstitution } from 'src/composables/useSubstitution';
+import { useUser } from 'src/composables/useUser';
 
 const substitutions = useSubstitution().substitutions;
 const myApplications = useSubstitution().myApplications;
 const user = useUser().user;
 
-const loadingStates = reactive<{ [key: number]: boolean }>({})
+const loadingStates = reactive<{ [key: number]: boolean }>({});
 
 const canViewRole = (userRoles: string[], requiredRole: string) => {
   if (userRoles.includes(requiredRole)) {
@@ -205,53 +227,54 @@ const canViewRole = (userRoles: string[], requiredRole: string) => {
   return false;
 };
 
-
 const filteredSubstitutions = computed(() => {
-  let filtered = substitutions.value.filter(substitution =>
+  let filtered = substitutions.value.filter((substitution) =>
     canViewRole(user.role, substitution.originalRole)
-  )
+  );
 
   if (activeFilters.value.roles.length > 0) {
-    filtered = filtered.filter(sub =>
+    filtered = filtered.filter((sub) =>
       activeFilters.value.roles.includes(sub.originalRole)
-    )
+    );
   }
 
   if (activeFilters.value.showMyRequests) {
-    filtered = filtered.filter(sub =>
-      sub.requestedBy.id === user.id
-    )
+    filtered = filtered.filter((sub) => sub.requestedBy.id === user.id);
   }
 
   if (activeFilters.value.showMyApplications) {
-    filtered = filtered.filter(sub =>
-      hasUserApplied.value(sub.id)
-    )
+    filtered = filtered.filter((sub) => hasUserApplied.value(sub.id));
   }
 
   if (activeFilters.value.showAvailableOnly) {
-    filtered = filtered.filter(sub =>
-      isAvailableForUser(sub)
-    )
+    filtered = filtered.filter((sub) => isAvailableForUser(sub));
   }
 
-  return filtered
-})
+  return filtered;
+});
 
-const hasSubstitutions = computed(() => filteredSubstitutions.value.length > 0)
+const hasSubstitutions = computed(() => filteredSubstitutions.value.length > 0);
 
 const hasUserApplied = computed(() => (substitutionId: number) => {
-  return myApplications.value.some(application => application.substitutionId === substitutionId);
+  return myApplications.value.some(
+    (application) => application.substitutionId === substitutionId
+  );
 });
 
 const isButtonDisabled = computed(() => (substitution: SubstitutionRequest) => {
-  return substitution.status !== 'Open' ||
-         substitution.requestedBy.id === user.id ||
-         hasUserApplied.value(substitution.id);
+  return (
+    substitution.status !== 'Open' ||
+    substitution.requestedBy.id === user.id ||
+    hasUserApplied.value(substitution.id)
+  );
 });
 
 const isOwnedByUser = computed(() => (substitutionId: number) => {
-  return substitutions.value.some(substitution => substitution.id === substitutionId && substitution.requestedBy.id === user.id);
+  return substitutions.value.some(
+    (substitution) =>
+      substitution.id === substitutionId &&
+      substitution.requestedBy.id === user.id
+  );
 });
 
 const cancelSubstitution = async (substitutionId: number) => {
@@ -279,7 +302,9 @@ const getButtonTooltip = computed(() => (substitution: SubstitutionRequest) => {
 });
 
 const getApplicationId = (substitutionId: number) => {
-  const application = myApplications.value.find(app => app.substitutionId === substitutionId);
+  const application = myApplications.value.find(
+    (app) => app.substitutionId === substitutionId
+  );
   return application?.id;
 };
 
@@ -300,61 +325,59 @@ const withdrawApplication = async (substitutionId: number) => {
   }
 };
 
-
 const getStatusColor = (status: SubstitutionStatusEnum) => {
   switch (status) {
     case 'Open':
-      return 'positive'
+      return 'positive';
     case 'Assigned':
-      return 'primary'
+      return 'primary';
     case 'Closed':
-      return 'grey'
+      return 'grey';
     default:
-      return 'grey'
+      return 'grey';
   }
-}
+};
 
 const applyForSubstitution = async (substitutionId: number) => {
-  loadingStates[substitutionId] = true
+  loadingStates[substitutionId] = true;
   try {
-    await useSubstitution().applyForSubstitution(substitutionId)
-    await useSubstitution().loadSubstitutions()
+    await useSubstitution().applyForSubstitution(substitutionId);
+    await useSubstitution().loadSubstitutions();
     await useSubstitution().loadMyApplications();
   } finally {
-    loadingStates[substitutionId] = false
+    loadingStates[substitutionId] = false;
   }
-}
+};
 
 const isAvailableForUser = (substitution: SubstitutionRequest) => {
-  return substitution.status === 'Open' &&
-         !hasUserApplied.value(substitution.id) &&
-         !isOwnedByUser.value(substitution.id);
-}
-
+  return (
+    substitution.status === 'Open' &&
+    !hasUserApplied.value(substitution.id) &&
+    !isOwnedByUser.value(substitution.id)
+  );
+};
 
 //Filter part
-import { RoleEnum } from 'src/db/types'
-import SubstitutionFilterComponent from './SubstitutionFilterComponent.vue'
+import { RoleEnum } from 'src/db/types';
+import SubstitutionFilterComponent from './SubstitutionFilterComponent.vue';
 
 interface Filters {
-  roles: RoleEnum[]
-  showMyRequests: boolean
-  showMyApplications: boolean
-  showAvailableOnly: boolean
-
+  roles: RoleEnum[];
+  showMyRequests: boolean;
+  showMyApplications: boolean;
+  showAvailableOnly: boolean;
 }
 
 const activeFilters = ref<Filters>({
   roles: [],
   showMyRequests: false,
   showMyApplications: false,
-  showAvailableOnly: false
-})
+  showAvailableOnly: false,
+});
 
 const updateFilters = (newFilters: Filters) => {
-  activeFilters.value = newFilters
-}
-
+  activeFilters.value = newFilters;
+};
 </script>
 
 <style lang="scss" scoped>
@@ -402,18 +425,17 @@ const updateFilters = (newFilters: Filters) => {
 
   /* Card states */
   &.your-request {
-    border-top: 4px solid #FF9800;
+    border-top: 4px solid #ff9800;
   }
 
   &.available {
-    border: 2px solid #21BA45;
+    border: 2px solid #21ba45;
   }
 
   &.applied {
-    border-top: 4px solid #9C27B0;
+    border-top: 4px solid #9c27b0;
   }
 }
-
 
 @keyframes pulse {
   0% {
@@ -445,17 +467,17 @@ const updateFilters = (newFilters: Filters) => {
   z-index: 1;
 
   &.your-request {
-    background: #FF9800;
+    background: #ff9800;
     border-radius: 0 0 8px 8px;
   }
 
   &.available {
-    background: #21BA45;
+    background: #21ba45;
     border-radius: 0 0 8px 8px;
   }
 
   &.applied {
-    background: #9C27B0;
+    background: #9c27b0;
     border-radius: 0 0 8px 8px;
   }
 }

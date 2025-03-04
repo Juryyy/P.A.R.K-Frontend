@@ -21,10 +21,13 @@ export const useExamDayStore = defineStore('examDay', {
     async loadExamDays(centre: CentreEnum): Promise<ExamDayResult> {
       try {
         const response = await api.get<DayOfExams[]>('/examDays/examDays', {
-          params: { centre }
+          params: { centre },
         });
         const existingExamDays = new Map<number, DayOfExams>(
-          this.upcomingExamDays.map((examDay: DayOfExams) => [examDay.id || 0, examDay])
+          this.upcomingExamDays.map((examDay: DayOfExams) => [
+            examDay.id || 0,
+            examDay,
+          ])
         );
 
         response.data.forEach((newExamDay: DayOfExams) => {
@@ -38,7 +41,7 @@ export const useExamDayStore = defineStore('examDay', {
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Failed to load exam days'
+          error: error.response?.data?.error || 'Failed to load exam days',
         };
       }
     },
@@ -46,22 +49,27 @@ export const useExamDayStore = defineStore('examDay', {
     async loadExamDaysAvailability(centre: CentreEnum): Promise<ExamDayResult> {
       try {
         const response = await api.get<DayOfExams[]>('/examDays/examDays', {
-          params: { centre }
+          params: { centre },
         });
-        const newIds = new Set(response.data.map(day => day.id));
+        const newIds = new Set(response.data.map((day) => day.id));
 
         this.availabilityExamDays = this.availabilityExamDays
-          .filter(day => newIds.has(day.id))
+          .filter((day) => newIds.has(day.id))
           .concat(
-            response.data.filter(newDay =>
-              !this.availabilityExamDays.find(existingDay => existingDay.id === newDay.id)
+            response.data.filter(
+              (newDay) =>
+                !this.availabilityExamDays.find(
+                  (existingDay) => existingDay.id === newDay.id
+                )
             )
           );
         return { success: true, data: this.availabilityExamDays };
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Failed to load exam days for availability'
+          error:
+            error.response?.data?.error ||
+            'Failed to load exam days for availability',
         };
       }
     },
@@ -70,15 +78,15 @@ export const useExamDayStore = defineStore('examDay', {
       try {
         const response = await api.get('/examDays/all', {
           params: {
-            centre: centre
-          }
+            centre: centre,
+          },
         });
         this.allExamDays = response.data;
         return { success: true, data: response.data };
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Failed to load all exam days'
+          error: error.response?.data?.error || 'Failed to load all exam days',
         };
       }
     },
@@ -91,7 +99,9 @@ export const useExamDayStore = defineStore('examDay', {
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Failed to load responses for exam day'
+          error:
+            error.response?.data?.error ||
+            'Failed to load responses for exam day',
         };
       }
     },
@@ -113,7 +123,7 @@ export const useExamDayStore = defineStore('examDay', {
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Failed to add exam day'
+          error: error.response?.data?.error || 'Failed to add exam day',
         };
       }
     },
@@ -125,7 +135,7 @@ export const useExamDayStore = defineStore('examDay', {
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Failed to delete exam day'
+          error: error.response?.data?.error || 'Failed to delete exam day',
         };
       }
     },
@@ -137,12 +147,17 @@ export const useExamDayStore = defineStore('examDay', {
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Failed to change lock status'
+          error: error.response?.data?.error || 'Failed to change lock status',
         };
       }
     },
 
-    async informUsers(startDate: string, endDate: string, dateOfSubmits: string, centre: CentreEnum): Promise<ExamDayResult> {
+    async informUsers(
+      startDate: string,
+      endDate: string,
+      dateOfSubmits: string,
+      centre: CentreEnum
+    ): Promise<ExamDayResult> {
       try {
         const response = await api.post('/examDays/informUsers', {
           startDate: startDate,
@@ -154,9 +169,9 @@ export const useExamDayStore = defineStore('examDay', {
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Failed to inform users'
+          error: error.response?.data?.error || 'Failed to inform users',
         };
       }
-    }
+    },
   },
 });

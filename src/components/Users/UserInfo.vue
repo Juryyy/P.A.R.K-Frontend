@@ -5,39 +5,74 @@
       <q-banner v-if="editableUser.deactivated" class="text-white bg-red-6">
         This account has been deactivated!
       </q-banner>
-      <q-banner v-if="!editableUser.totaraDone && currentUser" class="text-white bg-red-6">
+      <q-banner
+        v-if="!editableUser.totaraDone && currentUser"
+        class="text-white bg-red-6"
+      >
         Please complete the Totara training before you can attend exams.
       </q-banner>
-      <q-banner v-if="!editableUser.totaraDone && isCurrentUserAdmin && !currentUser && !editableUser.deactivated" class="text-white bg-red-6">
+      <q-banner
+        v-if="
+          !editableUser.totaraDone &&
+          isCurrentUserAdmin &&
+          !currentUser &&
+          !editableUser.deactivated
+        "
+        class="text-white bg-red-6"
+      >
         This user has not completed the Totara training yet.
       </q-banner>
 
-      <q-banner v-if="!editableUser.activatedAccount && currentUser" class="text-white bg-orange-6">
-        Please setup your profile to gain access to whole app by doing those steps:
+      <q-banner
+        v-if="!editableUser.activatedAccount && currentUser"
+        class="text-white bg-orange-6"
+      >
+        Please setup your profile to gain access to whole app by doing those
+        steps:
         <ul>
-          <li v-if="!editableUser.phone">Filing in your personal information</li>
-          <li v-if="!editableUser.totaraDone">Update your Totara information</li>
+          <li v-if="!editableUser.phone">
+            Filing in your personal information
+          </li>
+          <li v-if="!editableUser.totaraDone">
+            Update your Totara information
+          </li>
           <li>(Optional but recommended) Update your password</li>
           <li>(Optional) Update your avatar</li>
         </ul>
       </q-banner>
 
-      <q-banner v-if="!editableUser.activatedAccount && !currentUser" class="text-white bg-orange-6">
+      <q-banner
+        v-if="!editableUser.activatedAccount && !currentUser"
+        class="text-white bg-orange-6"
+      >
         <b>This user has not activated their account yet.</b>
       </q-banner>
 
       <q-card-section class="profile-header">
         <div class="avatar-container">
           <q-avatar size="160px" class="shadow-3">
-            <q-img :src="avatarPreview ?? userAvatar ?? ''" v-if="avatarPreview || userAvatar">
+            <q-img
+              :src="avatarPreview ?? userAvatar ?? ''"
+              v-if="avatarPreview || userAvatar"
+            >
               <template v-slot:error>
-                <div class="text-subtitle1 text-weight-bold">{{ getInitials(editableUser) }}</div>
+                <div class="text-subtitle1 text-weight-bold">
+                  {{ getInitials(editableUser) }}
+                </div>
               </template>
             </q-img>
-            <div v-else class="text-subtitle1 text-weight-bold">{{ getInitials(editableUser) }}</div>
+            <div v-else class="text-subtitle1 text-weight-bold">
+              {{ getInitials(editableUser) }}
+            </div>
           </q-avatar>
           <div class="avatar-overlay" v-if="isCurrentUser">
-            <q-btn round color="grey-7" icon="camera_alt" size="sm" @click="triggerFileUpload">
+            <q-btn
+              round
+              color="grey-7"
+              icon="camera_alt"
+              size="sm"
+              @click="triggerFileUpload"
+            >
               <q-tooltip>Upload new avatar</q-tooltip>
             </q-btn>
           </div>
@@ -47,10 +82,12 @@
             accept="image/*"
             style="display: none"
             @change="onAvatarSelected"
-          >
+          />
         </div>
         <div class="profile-name q-mt-sm">
-          <div class="text-h5 text-weight-bold">{{ editableUser.firstName }} {{ editableUser.lastName }}</div>
+          <div class="text-h5 text-weight-bold">
+            {{ editableUser.firstName }} {{ editableUser.lastName }}
+          </div>
           <div class="text-subtitle1">{{ editableUser.email }}</div>
         </div>
       </q-card-section>
@@ -64,7 +101,11 @@
             <div class="col-12">
               <div class="text-h6">User Information</div>
             </div>
-            <div class="col-12 col-sm-6" v-for="field in userInfoFields" :key="field.label">
+            <div
+              class="col-12 col-sm-6"
+              v-for="field in userInfoFields"
+              :key="field.label"
+            >
               <q-input
                 :model-value="editableFields[field.key as keyof typeof editableFields]"
                 @update:model-value="(value) => updateField(field.key, value)"
@@ -77,14 +118,24 @@
               >
                 <template v-if="field.key === 'dateOfBirth'" v-slot:append>
                   <q-icon name="event" class="cursor-pointer">
-                    <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-                      <q-date v-model="editableFields[field.key as keyof typeof editableFields]" mask="YYYY-MM-DD" />
+                    <q-popup-proxy
+                      cover
+                      transition-show="scale"
+                      transition-hide="scale"
+                    >
+                      <q-date
+                        v-model="editableFields[field.key as keyof typeof editableFields]"
+                        mask="YYYY-MM-DD"
+                      />
                     </q-popup-proxy>
                   </q-icon>
                 </template>
               </q-input>
             </div>
-            <div class="col-12 col-sm-6" style="display: flex; align-items: center;">
+            <div
+              class="col-12 col-sm-6"
+              style="display: flex; align-items: center"
+            >
               <q-checkbox
                 v-model="editableUser.drivingLicense"
                 label="Driving License"
@@ -97,24 +148,37 @@
               <div class="text-h6 q-mb-sm">Availability</div>
             </div>
 
-            <div class="col-12" v-for="field in availabilityFields" :key="field.label">
+            <div
+              class="col-12"
+              v-for="field in availabilityFields"
+              :key="field.label"
+            >
               <q-input
-              :model-value="editableFields[field.key as keyof typeof editableFields]"
-              @update:model-value="(value) => updateField(field.key, value)"
-              :label="field.key === 'noteLonger' ? adaptiveLabel : field.label"
-              :type="field.type"
-              outlined
-              dense
-              :stack-label="true"
-              class="responsive-input"
-              :hint="field.key === 'noteLonger' && $q.screen.lt.sm ? 'Please give us more detailed information about your availability' : undefined"
+                :model-value="editableFields[field.key as keyof typeof editableFields]"
+                @update:model-value="(value) => updateField(field.key, value)"
+                :label="
+                  field.key === 'noteLonger' ? adaptiveLabel : field.label
+                "
+                :type="field.type"
+                outlined
+                dense
+                :stack-label="true"
+                class="responsive-input"
+                :hint="
+                  field.key === 'noteLonger' && $q.screen.lt.sm
+                    ? 'Please give us more detailed information about your availability'
+                    : undefined
+                "
               >
-              <template v-if="field.key === 'noteLonger' && $q.screen.lt.sm" v-slot:hint>
-                Please give us more detailed information about your availability
-              </template>
+                <template
+                  v-if="field.key === 'noteLonger' && $q.screen.lt.sm"
+                  v-slot:hint
+                >
+                  Please give us more detailed information about your
+                  availability
+                </template>
               </q-input>
             </div>
-
 
             <!--Exam Administration Section -->
             <div class="col-12 q-mt-md">
@@ -126,17 +190,26 @@
                 <q-toggle
                   v-model="editableUser.totaraDone"
                   color="green"
-                  :label="editableUser.totaraDone ? 'Totara Training Completed' : 'Totara Training Not Completed'"
+                  :label="
+                    editableUser.totaraDone
+                      ? 'Totara Training Completed'
+                      : 'Totara Training Not Completed'
+                  "
                 >
-                <q-tooltip v-if="!editableUser.totaraDone" class="bg-red">
-                  Please complete the Totara training before you can attend exams.
-                </q-tooltip>
-                <q-tooltip v-else class="bg-green">
-                  You have completed the Totara training. Thank you!
-                </q-tooltip>
+                  <q-tooltip v-if="!editableUser.totaraDone" class="bg-red">
+                    Please complete the Totara training before you can attend
+                    exams.
+                  </q-tooltip>
+                  <q-tooltip v-else class="bg-green">
+                    You have completed the Totara training. Thank you!
+                  </q-tooltip>
                 </q-toggle>
               </div>
-              <div class="col-12 col-sm-4" v-for="field in administrationFields" :key="field.label">
+              <div
+                class="col-12 col-sm-4"
+                v-for="field in administrationFields"
+                :key="field.label"
+              >
                 <q-input
                   :model-value="editableFields[field.key as keyof typeof editableFields]"
                   @update:model-value="(value) => updateField(field.key, value)"
@@ -148,15 +221,20 @@
                   stack-label
                   :disable="!editableUser.totaraDone"
                 >
-                <q-tooltip v-if="!editableUser.totaraDone" class="bg-red">
-                  Please complete the Totara training before you can attend exams.
-                </q-tooltip>
-                <q-tooltip v-else class="bg-green">
-                  Select date of completion for Totara training.
-                </q-tooltip>
+                  <q-tooltip v-if="!editableUser.totaraDone" class="bg-red">
+                    Please complete the Totara training before you can attend
+                    exams.
+                  </q-tooltip>
+                  <q-tooltip v-else class="bg-green">
+                    Select date of completion for Totara training.
+                  </q-tooltip>
                   <template v-if="field.key === 'totaraDate'" v-slot:append>
                     <q-icon name="event" class="cursor-pointer">
-                      <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+                      <q-popup-proxy
+                        cover
+                        transition-show="scale"
+                        transition-hide="scale"
+                      >
                         <q-date
                           v-model="editableFields[field.key as keyof typeof editableFields]"
                           mask="YYYY-MM-DD"
@@ -172,30 +250,44 @@
                 <q-toggle
                   v-model="editableUser.insperaAccount"
                   color="green"
-                  :label="editableUser.insperaAccount ? 'Active Inspera Account' : 'Inactive Inspera Account'"
+                  :label="
+                    editableUser.insperaAccount
+                      ? 'Active Inspera Account'
+                      : 'Inactive Inspera Account'
+                  "
                 >
-                <q-tooltip v-if="!editableUser.insperaAccount" class="bg-red">
-                  Please have your Inspera account activated before you can attend Computer Based exams.
-                </q-tooltip>
-                <q-tooltip v-else class="bg-green">
-                  You have an active Inspera account. You can now attend Computer Based exams.
-                </q-tooltip>
+                  <q-tooltip v-if="!editableUser.insperaAccount" class="bg-red">
+                    Please have your Inspera account activated before you can
+                    attend Computer Based exams.
+                  </q-tooltip>
+                  <q-tooltip v-else class="bg-green">
+                    You have an active Inspera account. You can now attend
+                    Computer Based exams.
+                  </q-tooltip>
                 </q-toggle>
               </div>
-
             </div>
-
           </template>
-
 
           <template v-else>
             <!-- View Only User Info Section -->
             <div class="col-12">
               <div class="text-h6 q-mb-sm">User Information</div>
             </div>
-            <div class="col-12 col-sm-6" v-for="field in userInfoFields" :key="field.label">
+            <div
+              class="col-12 col-sm-6"
+              v-for="field in userInfoFields"
+              :key="field.label"
+            >
               <div class="text-subtitle2">{{ field.label }}</div>
-              <div class="text-body1 q-mb-sm">{{ formatFieldValue(editableUser[field.key as keyof typeof editableFields], field.type) }}</div>
+              <div class="text-body1 q-mb-sm">
+                {{
+                  formatFieldValue(
+                    editableUser[field.key as keyof typeof editableFields],
+                    field.type
+                  )
+                }}
+              </div>
             </div>
             <div class="col-12 col-sm-6">
               <div class="text-subtitle2">Driving License</div>
@@ -206,9 +298,20 @@
             <div class="col-12 q-mt-md">
               <div class="text-h6 q-mb-sm">Availability</div>
             </div>
-            <div class="col-12" v-for="field in availabilityFields" :key="field.label">
+            <div
+              class="col-12"
+              v-for="field in availabilityFields"
+              :key="field.label"
+            >
               <div class="text-subtitle2">{{ field.label }}</div>
-              <div class="text-body1 q-mb-sm">{{ formatFieldValue(editableUser[field.key as keyof typeof editableFields], field.type) }}</div>
+              <div class="text-body1 q-mb-sm">
+                {{
+                  formatFieldValue(
+                    editableUser[field.key as keyof typeof editableFields],
+                    field.type
+                  )
+                }}
+              </div>
             </div>
 
             <!-- View Only Exam Administration Section -->
@@ -217,24 +320,33 @@
                 <q-toggle
                   v-model="editableUser.totaraDone"
                   color="green"
-                  :label="editableUser.totaraDone ? 'Totara Training Completed' : 'Totara Training Not Completed'"
+                  :label="
+                    editableUser.totaraDone
+                      ? 'Totara Training Completed'
+                      : 'Totara Training Not Completed'
+                  "
                   disable
                 />
               </div>
               <div v-if="editableUser.totaraDone">
                 <div class="text-subtitle2">Completion Date</div>
-                <div class="text-body1 q-mb-sm">{{ formatFieldValue(editableUser.totaraDate, 'date') }}</div>
+                <div class="text-body1 q-mb-sm">
+                  {{ formatFieldValue(editableUser.totaraDate, 'date') }}
+                </div>
               </div>
               <div class="q-mb-sm">
                 <q-toggle
                   v-model="editableUser.insperaAccount"
                   color="green"
-                  :label="editableUser.insperaAccount ? 'Active Inspera Account' : 'Inactive Inspera Account'"
+                  :label="
+                    editableUser.insperaAccount
+                      ? 'Active Inspera Account'
+                      : 'Inactive Inspera Account'
+                  "
                   :disable="!isCurrentUserAdmin"
                 />
-                </div>
+              </div>
             </div>
-
           </template>
         </div>
 
@@ -295,24 +407,45 @@
 
         <div v-if="showExamCounts" class="q-mt-md">
           <div class="text-subtitle1 q-mb-sm">Exam Counts:</div>
-          <div v-if="editableUser._count?.supervisedExams !== undefined" class="text-body1">
+          <div
+            v-if="editableUser._count?.supervisedExams !== undefined"
+            class="text-body1"
+          >
             Supervised Exams: {{ editableUser._count.supervisedExams }}
           </div>
-          <div v-if="editableUser._count?.invigilatedExams !== undefined" class="text-body1">
+          <div
+            v-if="editableUser._count?.invigilatedExams !== undefined"
+            class="text-body1"
+          >
             Invigilated Exams: {{ editableUser._count.invigilatedExams }}
           </div>
-          <div v-if="editableUser._count?.examinedExams !== undefined" class="text-body1">
+          <div
+            v-if="editableUser._count?.examinedExams !== undefined"
+            class="text-body1"
+          >
             Examined Exams: {{ editableUser._count.examinedExams }}
           </div>
         </div>
       </q-card-section>
 
       <q-card-actions align="right" class="q-pa-md">
-        <q-btn v-if="isCurrentUser" :disable="isUpdating" color="primary" @click="updateProfile">
+        <q-btn
+          v-if="isCurrentUser"
+          :disable="isUpdating"
+          color="primary"
+          @click="updateProfile"
+        >
           <q-spinner v-if="isUpdating" color="white" size="1em" />
           <span v-else>Update Profile</span>
         </q-btn>
-        <q-btn v-if="isCurrentUserAdmin" :disable="((!hasAdminNoteChanges && !hasInsperaAccountChanges ) || isUpdating)" color="secondary" @click="updateAdminNote">
+        <q-btn
+          v-if="isCurrentUserAdmin"
+          :disable="
+            (!hasAdminNoteChanges && !hasInsperaAccountChanges) || isUpdating
+          "
+          color="secondary"
+          @click="updateAdminNote"
+        >
           <q-spinner v-if="isUpdating" color="white" size="1em" />
           <span v-else>Admin Update</span>
           <q-tooltip v-if="isCurrentUserAdmin" class="bg-secondary">
@@ -323,11 +456,18 @@
     </q-card>
     <div v-else class="text-h6 text-center">No user information available.</div>
     <q-dialog v-model="showCropper" persistent>
-      <q-card style="min-width: 300px; max-width: 80vw;">
+      <q-card style="min-width: 300px; max-width: 80vw">
         <q-card-section class="row items-center q-pb-none">
           <div class="text-h6">Crop Avatar</div>
           <q-space />
-          <q-btn icon="close" flat round dense v-close-popup @click="cancelAvatarUpload" />
+          <q-btn
+            icon="close"
+            flat
+            round
+            dense
+            v-close-popup
+            @click="cancelAvatarUpload"
+          />
         </q-card-section>
 
         <q-card-section>
@@ -336,7 +476,7 @@
             class="cropper"
             :src="imageUrl"
             :stencil-props="{
-              aspectRatio: 1
+              aspectRatio: 1,
             }"
             :stencil-component="CircleStencil"
             ref="cropperRef"
@@ -344,8 +484,19 @@
         </q-card-section>
 
         <q-card-actions align="right">
-          <q-btn flat label="Cancel" color="red" v-close-popup @click="cancelAvatarUpload" />
-          <q-btn flat label="Crop & Upload" color="primary" @click="cropAndUpload" />
+          <q-btn
+            flat
+            label="Cancel"
+            color="red"
+            v-close-popup
+            @click="cancelAvatarUpload"
+          />
+          <q-btn
+            flat
+            label="Crop & Upload"
+            color="primary"
+            @click="cropAndUpload"
+          />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -354,19 +505,17 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, reactive } from 'vue';
-import { RoleEnum, User} from 'src/db/types';
+import { RoleEnum, User } from 'src/db/types';
 import { defineProps } from 'vue';
 import { useUserStore } from 'src/stores/userStore';
 import { getRoleColor, getLevelColor } from 'src/helpers/Color';
 import { formatDateString } from 'src/helpers/FormatTime';
-import deepEqual from 'src/helpers/deepEqual';
+import { deepEqual } from 'src/helpers/deepEqual';
 import { parseISO, format } from 'date-fns';
 import { Cropper, CircleStencil } from 'vue-advanced-cropper';
 import 'vue-advanced-cropper/dist/style.css';
 import { useQuasar } from 'quasar';
 import { useAuthStore } from 'src/stores/authStore';
-
-
 
 const props = defineProps<{
   user: User | null;
@@ -384,8 +533,15 @@ const adaptiveLabel = computed(() => {
   return 'Detailed Note (optional) - Please give us more detailed information about your availability';
 });
 
-
-type EditableFieldKey = 'firstName' | 'lastName' | 'email' | 'dateOfBirth' | 'phone' | 'note' | 'noteLonger' | 'totaraDate';
+type EditableFieldKey =
+  | 'firstName'
+  | 'lastName'
+  | 'email'
+  | 'dateOfBirth'
+  | 'phone'
+  | 'note'
+  | 'noteLonger'
+  | 'totaraDate';
 
 type EditableFields = {
   [K in EditableFieldKey]: string;
@@ -405,9 +561,12 @@ const userInfoFields: EditableUserField[] = [
   { key: 'phone', label: 'Phone', type: 'tel' },
 ];
 
-
 const availabilityFields: EditableUserField[] = [
-  { key: 'note', label: 'Short Note (optional) - ex. "No fridays" ', type: 'text' },
+  {
+    key: 'note',
+    label: 'Short Note (optional) - ex. "No fridays" ',
+    type: 'text',
+  },
   { key: 'noteLonger', label: adaptiveLabel.value, type: 'textarea' },
 ];
 
@@ -433,23 +592,32 @@ const editableFields = reactive<EditableFields>({
 
 const updateEditableFields = () => {
   if (editableUser.value) {
-    [...userInfoFields, ...availabilityFields, ...administrationFields].forEach((field) => {
-      const key = field.key;
-      if ((key === 'dateOfBirth' || key === 'totaraDate') && editableUser.value?.[key]) {
-        const date = parseISO(editableUser.value[key] as string);
-        editableFields[key] = format(date, 'yyyy-MM-dd');
-      } else {
-        editableFields[key] = (editableUser.value?.[key] as string) ?? '';
+    [...userInfoFields, ...availabilityFields, ...administrationFields].forEach(
+      (field) => {
+        const key = field.key;
+        if (
+          (key === 'dateOfBirth' || key === 'totaraDate') &&
+          editableUser.value?.[key]
+        ) {
+          const date = parseISO(editableUser.value[key] as string);
+          editableFields[key] = format(date, 'yyyy-MM-dd');
+        } else {
+          editableFields[key] = (editableUser.value?.[key] as string) ?? '';
+        }
       }
-    });
+    );
   }
 };
 
-watch(() => props.user, (newUser) => {
-  editableUser.value = newUser ? { ...newUser } : null;
-  initialUser.value = newUser ? { ...newUser } : null;
-  updateEditableFields();
-}, { immediate: true });
+watch(
+  () => props.user,
+  (newUser) => {
+    editableUser.value = newUser ? { ...newUser } : null;
+    initialUser.value = newUser ? { ...newUser } : null;
+    updateEditableFields();
+  },
+  { immediate: true }
+);
 
 const updateField = (key: EditableFieldKey, value: string | number | null) => {
   if (value !== null) {
@@ -475,30 +643,50 @@ const updateField = (key: EditableFieldKey, value: string | number | null) => {
 
 const currentUser = userStore.user;
 
-const isCurrentUser = computed(() => currentUser?.id === editableUser.value?.id);
+const isCurrentUser = computed(
+  () => currentUser?.id === editableUser.value?.id
+);
 
 const isCurrentUserAdmin = computed(() => {
   if (!currentUser.role) return false;
-  return currentUser?.role.includes(RoleEnum.Office) || currentUser?.role.includes(RoleEnum.Developer);
+  return (
+    currentUser?.role.includes(RoleEnum.Office) ||
+    currentUser?.role.includes(RoleEnum.Developer)
+  );
 });
 
-const hasChanges = computed(() => !deepEqual(editableUser.value, initialUser.value));
+const hasChanges = computed(
+  () => !deepEqual(editableUser.value, initialUser.value)
+);
 
-const hasAdminNoteChanges = computed(() => !deepEqual(editableUser.value?.adminNote, initialUser.value?.adminNote));
-const hasInsperaAccountChanges = computed(() => !deepEqual(editableUser.value?.insperaAccount, initialUser.value?.insperaAccount));
+const hasAdminNoteChanges = computed(
+  () => !deepEqual(editableUser.value?.adminNote, initialUser.value?.adminNote)
+);
+const hasInsperaAccountChanges = computed(
+  () =>
+    !deepEqual(
+      editableUser.value?.insperaAccount,
+      initialUser.value?.insperaAccount
+    )
+);
 
 const isUpdating = ref(false);
 
-watch(() => props.user, (newUser) => {
-  editableUser.value = newUser ? { ...newUser } : null;
-  initialUser.value = newUser ? { ...newUser } : null;
-});
+watch(
+  () => props.user,
+  (newUser) => {
+    editableUser.value = newUser ? { ...newUser } : null;
+    initialUser.value = newUser ? { ...newUser } : null;
+  }
+);
 
 const showExamCounts = computed(() => {
-  return editableUser.value && editableUser.value._count && (
-    editableUser.value._count.supervisedExams !== undefined ||
-    editableUser.value._count.invigilatedExams !== undefined ||
-    editableUser.value._count.examinedExams !== undefined
+  return (
+    editableUser.value &&
+    editableUser.value._count &&
+    (editableUser.value._count.supervisedExams !== undefined ||
+      editableUser.value._count.invigilatedExams !== undefined ||
+      editableUser.value._count.examinedExams !== undefined)
   );
 });
 
@@ -533,7 +721,7 @@ const updateProfile = async () => {
       editableUser.value.insperaAccount
     );
 
-    if(userStore.updateConfirmation){
+    if (userStore.updateConfirmation) {
       userStore.changeConfirmation(false);
       await userStore.getProfile(editableUser.value.id);
       await authStore.getToken();
@@ -542,7 +730,7 @@ const updateProfile = async () => {
         initialUser.value = { ...userStore.selectedUser };
         updateEditableFields();
       }
-  }
+    }
   } finally {
     isUpdating.value = false;
   }
@@ -553,18 +741,18 @@ const updateAdminNote = async () => {
 
   isUpdating.value = true;
   try {
-    if(hasAdminNoteChanges.value){
-    await userStore.updateAdminNote(
-      editableUser.value.id,
-      editableUser.value.adminNote
-    );
+    if (hasAdminNoteChanges.value) {
+      await userStore.updateAdminNote(
+        editableUser.value.id,
+        editableUser.value.adminNote
+      );
     }
 
-    if(hasInsperaAccountChanges.value){
-    await userStore.updateInsperaAccount(
-      editableUser.value.id,
-      editableUser.value.insperaAccount
-    );
+    if (hasInsperaAccountChanges.value) {
+      await userStore.updateInsperaAccount(
+        editableUser.value.id,
+        editableUser.value.insperaAccount
+      );
     }
 
     await userStore.getProfile(editableUser.value.id);
@@ -576,7 +764,6 @@ const updateAdminNote = async () => {
     isUpdating.value = false;
   }
 };
-
 
 const avatarFile = ref<File | null>(null);
 const avatarPreview = ref<string | null>(null);
@@ -605,7 +792,11 @@ const cropAndUpload = async () => {
     if (canvas) {
       canvas.toBlob(async (blob) => {
         if (blob) {
-          const croppedFile = new File([blob], avatarFile.value?.name || 'avatar.jpg', { type: 'image/jpeg' });
+          const croppedFile = new File(
+            [blob],
+            avatarFile.value?.name || 'avatar.jpg',
+            { type: 'image/jpeg' }
+          );
           avatarPreview.value = URL.createObjectURL(blob);
 
           if (editableUser.value) {
@@ -625,7 +816,6 @@ const cropAndUpload = async () => {
   }
 };
 
-
 const onAvatarSelected = (event: Event) => {
   const target = event.target as HTMLInputElement;
   if (target.files && target.files.length > 0) {
@@ -641,8 +831,6 @@ const onAvatarSelected = (event: Event) => {
     reader.readAsDataURL(file);
   }
 };
-
-
 </script>
 
 <style lang="scss" scoped>

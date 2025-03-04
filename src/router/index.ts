@@ -25,10 +25,14 @@ export const router = createRouter({
 
 // Global navigation guard to set document title
 router.beforeEach((to, from, next) => {
-  const nearestWithTitle = to.matched.slice().reverse().find(r => r.meta && r.meta.title);
+  const nearestWithTitle = to.matched
+    .slice()
+    .reverse()
+    .find((r) => r.meta && r.meta.title);
 
   if (nearestWithTitle) {
-    document.title = 'P.A.R.K. Admin | ' + nearestWithTitle.meta.title as string;
+    document.title = ('P.A.R.K. Admin | ' +
+      nearestWithTitle.meta.title) as string;
   } else {
     document.title = 'Default Title'; // Set a default title if no meta title is defined
   }

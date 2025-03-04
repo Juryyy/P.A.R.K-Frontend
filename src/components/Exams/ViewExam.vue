@@ -3,33 +3,55 @@
     <q-card bordered :class="cardClass" v-if="editableExam">
       <q-card-section>
         <!-- Status Badges -->
-        <div v-if="editableExam.isPrepared && !editableExam.isCompleted"
-             class="status-badge ready-badge q-mb-sm">
-          <q-icon name="check_circle" color="green" size="sm" class="q-mr-xs"/>
+        <div
+          v-if="editableExam.isPrepared && !editableExam.isCompleted"
+          class="status-badge ready-badge q-mb-sm"
+        >
+          <q-icon name="check_circle" color="green" size="sm" class="q-mr-xs" />
           <div>
-          <b class="text-green text-bold text-subtitle1">This exam is marked as ready!</b>
+            <b class="text-green text-bold text-subtitle1"
+              >This exam is marked as ready!</b
+            >
           </div>
-          <b class="text-green text-bold text-subtitle1">Make sure to confirm your attendance </b>
+          <b class="text-green text-bold text-subtitle1"
+            >Make sure to confirm your attendance
+          </b>
         </div>
-        <div v-else-if="editableExam.isCompleted"
-             class="status-badge complete-badge q-mb-sm">
-          <q-icon name="event_available" color="orange" size="sm" class="q-mr-xs"/>
-          <b class="text-orange text-bold text-subtitle1">This exam is completed!</b>
+        <div
+          v-else-if="editableExam.isCompleted"
+          class="status-badge complete-badge q-mb-sm"
+        >
+          <q-icon
+            name="event_available"
+            color="orange"
+            size="sm"
+            class="q-mr-xs"
+          />
+          <b class="text-orange text-bold text-subtitle1"
+            >This exam is completed!</b
+          >
         </div>
 
         <!-- Main Exam Info -->
         <div class="exam-info q-mb-md">
           <div class="text-h6 text-weight-bold">{{ exam.type }}</div>
           <div class="location-info q-mt-xs">
-            <q-icon name="location_on" color="grey-7" size="sm" class="q-mr-xs"/>
-            <span class="text-subtitle2 text-grey-8">{{ exam.location }} - {{ exam.venue }}</span>
+            <q-icon
+              name="location_on"
+              color="grey-7"
+              size="sm"
+              class="q-mr-xs"
+            />
+            <span class="text-subtitle2 text-grey-8"
+              >{{ exam.location }} - {{ exam.venue }}</span
+            >
           </div>
         </div>
 
         <!-- Levels -->
         <div class="levels-section q-mb-md">
           <div class="row items-center q-mb-xs">
-            <q-icon name="school" color="primary" size="sm" class="q-mr-xs"/>
+            <q-icon name="school" color="primary" size="sm" class="q-mr-xs" />
             <span class="text-subtitle2 text-weight-medium">Levels:</span>
           </div>
           <div class="row q-gutter-xs">
@@ -50,7 +72,7 @@
         <!-- Time Details -->
         <div class="time-details q-pa-sm bg-grey-2 rounded-borders q-mb-md">
           <div class="row items-center q-mb-xs">
-            <q-icon name="schedule" color="primary" size="sm" class="q-mr-xs"/>
+            <q-icon name="schedule" color="primary" size="sm" class="q-mr-xs" />
             <div class="column">
               <div class="text-caption text-grey-7">Start time</div>
               <div class="text-subtitle2 text-weight-medium">
@@ -59,7 +81,7 @@
             </div>
           </div>
           <div class="row items-center">
-            <q-icon name="update" color="primary" size="sm" class="q-mr-xs"/>
+            <q-icon name="update" color="primary" size="sm" class="q-mr-xs" />
             <div class="column">
               <div class="text-caption text-grey-7">End time</div>
               <div class="text-subtitle2 text-weight-medium">
@@ -70,9 +92,17 @@
         </div>
 
         <!-- Note Section -->
-        <div class="note-section bg-blue-1 q-pa-sm rounded-borders q-mb-md" v-if="exam.note">
+        <div
+          class="note-section bg-blue-1 q-pa-sm rounded-borders q-mb-md"
+          v-if="exam.note"
+        >
           <div class="row items-start">
-            <q-icon name="notes" color="primary" size="sm" class="q-mr-xs q-mt-xs"/>
+            <q-icon
+              name="notes"
+              color="primary"
+              size="sm"
+              class="q-mr-xs q-mt-xs"
+            />
             <div class="column">
               <div class="text-caption text-grey-8">Note:</div>
               <div class="text-subtitle2 text-weight-medium">
@@ -91,69 +121,111 @@
 
         <!-- Personnel Section -->
         <q-separator class="q-my-md" />
-        <div v-for="(role, key) in roles" :key="key" class="personnel-section q-mb-md">
+        <div
+          v-for="(role, key) in roles"
+          :key="key"
+          class="personnel-section q-mb-md"
+        >
           <div class="row items-center q-mb-xs">
-            <q-icon :name="getRoleIcon(key)" color="primary" size="sm" class="q-mr-xs"/>
-            <span class="text-subtitle2 text-weight-medium">{{ role.title }}:</span>
+            <q-icon
+              :name="getRoleIcon(key)"
+              color="primary"
+              size="sm"
+              class="q-mr-xs"
+            />
+            <span class="text-subtitle2 text-weight-medium"
+              >{{ role.title }}:</span
+            >
           </div>
 
-          <div v-if="editableExam[key].length === 0"
-               class="empty-state q-pa-xs bg-grey-2 rounded-borders text-grey-7 text-caption">
+          <div
+            v-if="editableExam[key].length === 0"
+            class="empty-state q-pa-xs bg-grey-2 rounded-borders text-grey-7 text-caption"
+          >
             No {{ key }} assigned
           </div>
 
           <div v-else class="personnel-cards">
-            <div v-for="person in editableExam[key]"
-            :key="person.id"
-            class="personnel-card q-pa-xs q-mb-xs">
-         <div class="row items-center justify-between">
-           <div class="row items-center">
-             <span class="q-ml-xs text-subtitle2 font-name">
-               {{ person.firstName }} {{ person.lastName }}
-             </span>
-             <!-- Add substitution status indicator -->
-             <q-chip
-             v-if="hasRequestedSubstitution(person.id, key)"
-             class="sub-request-chip q-ml-sm"
-             dense
-           >
-             <q-icon
-               name="swap_horiz"
-               size="xs"
-               class="q-mr-xs"
-             />
-             <span>Sub Requested</span>
-           </q-chip>
-           </div>
+            <div
+              v-for="person in editableExam[key]"
+              :key="person.id"
+              class="personnel-card q-pa-xs q-mb-xs"
+            >
+              <div class="row items-center justify-between">
+                <div class="row items-center">
+                  <span class="q-ml-xs text-subtitle2 font-name">
+                    {{ person.firstName }} {{ person.lastName }}
+                  </span>
+                  <!-- Add substitution status indicator -->
+                  <q-chip
+                    v-if="hasRequestedSubstitution(person.id, key)"
+                    class="sub-request-chip q-ml-sm"
+                    dense
+                  >
+                    <q-icon name="swap_horiz" size="xs" class="q-mr-xs" />
+                    <span>Sub Requested</span>
+                  </q-chip>
+                </div>
 
                 <div class="row items-center">
                   <!-- Confirmation button for current user -->
-                  <q-btn v-if="isCurrentUser(person.id) && exam.isPrepared && !exam.isCompleted"
-                         flat
-                         round
-                         dense
-                         size="md"
-                         :icon="getConfirmationIcon(person.id, key)"
-                         :color="getConfirmationColor(person.id, key)"
-                         @click="toggleConfirmation(person.id, key)"
-                         :loading="isLoading(person.id, key)"
-                         class="confirmation-btn q-mr-xs">
-                    <q-tooltip :class="getConfirmationColorBackground(person.id,key)" >{{ getConfirmationTooltip(person.id, key) }}</q-tooltip>
+                  <q-btn
+                    v-if="
+                      isCurrentUser(person.id) &&
+                      exam.isPrepared &&
+                      !exam.isCompleted
+                    "
+                    flat
+                    round
+                    dense
+                    size="md"
+                    :icon="getConfirmationIcon(person.id, key)"
+                    :color="getConfirmationColor(person.id, key)"
+                    @click="toggleConfirmation(person.id, key)"
+                    :loading="isLoading(person.id, key)"
+                    class="confirmation-btn q-mr-xs"
+                  >
+                    <q-tooltip
+                      :class="getConfirmationColorBackground(person.id, key)"
+                      >{{ getConfirmationTooltip(person.id, key) }}</q-tooltip
+                    >
                   </q-btn>
 
                   <!-- Substitute request -->
-                  <q-btn v-if="isCurrentUser(person.id) && !exam.isCompleted"
-                         round
-                         flat
-                         dense
-                         size="md"
-                         icon="swap_horizontal_circle"
-                         :color="hasRequestedSubstitution(person.id, key) ? 'grey' : 'warning'"
-                         @click="requestSubstitute(editableExam.id, person.id, roleKeyToEnum(key))"
-                         :disable="hasRequestedSubstitution(person.id, key)"
-                         class="q-ml-xs">
-                    <q-tooltip :class="hasRequestedSubstitution(person.id, key) ? 'bg-grey' : 'bg-warning text-black'">
-                      {{ hasRequestedSubstitution(person.id, key) ? 'Substitution already requested' : 'Request a substitution for you' }}
+                  <q-btn
+                    v-if="isCurrentUser(person.id) && !exam.isCompleted"
+                    round
+                    flat
+                    dense
+                    size="md"
+                    icon="swap_horizontal_circle"
+                    :color="
+                      hasRequestedSubstitution(person.id, key)
+                        ? 'grey'
+                        : 'warning'
+                    "
+                    @click="
+                      requestSubstitute(
+                        editableExam.id,
+                        person.id,
+                        roleKeyToEnum(key)
+                      )
+                    "
+                    :disable="hasRequestedSubstitution(person.id, key)"
+                    class="q-ml-xs"
+                  >
+                    <q-tooltip
+                      :class="
+                        hasRequestedSubstitution(person.id, key)
+                          ? 'bg-grey'
+                          : 'bg-warning text-black'
+                      "
+                    >
+                      {{
+                        hasRequestedSubstitution(person.id, key)
+                          ? 'Substitution already requested'
+                          : 'Request a substitution for you'
+                      }}
                     </q-tooltip>
                   </q-btn>
                 </div>
@@ -169,7 +241,12 @@
             <q-card-section horizontal class="q-pa-sm">
               <q-card-section class="col q-pa-sm">
                 <div class="row items-center">
-                  <q-icon name="event" size="md" color="primary" class="q-mr-xs"/>
+                  <q-icon
+                    name="event"
+                    size="md"
+                    color="primary"
+                    class="q-mr-xs"
+                  />
                   <div class="text-subtitle1 text-primary">Exam Schedule</div>
                 </div>
                 <p class="text-caption text-grey-8 q-mt-xs q-mb-none">
@@ -178,14 +255,16 @@
               </q-card-section>
 
               <q-card-section class="col-auto q-pa-sm">
-                <q-btn :href="editableExam.schedule"
-                       target="_blank"
-                       rel="noopener noreferrer"
-                       color="primary"
-                       size="md"
-                       class="schedule-button"
-                       icon-right="open_in_new"
-                       no-caps>
+                <q-btn
+                  :href="editableExam.schedule"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  color="primary"
+                  size="md"
+                  class="schedule-button"
+                  icon-right="open_in_new"
+                  no-caps
+                >
                   Open Schedule
                 </q-btn>
               </q-card-section>
@@ -198,30 +277,45 @@
           <q-separator class="q-my-md" />
           <div class="files-section">
             <div class="row items-center q-mb-sm">
-              <q-icon name="attachment" color="primary" size="sm" class="q-mr-xs"/>
+              <q-icon
+                name="attachment"
+                color="primary"
+                size="sm"
+                class="q-mr-xs"
+              />
               <span class="text-subtitle1">Files</span>
             </div>
 
             <div class="file-cards">
-              <div v-for="file in exam.files"
-                   :key="file.id"
-                   class="file-card q-mb-xs">
+              <div
+                v-for="file in exam.files"
+                :key="file.id"
+                class="file-card q-mb-xs"
+              >
                 <div class="row items-center justify-between q-pa-xs">
                   <div class="row items-center">
-                    <q-icon :name="getFileIcon(file.name)"
-                           size="18px"
-                           class="q-mr-xs text-primary"/>
-                    <span class="file-name text-subtitle2">{{ file.name }}</span>
+                    <q-icon
+                      :name="getFileIcon(file.name)"
+                      size="18px"
+                      class="q-mr-xs text-primary"
+                    />
+                    <span class="file-name text-subtitle2">{{
+                      file.name
+                    }}</span>
                   </div>
 
-                  <q-btn flat
-                         dense
-                         round
-                         size="md"
-                         icon="download"
-                         color="primary"
-                         @click="downloadFile(file.id ?? 0, file.name)"
-                         :loading="file.id !== undefined ? loadingFiles[file.id] : false">
+                  <q-btn
+                    flat
+                    dense
+                    round
+                    size="md"
+                    icon="download"
+                    color="primary"
+                    @click="downloadFile(file.id ?? 0, file.name)"
+                    :loading="
+                      file.id !== undefined ? loadingFiles[file.id] : false
+                    "
+                  >
                   </q-btn>
                 </div>
               </div>
@@ -234,37 +328,48 @@
           <q-separator class="q-my-md" />
           <div class="day-report-section">
             <div class="row items-center q-mb-sm">
-              <q-icon name="description" color="primary" size="sm" class="q-mr-xs"/>
+              <q-icon
+                name="description"
+                color="primary"
+                size="sm"
+                class="q-mr-xs"
+              />
               <span class="text-subtitle1">Exam Day Report</span>
             </div>
 
             <div class="file-card">
               <div class="row items-center justify-between q-pa-xs">
                 <div class="row items-center">
-                  <q-icon name="picture_as_pdf"
-                         size="18px"
-                         class="q-mr-xs text-red"/>
+                  <q-icon
+                    name="picture_as_pdf"
+                    size="18px"
+                    class="q-mr-xs text-red"
+                  />
                   <span class="file-name text-subtitle2">
                     {{ editableExam.dayReport.name }}
                   </span>
                 </div>
 
                 <div class="row items-center">
-                  <q-btn flat
-                         dense
-                         round
-                         size="md"
-                         icon="download"
-                         color="primary"
-                         @click="downloadExamDayReport()"
-                         :loading="loadingFiles[editableExam.dayReport.id] ?? false"
-                         class="q-mr-xs"/>
-                  <q-btn flat
-                         dense
-                         round
-                         size="md"
-                         color="negative"
-                         icon="delete"/>
+                  <q-btn
+                    flat
+                    dense
+                    round
+                    size="md"
+                    icon="download"
+                    color="primary"
+                    @click="downloadExamDayReport()"
+                    :loading="loadingFiles[editableExam.dayReport.id] ?? false"
+                    class="q-mr-xs"
+                  />
+                  <q-btn
+                    flat
+                    dense
+                    round
+                    size="md"
+                    color="negative"
+                    icon="delete"
+                  />
                 </div>
               </div>
             </div>
@@ -424,7 +529,6 @@ const examSubs = computed(() => {
   return useSubstitution().examSubs;
 });
 
-
 const currentUser = computed(() => useUser().user);
 
 const levels = computed(() => {
@@ -474,15 +578,11 @@ const roles = {
   examiners: { title: 'Examiners' },
 } as const;
 
-
-const requestSubstitute = (
-  examId: number,
-  userId: number,
-  role: RoleEnum
-) => {
+const requestSubstitute = (examId: number, userId: number, role: RoleEnum) => {
   Dialog.create({
     title: 'Request Substitute',
-    message: 'Are you sure you want to request a substitute? You will be removed from the exam, if substitution is found.',
+    message:
+      'Are you sure you want to request a substitute? You will be removed from the exam, if substitution is found.',
     ok: {
       label: 'Request',
       color: 'primary',
@@ -490,10 +590,16 @@ const requestSubstitute = (
     cancel: {
       label: 'Cancel',
       color: 'negative',
-    }
+    },
   }).onOk(async () => {
-  await useSubstitution().createSubstitution(new Date(), examId, 'Requesting substitute', role, userId);
-  await useSubstitution().loadSubsForExam(examId);
+    await useSubstitution().createSubstitution(
+      new Date(),
+      examId,
+      'Requesting substitute',
+      role,
+      userId
+    );
+    await useSubstitution().loadSubsForExam(examId);
   });
 };
 
@@ -609,7 +715,9 @@ const getConfirmationColor = (userId: number, roleKey: string) => {
 };
 
 const getConfirmationColorBackground = (userId: number, roleKey: string) => {
-  return getConfirmationStatus(userId, roleKey) ? 'bg-positive text-black' : 'bg-negative';
+  return getConfirmationStatus(userId, roleKey)
+    ? 'bg-positive text-black'
+    : 'bg-negative';
 };
 
 const getConfirmationTooltip = (userId: number, roleKey: string) => {
@@ -621,9 +729,10 @@ const getConfirmationTooltip = (userId: number, roleKey: string) => {
 const hasRequestedSubstitution = (userId: number, roleKey: string) => {
   const roleEnum = roleKeyToEnum(roleKey);
   return examSubs.value.value.some(
-    sub => sub.requestedById === userId &&
-           sub.originalRole === roleEnum &&
-           sub.status === 'Open'
+    (sub) =>
+      sub.requestedById === userId &&
+      sub.originalRole === roleEnum &&
+      sub.status === 'Open'
   );
 };
 
@@ -648,7 +757,7 @@ const toggleConfirmation = async (userId: number, roleKey: string) => {
     let exam = useExam().selectedExam;
 
     if (exam) {
-      editableExam.value = exam
+      editableExam.value = exam;
       initializeEditableExam();
     }
   } catch (error) {
@@ -682,7 +791,6 @@ const getRoleIcon = (key: string) => {
       return 'person';
   }
 };
-
 </script>
 
 <style lang="scss" scoped>
@@ -698,7 +806,7 @@ const getRoleIcon = (key: string) => {
   margin-bottom: 3rem;
   transition: all 0.3s ease;
   border-left: 5px solid #e0e0e0;
-  max-width:max-content;
+  max-width: max-content;
 }
 
 @media (min-width: 600px) {
@@ -724,7 +832,7 @@ const getRoleIcon = (key: string) => {
 }
 
 .complete-border {
-  border-left: 5px solid #FFA000 !important; // Orange border for completed
+  border-left: 5px solid #ffa000 !important; // Orange border for completed
 }
 
 .status-badge {

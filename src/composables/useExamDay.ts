@@ -9,11 +9,15 @@ export function useExamDay() {
   const loading = ref(false);
 
   const upcomingExamDays = computed(() => examDayStore.upcomingExamDays);
-  const availabilityExamDays = computed(() => examDayStore.availabilityExamDays);
+  const availabilityExamDays = computed(
+    () => examDayStore.availabilityExamDays
+  );
   const responsesForExamDay = computed(() => examDayStore.responsesForExamDay);
   const allExamDays = computed(() => examDayStore.allExamDays);
 
-  const loadExamDays = async (centre: CentreEnum): Promise<DayOfExams[] | null> => {
+  const loadExamDays = async (
+    centre: CentreEnum
+  ): Promise<DayOfExams[] | null> => {
     loading.value = true;
     try {
       const result = await examDayStore.loadExamDays(centre);
@@ -31,7 +35,9 @@ export function useExamDay() {
     }
   };
 
-  const loadExamDaysAvailability = async (centre: CentreEnum): Promise<DayOfExams[] | null> => {
+  const loadExamDaysAvailability = async (
+    centre: CentreEnum
+  ): Promise<DayOfExams[] | null> => {
     loading.value = true;
     try {
       const result = await examDayStore.loadExamDaysAvailability(centre);
@@ -39,11 +45,15 @@ export function useExamDay() {
       if (result.success) {
         return result.data;
       } else {
-        NotificationService.error(result.error || 'Failed to load exam days for availability');
+        NotificationService.error(
+          result.error || 'Failed to load exam days for availability'
+        );
         return null;
       }
     } catch (error) {
-      NotificationService.error('An error occurred while loading exam days for availability');
+      NotificationService.error(
+        'An error occurred while loading exam days for availability'
+      );
       return null;
     } finally {
       loading.value = false;
@@ -58,17 +68,23 @@ export function useExamDay() {
         if (result.success) {
           return result.data;
         } else {
-          NotificationService.error(result.error || 'Failed to load all exam days');
+          NotificationService.error(
+            result.error || 'Failed to load all exam days'
+          );
           return null;
         }
       } catch (error) {
-        NotificationService.error('An error occurred while loading all exam days');
+        NotificationService.error(
+          'An error occurred while loading all exam days'
+        );
         return null;
       }
     }, 'Loading all exam days...');
   };
 
-  const loadResponsesForExamDay = async (id: number): Promise<dayResponse[] | null> => {
+  const loadResponsesForExamDay = async (
+    id: number
+  ): Promise<dayResponse[] | null> => {
     loading.value = true;
     try {
       const result = await examDayStore.loadResponsesForExamDay(id);
@@ -76,11 +92,15 @@ export function useExamDay() {
       if (result.success) {
         return result.data;
       } else {
-        NotificationService.error(result.error || 'Failed to load responses for exam day');
+        NotificationService.error(
+          result.error || 'Failed to load responses for exam day'
+        );
         return null;
       }
     } catch (error) {
-      NotificationService.error('An error occurred while loading responses for exam day');
+      NotificationService.error(
+        'An error occurred while loading responses for exam day'
+      );
       return null;
     } finally {
       loading.value = false;
@@ -125,7 +145,9 @@ export function useExamDay() {
           NotificationService.success('Exam day deleted successfully');
           return true;
         } else {
-          NotificationService.error(result.error || 'Failed to delete exam day');
+          NotificationService.error(
+            result.error || 'Failed to delete exam day'
+          );
           return false;
         }
       } catch (error) {
@@ -144,11 +166,15 @@ export function useExamDay() {
           NotificationService.success('Lock status changed successfully');
           return true;
         } else {
-          NotificationService.error(result.error || 'Failed to change lock status');
+          NotificationService.error(
+            result.error || 'Failed to change lock status'
+          );
           return false;
         }
       } catch (error) {
-        NotificationService.error('An error occurred while changing lock status');
+        NotificationService.error(
+          'An error occurred while changing lock status'
+        );
         return false;
       }
     }, 'Changing lock status...');
@@ -196,6 +222,6 @@ export function useExamDay() {
     addExamDay,
     deleteExamDay,
     changeLock,
-    informUsers
+    informUsers,
   };
 }

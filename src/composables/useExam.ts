@@ -16,7 +16,9 @@ export function useExam() {
       if (result.success) {
         return true;
       } else {
-        NotificationService.error(result.error || 'Failed to load upcoming exams');
+        NotificationService.error(
+          result.error || 'Failed to load upcoming exams'
+        );
         return false;
       }
     } catch (error) {
@@ -68,7 +70,9 @@ export function useExam() {
         return null;
       }
     } catch (error) {
-      NotificationService.error('An error occurred while fetching exam details');
+      NotificationService.error(
+        'An error occurred while fetching exam details'
+      );
       return null;
     } finally {
       loading.value = false;
@@ -94,10 +98,20 @@ export function useExam() {
     }, 'Updating exam...');
   };
 
-  const addWorker = async (examId: number, userId: number, override: boolean, position: string): Promise<boolean> => {
+  const addWorker = async (
+    examId: number,
+    userId: number,
+    override: boolean,
+    position: string
+  ): Promise<boolean> => {
     loading.value = true;
     try {
-      const result = await examStore.addWorker(examId, userId, override, position);
+      const result = await examStore.addWorker(
+        examId,
+        userId,
+        override,
+        position
+      );
 
       if (result.success) {
         NotificationService.success('Worker added successfully');
@@ -114,7 +128,11 @@ export function useExam() {
     }
   };
 
-  const removeWorker = async (examId: number, userId: number, position: string): Promise<boolean> => {
+  const removeWorker = async (
+    examId: number,
+    userId: number,
+    position: string
+  ): Promise<boolean> => {
     loading.value = true;
     try {
       const result = await examStore.removeWorker(examId, userId, position);
@@ -134,7 +152,10 @@ export function useExam() {
     }
   };
 
-  const uploadExamSchedule = async (file: File, examId: number): Promise<boolean> => {
+  const uploadExamSchedule = async (
+    file: File,
+    examId: number
+  ): Promise<boolean> => {
     return await LoadingService.withLoading(async () => {
       try {
         const result = await examStore.uploadExamSchedule(file, examId);
@@ -143,17 +164,24 @@ export function useExam() {
           NotificationService.success('Schedule uploaded successfully');
           return true;
         } else {
-          NotificationService.error(result.error || 'Failed to upload schedule');
+          NotificationService.error(
+            result.error || 'Failed to upload schedule'
+          );
           return false;
         }
       } catch (error) {
-        NotificationService.error('An error occurred while uploading the schedule');
+        NotificationService.error(
+          'An error occurred while uploading the schedule'
+        );
         return false;
       }
     }, 'Uploading schedule...');
   };
 
-  const downloadExamFile = async (fileId: number, fileName: string): Promise<boolean> => {
+  const downloadExamFile = async (
+    fileId: number,
+    fileName: string
+  ): Promise<boolean> => {
     return await LoadingService.withLoading(async () => {
       try {
         const result = await examStore.downloadExamFile(fileId, fileName);
@@ -166,7 +194,9 @@ export function useExam() {
           return false;
         }
       } catch (error) {
-        NotificationService.error('An error occurred while downloading the file');
+        NotificationService.error(
+          'An error occurred while downloading the file'
+        );
         return false;
       }
     }, 'Downloading file...');
@@ -214,68 +244,104 @@ export function useExam() {
           NotificationService.success('Exam day report uploaded successfully');
           return true;
         } else {
-          NotificationService.error(result.error || 'Failed to upload exam day report');
+          NotificationService.error(
+            result.error || 'Failed to upload exam day report'
+          );
           return false;
         }
       } catch (error) {
-        NotificationService.error('An error occurred while uploading the exam day report');
+        NotificationService.error(
+          'An error occurred while uploading the exam day report'
+        );
         return false;
       }
     }, 'Uploading exam day report...');
   };
 
-  const downloadExamDayReport = async (dayReportId: number, fileName: string): Promise<boolean> => {
+  const downloadExamDayReport = async (
+    dayReportId: number,
+    fileName: string
+  ): Promise<boolean> => {
     return await LoadingService.withLoading(async () => {
       try {
-        const result = await examStore.downloadExamDayReport(dayReportId, fileName);
+        const result = await examStore.downloadExamDayReport(
+          dayReportId,
+          fileName
+        );
 
         if (result.success) {
-          NotificationService.success('Exam day report downloaded successfully');
+          NotificationService.success(
+            'Exam day report downloaded successfully'
+          );
           return true;
         } else {
-          NotificationService.error(result.error || 'Failed to download exam day report');
+          NotificationService.error(
+            result.error || 'Failed to download exam day report'
+          );
           return false;
         }
       } catch (error) {
-        NotificationService.error('An error occurred while downloading the exam day report');
+        NotificationService.error(
+          'An error occurred while downloading the exam day report'
+        );
         return false;
       }
     }, 'Downloading exam day report...');
   };
 
-  const updateCompleted = async (examId: number, completed: boolean): Promise<boolean> => {
+  const updateCompleted = async (
+    examId: number,
+    completed: boolean
+  ): Promise<boolean> => {
     return await LoadingService.withLoading(async () => {
       try {
         const result = await examStore.updateCompleted(examId, completed);
 
         if (result.success) {
-          NotificationService.success(`Exam ${completed ? 'marked as completed' : 'unmarked as completed'}`);
+          NotificationService.success(
+            `Exam ${
+              completed ? 'marked as completed' : 'unmarked as completed'
+            }`
+          );
           return true;
         } else {
-          NotificationService.error(result.error || 'Failed to update exam completion status');
+          NotificationService.error(
+            result.error || 'Failed to update exam completion status'
+          );
           return false;
         }
       } catch (error) {
-        NotificationService.error('An error occurred while updating the exam completion status');
+        NotificationService.error(
+          'An error occurred while updating the exam completion status'
+        );
         return false;
       }
     }, 'Updating exam status...');
   };
 
-  const updatePrepared = async (examId: number, prepared: boolean): Promise<boolean> => {
+  const updatePrepared = async (
+    examId: number,
+    prepared: boolean
+  ): Promise<boolean> => {
     return await LoadingService.withLoading(async () => {
       try {
         const result = await examStore.updatePrepared(examId, prepared);
 
         if (result.success) {
-          NotificationService.success(`Exam ${prepared ? 'marked as prepared' : 'unmarked as prepared'}`);
+          NotificationService.success(
+            `Exam ${prepared ? 'marked as prepared' : 'unmarked as prepared'}`
+          );
           return true;
         } else {
-          NotificationService.error(result.error || 'Failed to update exam preparation status');
+          NotificationService.error(
+            result.error || 'Failed to update exam preparation status'
+          );
           return false;
         }
       } catch (error) {
-        NotificationService.error('An error occurred while updating the exam preparation status');
+        NotificationService.error(
+          'An error occurred while updating the exam preparation status'
+        );
         return false;
       }
     }, 'Updating exam status...');
@@ -308,7 +374,9 @@ export function useExam() {
       if (result.success) {
         return true;
       } else {
-        NotificationService.error(result.error || 'Failed to get exams for day');
+        NotificationService.error(
+          result.error || 'Failed to get exams for day'
+        );
         return false;
       }
     } catch (error) {
@@ -319,20 +387,34 @@ export function useExam() {
     }
   };
 
-  const toggleExamConfirmation = async (examId: number, role: RoleEnum, isConfirmed: boolean): Promise<boolean> => {
+  const toggleExamConfirmation = async (
+    examId: number,
+    role: RoleEnum,
+    isConfirmed: boolean
+  ): Promise<boolean> => {
     return await LoadingService.withLoading(async () => {
       try {
-        const result = await examStore.toggleExamConfirmation(examId, role, isConfirmed);
+        const result = await examStore.toggleExamConfirmation(
+          examId,
+          role,
+          isConfirmed
+        );
 
         if (result.success) {
-          NotificationService.success(`Exam ${isConfirmed ? 'confirmed' : 'unconfirmed'} successfully`);
+          NotificationService.success(
+            `Exam ${isConfirmed ? 'confirmed' : 'unconfirmed'} successfully`
+          );
           return true;
         } else {
-          NotificationService.error(result.error || 'Failed to update confirmation status');
+          NotificationService.error(
+            result.error || 'Failed to update confirmation status'
+          );
           return false;
         }
       } catch (error) {
-        NotificationService.error('An error occurred while updating the confirmation status');
+        NotificationService.error(
+          'An error occurred while updating the confirmation status'
+        );
         return false;
       }
     }, 'Updating confirmation status...');

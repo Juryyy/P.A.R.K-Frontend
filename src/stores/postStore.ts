@@ -29,7 +29,7 @@ export const usePostStore = defineStore('post', {
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Failed to add post'
+          error: error.response?.data?.error || 'Failed to add post',
         };
       }
     },
@@ -42,7 +42,7 @@ export const usePostStore = defineStore('post', {
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Failed to get posts'
+          error: error.response?.data?.error || 'Failed to get posts',
         };
       }
     },
@@ -56,7 +56,9 @@ export const usePostStore = defineStore('post', {
           }
         );
 
-        const blob = new Blob([response.data], { type: 'application/octet-stream' });
+        const blob = new Blob([response.data], {
+          type: 'application/octet-stream',
+        });
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
@@ -70,19 +72,21 @@ export const usePostStore = defineStore('post', {
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Failed to download file'
+          error: error.response?.data?.error || 'Failed to download file',
         };
       }
     },
 
     async deleteFile(fileId: number): Promise<PostResult> {
       try {
-        const response = await api.delete(`/onedrive/files/post/delete/${fileId}`);
+        const response = await api.delete(
+          `/onedrive/files/post/delete/${fileId}`
+        );
         return { success: true, data: response.data };
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Failed to delete file'
+          error: error.response?.data?.error || 'Failed to delete file',
         };
       }
     },
@@ -90,19 +94,21 @@ export const usePostStore = defineStore('post', {
     async deletePost(postId: number): Promise<PostResult> {
       try {
         const response = await api.delete(`/posts/delete/${postId}`);
-        this.posts = this.posts.filter(post => post.id !== postId);
+        this.posts = this.posts.filter((post) => post.id !== postId);
         return { success: true, data: response.data };
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Failed to delete post'
+          error: error.response?.data?.error || 'Failed to delete post',
         };
       }
     },
 
     getAvatarData(authorId: number): string | null {
-      const post = this.posts.find((post: PostWithAvatar) => post.author.id === authorId);
+      const post = this.posts.find(
+        (post: PostWithAvatar) => post.author.id === authorId
+      );
       return post ? post.author.avatarData : null;
-    }
+    },
   },
 });

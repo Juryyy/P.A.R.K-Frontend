@@ -50,7 +50,7 @@ const initializeApp = async () => {
 
       await Promise.all([
         useUser().getUsersExams(),
-        useUser().getUsersAvatar()
+        useUser().getUsersAvatar(),
       ]);
 
       state.isLoaded = true;
@@ -66,7 +66,7 @@ const initializeApp = async () => {
         useUser().getUserInfo();
         await Promise.all([
           useUser().getUsersExams(),
-          useUser().getUsersAvatar()
+          useUser().getUsersAvatar(),
         ]);
 
         state.isLoaded = true;
@@ -79,7 +79,9 @@ const initializeApp = async () => {
     console.error(error);
     state.error = 'Failed to load application data. Please try again.';
     if (state.hasFailed) {
-      NotificationService.error('Failed to initialize application, if the problem persists please contact us.');
+      NotificationService.error(
+        'Failed to initialize application, if the problem persists please contact us.'
+      );
     }
     state.hasFailed = true;
     state.isLoaded = true;
@@ -90,5 +92,4 @@ const initializeApp = async () => {
 };
 
 initializeApp();
-
 </script>

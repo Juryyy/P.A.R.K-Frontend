@@ -60,7 +60,7 @@ export const useUserStore = defineStore('user', {
       } catch (error: any) {
         return {
           success: false,
-          error: error.message || 'Failed to refresh user information'
+          error: error.message || 'Failed to refresh user information',
         };
       }
     },
@@ -74,12 +74,12 @@ export const useUserStore = defineStore('user', {
         this.lastRefreshTime = currentTime;
         const response = await api.get('/users/usersExams');
         this.usersExams = response.data;
-        this.triggerExamRefresh()
+        this.triggerExamRefresh();
         return { success: true, data: response.data };
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Failed to get user exams'
+          error: error.response?.data?.error || 'Failed to get user exams',
         };
       }
     },
@@ -102,7 +102,7 @@ export const useUserStore = defineStore('user', {
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Failed to get user avatar'
+          error: error.response?.data?.error || 'Failed to get user avatar',
         };
       }
     },
@@ -115,7 +115,7 @@ export const useUserStore = defineStore('user', {
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Failed to get user profile'
+          error: error.response?.data?.error || 'Failed to get user profile',
         };
       }
     },
@@ -142,7 +142,8 @@ export const useUserStore = defineStore('user', {
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Failed to get user avatar by ID'
+          error:
+            error.response?.data?.error || 'Failed to get user avatar by ID',
         };
       }
     },
@@ -155,7 +156,7 @@ export const useUserStore = defineStore('user', {
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Failed to get all users'
+          error: error.response?.data?.error || 'Failed to get all users',
         };
       }
     },
@@ -194,12 +195,15 @@ export const useUserStore = defineStore('user', {
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Failed to update profile'
+          error: error.response?.data?.error || 'Failed to update profile',
         };
       }
     },
 
-    async updateAdminNote(id: number, adminNote: string | null): Promise<UserResult> {
+    async updateAdminNote(
+      id: number,
+      adminNote: string | null
+    ): Promise<UserResult> {
       try {
         const response = await api.put('/users/updateAdminNote', {
           id,
@@ -209,7 +213,7 @@ export const useUserStore = defineStore('user', {
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Failed to update admin note'
+          error: error.response?.data?.error || 'Failed to update admin note',
         };
       }
     },
@@ -227,12 +231,15 @@ export const useUserStore = defineStore('user', {
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Failed to upload avatar'
+          error: error.response?.data?.error || 'Failed to upload avatar',
         };
       }
     },
 
-    async updateInsperaAccount(id: number, insperaAccount: boolean): Promise<UserResult> {
+    async updateInsperaAccount(
+      id: number,
+      insperaAccount: boolean
+    ): Promise<UserResult> {
       try {
         const response = await api.put('/users/updateInspera', {
           id,
@@ -242,7 +249,8 @@ export const useUserStore = defineStore('user', {
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Failed to update inspera account'
+          error:
+            error.response?.data?.error || 'Failed to update inspera account',
         };
       }
     },
@@ -263,5 +271,5 @@ export const useUserStore = defineStore('user', {
     toggleRightDrawer() {
       this.rightDrawerOpen = !this.rightDrawerOpen;
     },
-  }
+  },
 });

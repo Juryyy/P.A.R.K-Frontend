@@ -1,7 +1,10 @@
 <template>
   <q-page v-if="loaded">
     <template v-if="examStore.selectedExam">
-      <EditExam :exam="examStore.selectedExam" :responses="examDayStore.responsesForExamDay"/>
+      <EditExam
+        :exam="examStore.selectedExam"
+        :responses="examDayStore.responsesForExamDay"
+      />
     </template>
   </q-page>
 </template>
@@ -21,7 +24,7 @@ const examStore = useExamStore();
 const examDayStore = useExamDayStore();
 const route = useRoute();
 
-const exam = ref(route.params.id)
+const exam = ref(route.params.id);
 
 const loaded = ref(false);
 
@@ -36,10 +39,11 @@ onBeforeMount(async () => {
   await examStore.getExam(Number(exam.value));
   await adminStore.getLocationsWithVenues();
   if (examStore.selectedExam) {
-    await examDayStore.loadResponsesForExamDay(Number(examStore.selectedExam.dayOfExamsId));
+    await examDayStore.loadResponsesForExamDay(
+      Number(examStore.selectedExam.dayOfExamsId)
+    );
   }
   loaded.value = true;
   Loading.hide();
 });
 </script>
-

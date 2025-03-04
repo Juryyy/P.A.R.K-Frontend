@@ -10,7 +10,10 @@ export function useAdmin() {
 
   const locationsWithVenues = computed(() => adminStore.locationsWithVenues);
 
-  const updateUserRole = async (id: number, role: string[]): Promise<boolean> => {
+  const updateUserRole = async (
+    id: number,
+    role: string[]
+  ): Promise<boolean> => {
     return await LoadingService.withLoading(async () => {
       try {
         const result = await adminStore.updateUserRole(id, role);
@@ -19,7 +22,9 @@ export function useAdmin() {
           NotificationService.success('User role updated successfully');
           return true;
         } else {
-          NotificationService.error(result.error || 'Failed to update user role');
+          NotificationService.error(
+            result.error || 'Failed to update user role'
+          );
           return false;
         }
       } catch (error) {
@@ -68,11 +73,15 @@ export function useAdmin() {
       if (result.success) {
         return result.data;
       } else {
-        NotificationService.error(result.error || 'Failed to get locations with venues');
+        NotificationService.error(
+          result.error || 'Failed to get locations with venues'
+        );
         return null;
       }
     } catch (error) {
-      NotificationService.error('An error occurred while getting locations with venues');
+      NotificationService.error(
+        'An error occurred while getting locations with venues'
+      );
       return null;
     } finally {
       loading.value = false;
@@ -88,7 +97,9 @@ export function useAdmin() {
           NotificationService.success('User deactivated successfully');
           return true;
         } else {
-          NotificationService.error(result.error || 'Failed to deactivate user');
+          NotificationService.error(
+            result.error || 'Failed to deactivate user'
+          );
           return false;
         }
       } catch (error) {
@@ -98,7 +109,10 @@ export function useAdmin() {
     }, 'Deactivating user...');
   };
 
-  const updateUserAdminCentre = async (id: number, adminCentre: CentreEnum[]): Promise<boolean> => {
+  const updateUserAdminCentre = async (
+    id: number,
+    adminCentre: CentreEnum[]
+  ): Promise<boolean> => {
     return await LoadingService.withLoading(async () => {
       try {
         const result = await adminStore.updateUserAdminCentre(id, adminCentre);
@@ -107,17 +121,24 @@ export function useAdmin() {
           NotificationService.success('User centre updated successfully');
           return true;
         } else {
-          NotificationService.error(result.error || 'Failed to update user centre');
+          NotificationService.error(
+            result.error || 'Failed to update user centre'
+          );
           return false;
         }
       } catch (error) {
-        NotificationService.error('An error occurred while updating user centre');
+        NotificationService.error(
+          'An error occurred while updating user centre'
+        );
         return false;
       }
     }, 'Updating user centre...');
   };
 
-  const addLocation = async (location: string, adminCentre: CentreEnum[]): Promise<boolean> => {
+  const addLocation = async (
+    location: string,
+    adminCentre: CentreEnum[]
+  ): Promise<boolean> => {
     return await LoadingService.withLoading(async () => {
       try {
         const result = await adminStore.addLocation(location, adminCentre);
@@ -137,7 +158,11 @@ export function useAdmin() {
     }, 'Adding location...');
   };
 
-  const addVenue = async (location: number, venue: string, link: string): Promise<boolean> => {
+  const addVenue = async (
+    location: number,
+    venue: string,
+    link: string
+  ): Promise<boolean> => {
     return await LoadingService.withLoading(async () => {
       try {
         const result = await adminStore.addVenue(location, venue, link);
@@ -167,7 +192,9 @@ export function useAdmin() {
           await adminStore.getLocationsWithVenues();
           return true;
         } else {
-          NotificationService.error(result.error || 'Failed to remove location');
+          NotificationService.error(
+            result.error || 'Failed to remove location'
+          );
           return false;
         }
       } catch (error) {
@@ -197,7 +224,10 @@ export function useAdmin() {
     }, 'Removing venue...');
   };
 
-  const updateUserLevel = async (id: number, level: string[]): Promise<boolean> => {
+  const updateUserLevel = async (
+    id: number,
+    level: string[]
+  ): Promise<boolean> => {
     return await LoadingService.withLoading(async () => {
       try {
         const result = await adminStore.updateUserLevel(id, level);
@@ -206,30 +236,43 @@ export function useAdmin() {
           NotificationService.success('User level updated successfully');
           return true;
         } else {
-          NotificationService.error(result.error || 'Failed to update user level');
+          NotificationService.error(
+            result.error || 'Failed to update user level'
+          );
           return false;
         }
       } catch (error) {
-        NotificationService.error('An error occurred while updating user level');
+        NotificationService.error(
+          'An error occurred while updating user level'
+        );
         return false;
       }
     }, 'Updating user level...');
   };
 
-  const updateUserIsSenior = async (id: number, isSenior: boolean): Promise<boolean> => {
+  const updateUserIsSenior = async (
+    id: number,
+    isSenior: boolean
+  ): Promise<boolean> => {
     return await LoadingService.withLoading(async () => {
       try {
         const result = await adminStore.updateUserIsSenior(id, isSenior);
 
         if (result.success) {
-          NotificationService.success('User senior status updated successfully');
+          NotificationService.success(
+            'User senior status updated successfully'
+          );
           return true;
         } else {
-          NotificationService.error(result.error || 'Failed to update user senior status');
+          NotificationService.error(
+            result.error || 'Failed to update user senior status'
+          );
           return false;
         }
       } catch (error) {
-        NotificationService.error('An error occurred while updating user senior status');
+        NotificationService.error(
+          'An error occurred while updating user senior status'
+        );
         return false;
       }
     }, 'Updating user senior status...');
@@ -248,6 +291,6 @@ export function useAdmin() {
     removeLocation,
     removeVenue,
     updateUserLevel,
-    updateUserIsSenior
+    updateUserIsSenior,
   };
 }

@@ -309,11 +309,7 @@ const columns = [
     align: 'left',
     field: 'email',
   },
-  { name: 'code',
-    required: true,
-    label: 'Code',
-    align: 'left',
-    field: 'code' },
+  { name: 'code', required: true, label: 'Code', align: 'left', field: 'code' },
   {
     name: 'phone',
     required: true,
@@ -363,25 +359,20 @@ const columns = [
     align: 'left',
     field: 'requirements',
   },
-  { name: 'mock',
-    required: true,
-    label: 'Mock',
-    align: 'left',
-    field: 'mock'
-  },
+  { name: 'mock', required: true, label: 'Mock', align: 'left', field: 'mock' },
   {
     name: 'paid',
     required: true,
     label: 'Paid',
     align: 'left',
-    field: 'paid'
+    field: 'paid',
   },
   {
     name: 'note',
     required: true,
     label: 'Note',
     align: 'left',
-    field: 'note'
+    field: 'note',
   },
   {
     name: 'partner',
@@ -446,11 +437,11 @@ const deleteItem = (item: Candidate) => {
 
 const upload = async () => {
   Loading.show({
-      message: 'Uploading candidates',
-      spinnerColor: 'amber',
-      messageColor: 'amber',
-      backgroundColor: 'black',
-    });
+    message: 'Uploading candidates',
+    spinnerColor: 'amber',
+    messageColor: 'amber',
+    backgroundColor: 'black',
+  });
   await candidateStore.uploadCandidates();
   candidateStore.candidates.splice(0, candidateStore.candidates.length);
   Loading.hide();

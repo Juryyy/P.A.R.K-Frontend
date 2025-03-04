@@ -2,7 +2,12 @@
 import { defineStore } from 'pinia';
 import { api } from '../boot/axios';
 import { ref } from 'vue';
-import { RoleEnum, SubstitutionRequest, SubstitutionRequestInfo, SubstitutionApplication } from '../db/types';
+import {
+  RoleEnum,
+  SubstitutionRequest,
+  SubstitutionRequestInfo,
+  SubstitutionApplication,
+} from '../db/types';
 
 export interface SubstitutionResult {
   success: boolean;
@@ -27,7 +32,7 @@ export const useSubstitutionStore = defineStore('substitution', {
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Failed to load substitutions'
+          error: error.response?.data?.error || 'Failed to load substitutions',
         };
       }
     },
@@ -40,19 +45,25 @@ export const useSubstitutionStore = defineStore('substitution', {
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Failed to load your applications'
+          error:
+            error.response?.data?.error || 'Failed to load your applications',
         };
       }
     },
 
-    async applyForSubstitution(substitutionId: number): Promise<SubstitutionResult> {
+    async applyForSubstitution(
+      substitutionId: number
+    ): Promise<SubstitutionResult> {
       try {
-        const response = await api.post(`/substitutions/apply/${substitutionId}`);
+        const response = await api.post(
+          `/substitutions/apply/${substitutionId}`
+        );
         return { success: true, data: response.data };
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Failed to apply for substitution'
+          error:
+            error.response?.data?.error || 'Failed to apply for substitution',
         };
       }
     },
@@ -76,7 +87,7 @@ export const useSubstitutionStore = defineStore('substitution', {
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Failed to create substitution'
+          error: error.response?.data?.error || 'Failed to create substitution',
         };
       }
     },
@@ -89,31 +100,42 @@ export const useSubstitutionStore = defineStore('substitution', {
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Failed to load substitutions for exam'
+          error:
+            error.response?.data?.error ||
+            'Failed to load substitutions for exam',
         };
       }
     },
 
-    async withdrawApplication(applicationId: number): Promise<SubstitutionResult> {
+    async withdrawApplication(
+      applicationId: number
+    ): Promise<SubstitutionResult> {
       try {
-        const response = await api.delete(`/substitutions/withdraw/${applicationId}`);
+        const response = await api.delete(
+          `/substitutions/withdraw/${applicationId}`
+        );
         return { success: true, data: response.data };
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Failed to withdraw application'
+          error:
+            error.response?.data?.error || 'Failed to withdraw application',
         };
       }
     },
 
-    async cancelSubstitution(substitutionId: number): Promise<SubstitutionResult> {
+    async cancelSubstitution(
+      substitutionId: number
+    ): Promise<SubstitutionResult> {
       try {
-        const response = await api.delete(`/substitutions/cancel/${substitutionId}`);
+        const response = await api.delete(
+          `/substitutions/cancel/${substitutionId}`
+        );
         return { success: true, data: response.data };
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Failed to cancel substitution'
+          error: error.response?.data?.error || 'Failed to cancel substitution',
         };
       }
     },
@@ -126,9 +148,11 @@ export const useSubstitutionStore = defineStore('substitution', {
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Failed to get count of open substitutions'
+          error:
+            error.response?.data?.error ||
+            'Failed to get count of open substitutions',
         };
       }
     },
-  }
+  },
 });

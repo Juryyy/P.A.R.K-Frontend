@@ -3,7 +3,7 @@
     <q-page-container>
       <LoginForm />
     </q-page-container>
-</q-layout>
+  </q-layout>
 </template>
 
 <script setup lang="ts">

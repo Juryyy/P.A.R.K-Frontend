@@ -4,11 +4,15 @@ export const NotificationType = {
   SUCCESS: 'success',
   ERROR: 'error',
   WARNING: 'warning',
-  INFO: 'info'
+  INFO: 'info',
 };
 
 export class NotificationService {
-  static show(type: string, message: string, options: Partial<QNotifyOptions> = {}) {
+  static show(
+    type: string,
+    message: string,
+    options: Partial<QNotifyOptions> = {}
+  ) {
     const defaultOptions: Record<string, Partial<QNotifyOptions>> = {
       [NotificationType.SUCCESS]: {
         color: 'positive',
@@ -30,13 +34,13 @@ export class NotificationService {
         color: 'info',
         icon: 'info',
         position: 'bottom',
-      }
+      },
     };
 
     const notifyOptions = {
       ...defaultOptions[type],
       ...options,
-      message
+      message,
     };
 
     Notify.create(notifyOptions);

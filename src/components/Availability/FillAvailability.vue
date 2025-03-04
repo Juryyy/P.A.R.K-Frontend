@@ -1,6 +1,9 @@
 <template>
   <div class="q-pa-md content-container">
-    <h4 v-if="!hasResponses" class="text-center text-h5 text-weight-medium q-mb-xl">
+    <h4
+      v-if="!hasResponses"
+      class="text-center text-h5 text-weight-medium q-mb-xl"
+    >
       No availability yet. Please wait for the Head of Exams to create some.
     </h4>
     <q-card v-else class="availability-card">
@@ -72,7 +75,9 @@
                           text-color="black"
                           :label="label"
                           size="md"
-                          :class="{ 'q-chip--selected': props.row.response === value }"
+                          :class="{
+                            'q-chip--selected': props.row.response === value,
+                          }"
                         />
                       </template>
                     </q-option-group>
@@ -110,7 +115,9 @@ const userResponses = computed(() => useAvailability().userResponses.value);
 const submitting = ref(false);
 
 const centreResponses = computed<UserResponses[]>(() => {
-  return (userResponses.value as UserResponses[]).filter(response => response.centre === props.centre);
+  return (userResponses.value as UserResponses[]).filter(
+    (response) => response.centre === props.centre
+  );
 });
 
 const hasResponses = computed(() => centreResponses.value.length > 0);
@@ -128,7 +135,7 @@ const columns = [
     name: 'action',
     align: 'center' as const,
     label: 'Your Response',
-    field: 'response'
+    field: 'response',
   },
 ];
 
@@ -141,16 +148,25 @@ const options: { label: string; value: string }[] = [
 
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+  return date.toLocaleDateString('en-US', {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+  });
 };
 
 const getChipColor = (value: string) => {
   switch (value) {
-    case 'Yes': return 'positive';
-    case 'No': return 'negative';
-    case 'AM': return 'info';
-    case 'PM': return 'warning';
-    default: return 'grey';
+    case 'Yes':
+      return 'positive';
+    case 'No':
+      return 'negative';
+    case 'AM':
+      return 'info';
+    case 'PM':
+      return 'warning';
+    default:
+      return 'grey';
   }
 };
 

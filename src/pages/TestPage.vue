@@ -3,7 +3,11 @@
     <div>
       <input v-model="startTime" type="time" placeholder="Enter start time" />
       <input v-model="levelName" type="text" placeholder="Enter level name" />
-      <input v-model.number="numberOfRows" type="number" placeholder="Enter number of rows" />
+      <input
+        v-model.number="numberOfRows"
+        type="number"
+        placeholder="Enter number of rows"
+      />
       <button @click="generateRows">Generate Rows</button>
       <button @click="prepareData">Upload Data</button>
     </div>
@@ -18,7 +22,8 @@
           <th>Surname</th>
           <th>Global</th>
           <th>Comment</th>
-          <th>Action</th> <!-- Added column for remove button -->
+          <th>Action</th>
+          <!-- Added column for remove button -->
         </tr>
       </thead>
       <tbody>
@@ -103,7 +108,9 @@ const incrementTime = (time: string, minutesToAdd = 14): string => {
   const newHours = hours + Math.floor(newMinutes / 60);
   const finalMinutes = newMinutes % 60;
 
-  return `${newHours.toString().padStart(2, '0')}:${finalMinutes.toString().padStart(2, '0')}`;
+  return `${newHours.toString().padStart(2, '0')}:${finalMinutes
+    .toString()
+    .padStart(2, '0')}`;
 };
 
 const prepareData = () => {
@@ -131,7 +138,6 @@ const onDragEnd = (event: any) => {
   console.log('Drag ended:', event);
 };
 </script>
-
 
 <style>
 table {

@@ -33,6 +33,6 @@ export const getLevelColor = (level: LevelEnum): string => {
     case LevelEnum.C2:
       return 'blue';
     default:
-      return 'grey'
+      return 'grey';
   }
 };

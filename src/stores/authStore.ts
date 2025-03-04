@@ -31,7 +31,9 @@ export const useAuthStore = defineStore('auth', {
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'The code is not valid or has expired'
+          error:
+            error.response?.data?.error ||
+            'The code is not valid or has expired',
         };
       }
     },
@@ -41,7 +43,8 @@ export const useAuthStore = defineStore('auth', {
         if (this.isLocked) {
           return {
             success: false,
-            error: 'Account is temporarily locked. Please try again later or reset your password.'
+            error:
+              'Account is temporarily locked. Please try again later or reset your password.',
           };
         }
 
@@ -56,7 +59,7 @@ export const useAuthStore = defineStore('auth', {
 
         return {
           success: false,
-          error: 'Login failed'
+          error: 'Login failed',
         };
       } catch (error: any) {
         this.loginAttempts++;
@@ -71,7 +74,7 @@ export const useAuthStore = defineStore('auth', {
 
         return {
           success: false,
-          error: error.response?.data?.error || 'Invalid credentials'
+          error: error.response?.data?.error || 'Invalid credentials',
         };
       }
     },
@@ -88,12 +91,17 @@ export const useAuthStore = defineStore('auth', {
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Logout failed'
+          error: error.response?.data?.error || 'Logout failed',
         };
       }
     },
 
-    async registerUser(email: string, firstName: string, lastName: string, role: string): Promise<AuthResult> {
+    async registerUser(
+      email: string,
+      firstName: string,
+      lastName: string,
+      role: string
+    ): Promise<AuthResult> {
       try {
         const response = await api.post('/office/registerUser', {
           email,
@@ -103,12 +111,12 @@ export const useAuthStore = defineStore('auth', {
         });
         return {
           success: true,
-          data: response.data
+          data: response.data,
         };
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Registration failed'
+          error: error.response?.data?.error || 'Registration failed',
         };
       }
     },
@@ -120,19 +128,22 @@ export const useAuthStore = defineStore('auth', {
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Failed to reset password'
+          error: error.response?.data?.error || 'Failed to reset password',
         };
       }
     },
 
-    async updatePassword(password: string, newPassword: string): Promise<AuthResult> {
+    async updatePassword(
+      password: string,
+      newPassword: string
+    ): Promise<AuthResult> {
       try {
         await api.post('/auth/password-update', { password, newPassword });
         return { success: true };
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Failed to update password'
+          error: error.response?.data?.error || 'Failed to update password',
         };
       }
     },
@@ -144,14 +155,14 @@ export const useAuthStore = defineStore('auth', {
         localStorage.setItem('token', response.data);
         return {
           success: true,
-          data: response.data
+          data: response.data,
         };
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Token retrieval failed'
+          error: error.response?.data?.error || 'Token retrieval failed',
         };
       }
-    }
+    },
   },
 });

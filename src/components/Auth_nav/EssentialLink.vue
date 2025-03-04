@@ -1,7 +1,13 @@
 <template>
   <q-item clickable :to="link" :active="isActive" class="relative-position">
     <q-item-section avatar>
-      <q-badge v-if="notificationCount > 0" color="red" :label="notificationCount" class="badge" rounded/>
+      <q-badge
+        v-if="notificationCount > 0"
+        color="red"
+        :label="notificationCount"
+        class="badge"
+        rounded
+      />
       <q-icon :name="icon" />
     </q-item-section>
 
@@ -38,13 +44,11 @@ const isActive = computed(() => route.path === props.link);
 </script>
 
 <style scoped lang="scss">
-
-.badge{
-  right:-15px;
-  top:10px;
+.badge {
+  right: -15px;
+  top: 10px;
   position: relative;
   z-index: 1;
-  margin-top:-18px;
+  margin-top: -18px;
 }
-
 </style>

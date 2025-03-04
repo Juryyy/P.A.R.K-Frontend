@@ -10,7 +10,7 @@ export type Candidate = {
   firstName: string; //7
   lastName: string; //7
   birthDate: Date; //8
-  email: string;  //9
+  email: string; //9
   phone: string; //10
   code: string; //11
   partner?: string; //12
@@ -20,4 +20,4 @@ export type Candidate = {
   requirements?: string; //15
   crfToSchool: boolean; //16
   note: string | null; //17
-}
+};

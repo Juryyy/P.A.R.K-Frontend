@@ -4,7 +4,9 @@
       <div class="col-12 col-lg-4">
         <q-card class="my-card">
           <q-card-section>
-            <div class="text-h5 text-weight-bold q-mb-md text-primary">Availability Date Selection - {{ props.centre }}</div>
+            <div class="text-h5 text-weight-bold q-mb-md text-primary">
+              Availability Date Selection - {{ props.centre }}
+            </div>
             <q-date
               v-model="state.date"
               first-day-of-week="1"
@@ -40,8 +42,20 @@
             </div>
           </q-card-section>
           <q-card-actions align="right" class="q-pa-md">
-            <q-btn color="primary" label="Add Date" @click="addDate" icon="add" flat />
-            <q-btn color="secondary" label="Inform Users" @click="openInformDialog" icon="send" flat />
+            <q-btn
+              color="primary"
+              label="Add Date"
+              @click="addDate"
+              icon="add"
+              flat
+            />
+            <q-btn
+              color="secondary"
+              label="Inform Users"
+              @click="openInformDialog"
+              icon="send"
+              flat
+            />
           </q-card-actions>
         </q-card>
       </div>
@@ -49,7 +63,9 @@
       <div class="col-12 col-lg-8">
         <q-card class="my-card">
           <q-card-section>
-            <div class="text-h5 text-weight-bold q-mb-md text-primary">Exam Days - {{ props.centre }}</div>
+            <div class="text-h5 text-weight-bold q-mb-md text-primary">
+              Exam Days - {{ props.centre }}
+            </div>
             <q-input
               v-model="search"
               placeholder="Search exam days"
@@ -135,7 +151,6 @@
       </div>
     </div>
 
-
     <q-dialog v-model="state.showInformDialog" persistent>
       <q-card style="min-width: 300px; max-width: 400px">
         <q-card-section class="q-pb-none">
@@ -147,7 +162,7 @@
               v-model="informUsersForm.startDate"
               label="Start Date"
               type="date"
-              :rules="[val => !!val || 'Start Date is required']"
+              :rules="[(val) => !!val || 'Start Date is required']"
               outlined
               dense
             />
@@ -155,7 +170,7 @@
               v-model="informUsersForm.endDate"
               label="End Date"
               type="date"
-              :rules="[val => !!val || 'End Date is required']"
+              :rules="[(val) => !!val || 'End Date is required']"
               outlined
               dense
             />
@@ -163,13 +178,25 @@
               v-model="informUsersForm.dateOfSubmission"
               label="Date of Submission"
               type="date"
-              :rules="[val => !!val || 'Date of Submission is required']"
+              :rules="[(val) => !!val || 'Date of Submission is required']"
               outlined
               dense
             />
             <div class="row justify-end q-gutter-sm">
-              <q-btn flat label="Cancel" color="negative" @click="state.showInformDialog = false" />
-              <q-btn flat label="Send" color="primary" type="submit" :loading="state.loadingSend" :disable="state.loadingSend" />
+              <q-btn
+                flat
+                label="Cancel"
+                color="negative"
+                @click="state.showInformDialog = false"
+              />
+              <q-btn
+                flat
+                label="Send"
+                color="primary"
+                type="submit"
+                :loading="state.loadingSend"
+                :disable="state.loadingSend"
+              />
             </div>
           </q-form>
         </q-card-section>
@@ -194,7 +221,9 @@ const search = ref('');
 const currentDate = new Date();
 
 const state = reactive({
-  date: `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}-${currentDate.getDate().toString().padStart(2, '0')}`,
+  date: `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1)
+    .toString()
+    .padStart(2, '0')}-${currentDate.getDate().toString().padStart(2, '0')}`,
   invigilators: true,
   examiners: true,
   showInformDialog: false,
@@ -207,7 +236,7 @@ const informUsersForm = reactive({
   dateOfSubmission: '',
 });
 
-const columns : any = [
+const columns: any = [
   { name: 'date', label: 'Date', field: 'date', sortable: true, align: 'left' },
   { name: 'type', label: 'Type', field: 'type', align: 'center' },
   { name: 'actions', label: 'Actions', field: 'actions', align: 'center' },
@@ -215,50 +244,71 @@ const columns : any = [
 
 const filteredExamDays = computed(() => {
   const centreFilteredAndSorted = [...examDays]
-    .filter(day => day.adminCentre === props.centre)
+    .filter((day) => day.adminCentre === props.centre)
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   if (!search.value) return centreFilteredAndSorted;
 
   const searchLower = search.value.toLowerCase();
-  return centreFilteredAndSorted.filter(day =>
-    formatDate(day.date).toLowerCase().includes(searchLower) ||
-    (day.isForInvigilators && 'invigilator'.includes(searchLower)) ||
-    (day.isForExaminers && 'examiner'.includes(searchLower))
+  return centreFilteredAndSorted.filter(
+    (day) =>
+      formatDate(day.date).toLowerCase().includes(searchLower) ||
+      (day.isForInvigilators && 'invigilator'.includes(searchLower)) ||
+      (day.isForExaminers && 'examiner'.includes(searchLower))
   );
 });
 
-
 const addDate = async () => {
   const sDate = new Date(state.date);
-  await useExamDay().addExamDay(sDate, state.invigilators, state.examiners, props.centre);
+  await useExamDay().addExamDay(
+    sDate,
+    state.invigilators,
+    state.examiners,
+    props.centre
+  );
   await useExamDay().loadExamDaysAvailability(props.centre);
 };
 
 const openInformDialog = () => {
-  const nonLockedDays = examDays.filter(day => !day.isLocked && day.adminCentre === props.centre) || [];
+  const nonLockedDays =
+    examDays.filter(
+      (day) => !day.isLocked && day.adminCentre === props.centre
+    ) || [];
 
   if (nonLockedDays.length > 0) {
     informUsersForm.startDate = formatDateForInput(nonLockedDays[0].date);
-    informUsersForm.endDate = formatDateForInput(nonLockedDays[nonLockedDays.length - 1].date);
+    informUsersForm.endDate = formatDateForInput(
+      nonLockedDays[nonLockedDays.length - 1].date
+    );
   }
   state.showInformDialog = true;
 };
 
 const formatDateForInput = (date: Date | string) => {
   const d = new Date(date);
-  return `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')}`;
+  return `${d.getFullYear()}-${(d.getMonth() + 1)
+    .toString()
+    .padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')}`;
 };
 
 const submitInformUsers = async () => {
-  if (!informUsersForm.startDate || !informUsersForm.endDate || !informUsersForm.dateOfSubmission) {
+  if (
+    !informUsersForm.startDate ||
+    !informUsersForm.endDate ||
+    !informUsersForm.dateOfSubmission
+  ) {
     NotificationService.error('Please fill in all fields');
     return;
   }
 
   state.loadingSend = true;
   try {
-    await useExamDay().informUsers(informUsersForm.startDate, informUsersForm.endDate, informUsersForm.dateOfSubmission, props.centre);
+    await useExamDay().informUsers(
+      informUsersForm.startDate,
+      informUsersForm.endDate,
+      informUsersForm.dateOfSubmission,
+      props.centre
+    );
   } catch (error) {
     console.error(error);
   } finally {
@@ -267,14 +317,12 @@ const submitInformUsers = async () => {
   }
 };
 
-
 const formatDate = (date: Date) => {
   return new Date(date).toLocaleDateString('en-GB', {
     day: '2-digit',
     month: '2-digit',
-    year: 'numeric'
+    year: 'numeric',
   });
-
 };
 
 const deleteExamDay = async (id: number) => {
@@ -289,20 +337,25 @@ const deleteExamDay = async (id: number) => {
       label: 'Cancel',
       color: 'negative',
     },
-    persistent: true
+    persistent: true,
   }).onOk(async () => {
-      await useExamDay().deleteExamDay(id);
-      await useExamDay().loadExamDaysAvailability(props.centre);
+    await useExamDay().deleteExamDay(id);
+    await useExamDay().loadExamDaysAvailability(props.centre);
   });
 };
 
 const highlightDays = (date: string) => {
   const [year, month, day] = date.split('/');
-  const formattedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
-  const result = examDays.some(examDay => {
+  const formattedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(
+    2,
+    '0'
+  )}`;
+  const result = examDays.some((examDay) => {
     const examDate = new Date(examDay.date);
-    return examDate.toISOString().split('T')[0] === formattedDate &&
-           examDay.adminCentre === props.centre;
+    return (
+      examDate.toISOString().split('T')[0] === formattedDate &&
+      examDay.adminCentre === props.centre
+    );
   });
   return result;
 };
@@ -318,12 +371,17 @@ const disablePastDates = (date: string) => {
 
 const colorPick = (date: string) => {
   const [year, month, day] = date.split('/');
-  const formattedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+  const formattedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(
+    2,
+    '0'
+  )}`;
   const examDay = examDays.find((day) => {
     const examDate = new Date(day.date);
-    return examDate.toISOString().split('T')[0] === formattedDate && day.adminCentre === props.centre;;
+    return (
+      examDate.toISOString().split('T')[0] === formattedDate &&
+      day.adminCentre === props.centre
+    );
   });
-
 
   if (examDay) {
     if (examDay.isForInvigilators && examDay.isForExaminers) {
@@ -338,7 +396,6 @@ const colorPick = (date: string) => {
   return 'white';
 };
 
-
 const changeLock = async (row: any) => {
   await useExamDay().changeLock(row.id);
   await useExamDay().loadExamDaysAvailability(props.centre);
@@ -347,7 +404,6 @@ const changeLock = async (row: any) => {
 onMounted(async () => {
   await useExamDay().loadExamDaysAvailability(props.centre);
 });
-
 </script>
 
 <style scoped>
@@ -362,7 +418,7 @@ onMounted(async () => {
 }
 
 .my-card:hover {
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 /* Added responsive adjustments */

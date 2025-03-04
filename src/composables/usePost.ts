@@ -48,7 +48,10 @@ export function usePost() {
     }
   };
 
-  const downloadFile = async (fileId: number, fileName: string): Promise<boolean> => {
+  const downloadFile = async (
+    fileId: number,
+    fileName: string
+  ): Promise<boolean> => {
     loading.value = true;
     try {
       const result = await postStore.downloadFile(fileId, fileName);
@@ -118,6 +121,6 @@ export function usePost() {
     downloadFile,
     deleteFile,
     deletePost,
-    getAvatarData
+    getAvatarData,
   };
 }

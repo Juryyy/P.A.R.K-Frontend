@@ -13,7 +13,7 @@ export interface AvailabilityResult {
 export const useAvailabilityStore = defineStore('availability', {
   state: () => ({
     userResponses: ref([]),
-    newResponses: ref<number>()
+    newResponses: ref<number>(),
   }),
   actions: {
     async loadResponsesForUser(): Promise<AvailabilityResult> {
@@ -24,7 +24,8 @@ export const useAvailabilityStore = defineStore('availability', {
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Failed to load responses for user'
+          error:
+            error.response?.data?.error || 'Failed to load responses for user',
         };
       }
     },
@@ -37,7 +38,7 @@ export const useAvailabilityStore = defineStore('availability', {
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Failed to count new responses'
+          error: error.response?.data?.error || 'Failed to count new responses',
         };
       }
     },
@@ -49,7 +50,7 @@ export const useAvailabilityStore = defineStore('availability', {
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Failed to submit responses'
+          error: error.response?.data?.error || 'Failed to submit responses',
         };
       }
     },

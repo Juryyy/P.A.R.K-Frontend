@@ -7,14 +7,25 @@
       indicator-color="secondary"
     >
       <q-tab name="User" label="Profile" />
-      <q-tab v-if="currentUser?.id?.toString() === userId" name="Password" label="Password Update" />
+      <q-tab
+        v-if="currentUser?.id?.toString() === userId"
+        name="Password"
+        label="Password Update"
+      />
       <!--<q-tab name="Exams" label="Exams" />-->
     </q-tabs>
     <q-tab-panels v-model="tab">
       <q-tab-panel name="User" v-if="state.loaded">
-        <UserInfoNew v-if="state.loaded && user" :user="user" :user-avatar="userAvatar" />
+        <UserInfoNew
+          v-if="state.loaded && user"
+          :user="user"
+          :user-avatar="userAvatar"
+        />
       </q-tab-panel>
-      <q-tab-panel name="Password" v-if="state.loaded && currentUser?.id?.toString() === userId">
+      <q-tab-panel
+        name="Password"
+        v-if="state.loaded && currentUser?.id?.toString() === userId"
+      >
         <PasswordReset
           v-if="state.loaded && user"
           :user="user"
@@ -27,7 +38,6 @@
     </q-tab-panels>
   </q-page>
 </template>
-
 
 <script setup lang="ts">
 import { useRoute } from 'vue-router';

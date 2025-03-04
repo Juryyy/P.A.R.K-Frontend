@@ -26,24 +26,34 @@ export const useExamStore = defineStore('exam', {
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Failed to load upcoming exams'
+          error: error.response?.data?.error || 'Failed to load upcoming exams',
         };
       }
     },
 
-    async createExam({ venue, location, type, levels, startTime, endTime, note, dayOfExamsId, adminCentre }: {
-      venue: string,
-      location: string,
-      type: string,
-      levels: string[],
-      startTime: string,
-      endTime: string,
-      note: string,
-      dayOfExamsId: number,
-      adminCentre: CentreEnum
+    async createExam({
+      venue,
+      location,
+      type,
+      levels,
+      startTime,
+      endTime,
+      note,
+      dayOfExamsId,
+      adminCentre,
+    }: {
+      venue: string;
+      location: string;
+      type: string;
+      levels: string[];
+      startTime: string;
+      endTime: string;
+      note: string;
+      dayOfExamsId: number;
+      adminCentre: CentreEnum;
     }): Promise<ExamResult> {
       try {
-        const response = await api.post('/exams/createExam',{
+        const response = await api.post('/exams/createExam', {
           venue,
           location,
           type,
@@ -52,13 +62,13 @@ export const useExamStore = defineStore('exam', {
           endTime,
           note,
           dayOfExamsId,
-          adminCentre
+          adminCentre,
         });
         return { success: true, data: response.data };
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Failed to create exam'
+          error: error.response?.data?.error || 'Failed to create exam',
         };
       }
     },
@@ -71,52 +81,61 @@ export const useExamStore = defineStore('exam', {
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Failed to get exam'
+          error: error.response?.data?.error || 'Failed to get exam',
         };
       }
     },
 
     async updateExam(exam: Exam): Promise<ExamResult> {
       try {
-        const response = await api.put('/exams/updateExam', {exam});
+        const response = await api.put('/exams/updateExam', { exam });
         return { success: true, data: response.data };
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Failed to update exam'
+          error: error.response?.data?.error || 'Failed to update exam',
         };
       }
     },
 
-    async addWorker(examId: number, userId: number, override: boolean, position: string): Promise<ExamResult> {
+    async addWorker(
+      examId: number,
+      userId: number,
+      override: boolean,
+      position: string
+    ): Promise<ExamResult> {
       try {
         const response = await api.post('/exams/addWorker', {
           examId,
           userId,
           override,
-          position
+          position,
         });
         return { success: true, data: response.data };
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Failed to add worker'
+          error: error.response?.data?.error || 'Failed to add worker',
         };
       }
     },
 
-    async removeWorker(examId: number, userId: number, position: string): Promise<ExamResult> {
+    async removeWorker(
+      examId: number,
+      userId: number,
+      position: string
+    ): Promise<ExamResult> {
       try {
         const response = await api.post('/exams/removeWorker', {
           examId,
           userId,
-          position
+          position,
         });
         return { success: true, data: response.data };
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Failed to remove worker'
+          error: error.response?.data?.error || 'Failed to remove worker',
         };
       }
     },
@@ -129,26 +148,35 @@ export const useExamStore = defineStore('exam', {
 
         const response = await api.post('/exams/uploadExamSchedule', formData, {
           headers: {
-            'Content-Type': 'multipart/form-data'
-          }
+            'Content-Type': 'multipart/form-data',
+          },
         });
 
         return { success: true, data: response.data };
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Failed to upload exam schedule'
+          error:
+            error.response?.data?.error || 'Failed to upload exam schedule',
         };
       }
     },
 
-    async downloadExamFile(fileId: number, fileName: string): Promise<ExamResult> {
+    async downloadExamFile(
+      fileId: number,
+      fileName: string
+    ): Promise<ExamResult> {
       try {
-        const response = await api.get(`/onedrive/files/exam/download/${fileId}`, {
-          responseType: 'blob',
-        });
+        const response = await api.get(
+          `/onedrive/files/exam/download/${fileId}`,
+          {
+            responseType: 'blob',
+          }
+        );
 
-        const blob = new Blob([response.data], { type: 'application/octet-stream' });
+        const blob = new Blob([response.data], {
+          type: 'application/octet-stream',
+        });
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
@@ -162,24 +190,33 @@ export const useExamStore = defineStore('exam', {
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Failed to download exam file'
+          error: error.response?.data?.error || 'Failed to download exam file',
         };
       }
     },
 
     async deleteExamFile(fileId: number): Promise<ExamResult> {
       try {
-        const response = await api.delete(`/onedrive/files/exam/delete/${fileId}`);
+        const response = await api.delete(
+          `/onedrive/files/exam/delete/${fileId}`
+        );
         return { success: true, data: response.data };
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Failed to delete exam file'
+          error: error.response?.data?.error || 'Failed to delete exam file',
         };
       }
     },
 
-    async uploadExamDayReport(examId: number, candidates: number, absent: number, comment: string, issues: string, absentCandidates: AbsentCandidates[]): Promise<ExamResult> {
+    async uploadExamDayReport(
+      examId: number,
+      candidates: number,
+      absent: number,
+      comment: string,
+      issues: string,
+      absentCandidates: AbsentCandidates[]
+    ): Promise<ExamResult> {
       try {
         const response = await api.post('/exams/createDayReport', {
           examId,
@@ -187,24 +224,33 @@ export const useExamStore = defineStore('exam', {
           absent,
           comment,
           issues,
-          absentCandidates
+          absentCandidates,
         });
         return { success: true, data: response.data };
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Failed to upload exam day report'
+          error:
+            error.response?.data?.error || 'Failed to upload exam day report',
         };
       }
     },
 
-    async downloadExamDayReport(dayReportId: number, fileName: string): Promise<ExamResult> {
+    async downloadExamDayReport(
+      dayReportId: number,
+      fileName: string
+    ): Promise<ExamResult> {
       try {
-        const response = await api.get(`/onedrive/files/exam/downloadReport/${dayReportId}`, {
-          responseType: 'blob',
-        });
+        const response = await api.get(
+          `/onedrive/files/exam/downloadReport/${dayReportId}`,
+          {
+            responseType: 'blob',
+          }
+        );
 
-        const blob = new Blob([response.data], { type: 'application/octet-stream' });
+        const blob = new Blob([response.data], {
+          type: 'application/octet-stream',
+        });
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
@@ -218,37 +264,48 @@ export const useExamStore = defineStore('exam', {
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Failed to download exam day report'
+          error:
+            error.response?.data?.error || 'Failed to download exam day report',
         };
       }
     },
 
-    async updateCompleted(examId: number, completed: boolean): Promise<ExamResult> {
+    async updateCompleted(
+      examId: number,
+      completed: boolean
+    ): Promise<ExamResult> {
       try {
         const response = await api.put('/exams/updateCompleted', {
           examId,
-          completed
+          completed,
         });
         return { success: true, data: response.data };
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Failed to update exam completion status'
+          error:
+            error.response?.data?.error ||
+            'Failed to update exam completion status',
         };
       }
     },
 
-    async updatePrepared(examId: number, prepared: boolean): Promise<ExamResult> {
+    async updatePrepared(
+      examId: number,
+      prepared: boolean
+    ): Promise<ExamResult> {
       try {
         const response = await api.put('/exams/updatePrepared', {
           examId,
-          prepared
+          prepared,
         });
         return { success: true, data: response.data };
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Failed to update exam preparation status'
+          error:
+            error.response?.data?.error ||
+            'Failed to update exam preparation status',
         };
       }
     },
@@ -260,7 +317,7 @@ export const useExamStore = defineStore('exam', {
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Failed to delete exam'
+          error: error.response?.data?.error || 'Failed to delete exam',
         };
       }
     },
@@ -268,31 +325,38 @@ export const useExamStore = defineStore('exam', {
     async getExamsForDay(dayOfExamsId: number): Promise<ExamResult> {
       try {
         const response = await api.get(`/exams/day/${dayOfExamsId}`);
-        this.pastExams = this.pastExams.filter(exam => exam.dayOfExamsId !== dayOfExamsId);
+        this.pastExams = this.pastExams.filter(
+          (exam) => exam.dayOfExamsId !== dayOfExamsId
+        );
         this.pastExams = [...this.pastExams, ...response.data];
         return { success: true, data: response.data };
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Failed to get exams for day'
+          error: error.response?.data?.error || 'Failed to get exams for day',
         };
       }
     },
 
-    async toggleExamConfirmation(examId: number, role: RoleEnum, isConfirmed: boolean): Promise<ExamResult> {
+    async toggleExamConfirmation(
+      examId: number,
+      role: RoleEnum,
+      isConfirmed: boolean
+    ): Promise<ExamResult> {
       try {
         const response = await api.put('/exams/confirmation', {
           examId,
           role,
-          isConfirmed
+          isConfirmed,
         });
         return { success: true, data: response.data };
       } catch (error: any) {
         return {
           success: false,
-          error: error.response?.data?.error || 'Failed to toggle exam confirmation'
+          error:
+            error.response?.data?.error || 'Failed to toggle exam confirmation',
         };
       }
-    }
-  }
+    },
+  },
 });

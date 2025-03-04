@@ -14,7 +14,7 @@ export const useCandidateStore = defineStore('candidateImportStore', {
   state: () => ({
     candidates: ref<Candidate[]>([]),
     isProcessing: ref<boolean>(false),
-    isImported: ref<boolean>(false)
+    isImported: ref<boolean>(false),
   }),
 
   actions: {
@@ -39,9 +39,9 @@ export const useCandidateStore = defineStore('candidateImportStore', {
         this.isProcessing = false;
         return {
           success: false,
-          error: error.response?.data?.error || 'Failed to upload candidates'
+          error: error.response?.data?.error || 'Failed to upload candidates',
         };
       }
     },
-  }
+  },
 });

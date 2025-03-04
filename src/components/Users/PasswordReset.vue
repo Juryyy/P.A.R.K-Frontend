@@ -26,7 +26,9 @@
         :type="state.newPasswordHidden ? 'password' : 'text'"
         :rules="[
           (val) => !!val || 'Password is required',
-          (val) => val !== state.password || 'New password must be different from the old one'
+          (val) =>
+            val !== state.password ||
+            'New password must be different from the old one',
         ]"
         autocomplete="new-password"
         outlined
@@ -44,9 +46,21 @@
       <div class="password-requirements q-mb-md">
         <div class="text-subtitle2 q-mb-sm">Password Requirements:</div>
         <ul>
-          <li v-for="req in passwordRequirements" :key="req.id"
-              :class="{ 'text-positive': req.validate(state.newPassword), 'text-negative': !req.validate(state.newPassword) }">
-            <q-icon :name="req.validate(state.newPassword) ? 'check_circle' : 'cancel'" size="xs" class="q-mr-xs" />
+          <li
+            v-for="req in passwordRequirements"
+            :key="req.id"
+            :class="{
+              'text-positive': req.validate(state.newPassword),
+              'text-negative': !req.validate(state.newPassword),
+            }"
+          >
+            <q-icon
+              :name="
+                req.validate(state.newPassword) ? 'check_circle' : 'cancel'
+              "
+              size="xs"
+              class="q-mr-xs"
+            />
             {{ req.label }}
           </li>
         </ul>
@@ -59,16 +73,20 @@
         :type="state.newPasswordCheckHidden ? 'password' : 'text'"
         :rules="[
           (val) => !!val || 'Password confirmation is required',
-          (val) => val === state.newPassword || 'Passwords must match'
+          (val) => val === state.newPassword || 'Passwords must match',
         ]"
         autocomplete="new-password"
         outlined
       >
         <template v-slot:append>
           <q-icon
-            :name="state.newPasswordCheckHidden ? 'visibility_off' : 'visibility'"
+            :name="
+              state.newPasswordCheckHidden ? 'visibility_off' : 'visibility'
+            "
             class="cursor-pointer"
-            @click="state.newPasswordCheckHidden = !state.newPasswordCheckHidden"
+            @click="
+              state.newPasswordCheckHidden = !state.newPasswordCheckHidden
+            "
           />
         </template>
       </q-input>
@@ -111,9 +129,22 @@ const state = reactive({
 // Common password check based on security standards
 const commonPasswordCheck = (password: string): boolean => {
   const commonPasswords = [
-    'password', '123456', 'qwerty', 'admin', 'letmein', 'welcome',
-    'abc123', 'monkey', '1234567', 'password123', 'admin123', '123456789',
-    'qwerty123', 'sunshine', 'princess', 'football'
+    'password',
+    '123456',
+    'qwerty',
+    'admin',
+    'letmein',
+    'welcome',
+    'abc123',
+    'monkey',
+    '1234567',
+    'password123',
+    'admin123',
+    '123456789',
+    'qwerty123',
+    'sunshine',
+    'princess',
+    'football',
   ];
 
   if (commonPasswords.includes(password.toLowerCase())) {
@@ -121,7 +152,10 @@ const commonPasswordCheck = (password: string): boolean => {
   }
 
   const allSameChars = /^(.)\1+$/.test(password);
-  const sequential = /^(0123|1234|2345|3456|4567|5678|6789|abcd|bcde|cdef|defg|efgh|fghi|ghij|hijk|ijkl|jklm|klmn|lmno|mnop|nopq|opqr|pqrs|qrst|rstu|stuv|tuvw|uvwx|vwxy|wxyz)/i.test(password);
+  const sequential =
+    /^(0123|1234|2345|3456|4567|5678|6789|abcd|bcde|cdef|defg|efgh|fghi|ghij|hijk|ijkl|jklm|klmn|lmno|mnop|nopq|opqr|pqrs|qrst|rstu|stuv|tuvw|uvwx|vwxy|wxyz)/i.test(
+      password
+    );
 
   return allSameChars || sequential;
 };
@@ -131,39 +165,41 @@ const passwordRequirements = [
   {
     id: 'length',
     label: 'At least 8 characters',
-    validate: (pass: string) => pass.length >= 8
+    validate: (pass: string) => pass.length >= 8,
   },
   {
     id: 'uppercase',
     label: 'At least one uppercase letter',
-    validate: (pass: string) => /[A-Z]/.test(pass)
+    validate: (pass: string) => /[A-Z]/.test(pass),
   },
   {
     id: 'lowercase',
     label: 'At least one lowercase letter',
-    validate: (pass: string) => /[a-z]/.test(pass)
+    validate: (pass: string) => /[a-z]/.test(pass),
   },
   {
     id: 'number',
     label: 'At least one number',
-    validate: (pass: string) => /\d/.test(pass)
+    validate: (pass: string) => /\d/.test(pass),
   },
   {
     id: 'special',
     label: 'At least one special character',
-    validate: (pass: string) => /[!@#$%^&*(),.?":{}|<>]/.test(pass)
+    validate: (pass: string) => /[!@#$%^&*(),.?":{}|<>]/.test(pass),
   },
   {
     id: 'common',
     label: 'Not a commonly used password',
-    validate: (pass: string) => !commonPasswordCheck(pass)
-  }
+    validate: (pass: string) => !commonPasswordCheck(pass),
+  },
 ];
 
 // Updated password strength check
 const isPasswordStrong = computed(() => {
-  return passwordRequirements.every(req => req.validate(state.newPassword)) &&
-         state.newPassword !== state.password;
+  return (
+    passwordRequirements.every((req) => req.validate(state.newPassword)) &&
+    state.newPassword !== state.password
+  );
 });
 
 const update = async () => {

@@ -52,11 +52,15 @@ export function useUser() {
         if (result.success) {
           return result.data;
         } else {
-          NotificationService.error(result.error || 'Failed to get user profile');
+          NotificationService.error(
+            result.error || 'Failed to get user profile'
+          );
           return null;
         }
       } catch (error) {
-        NotificationService.error('An error occurred while fetching user profile');
+        NotificationService.error(
+          'An error occurred while fetching user profile'
+        );
         return null;
       }
     }, 'Loading profile...');
@@ -143,7 +147,10 @@ export function useUser() {
     }, 'Updating profile...');
   };
 
-  const updateAdminNote = async (id: number, adminNote: string | null): Promise<boolean> => {
+  const updateAdminNote = async (
+    id: number,
+    adminNote: string | null
+  ): Promise<boolean> => {
     return await LoadingService.withLoading(async () => {
       try {
         const result = await userStore.updateAdminNote(id, adminNote);
@@ -152,11 +159,15 @@ export function useUser() {
           NotificationService.success('Admin note updated successfully');
           return true;
         } else {
-          NotificationService.error(result.error || 'Failed to update admin note');
+          NotificationService.error(
+            result.error || 'Failed to update admin note'
+          );
           return false;
         }
       } catch (error) {
-        NotificationService.error('An error occurred while updating admin note');
+        NotificationService.error(
+          'An error occurred while updating admin note'
+        );
         return false;
       }
     }, 'Updating admin note...');
@@ -182,20 +193,29 @@ export function useUser() {
     }, 'Uploading avatar...');
   };
 
-  const updateInsperaAccount = async (id: number, insperaAccount: boolean): Promise<boolean> => {
+  const updateInsperaAccount = async (
+    id: number,
+    insperaAccount: boolean
+  ): Promise<boolean> => {
     return await LoadingService.withLoading(async () => {
       try {
         const result = await userStore.updateInsperaAccount(id, insperaAccount);
 
         if (result.success) {
-          NotificationService.success('Inspera account status updated successfully');
+          NotificationService.success(
+            'Inspera account status updated successfully'
+          );
           return true;
         } else {
-          NotificationService.error(result.error || 'Failed to update Inspera account status');
+          NotificationService.error(
+            result.error || 'Failed to update Inspera account status'
+          );
           return false;
         }
       } catch (error) {
-        NotificationService.error('An error occurred while updating Inspera account status');
+        NotificationService.error(
+          'An error occurred while updating Inspera account status'
+        );
         return false;
       }
     }, 'Updating Inspera account status...');
@@ -212,24 +232,24 @@ export function useUser() {
   };
 
   const getUserInfo = () => {
-    try{
+    try {
       const user = userStore.getUserInfo();
       return user;
-    }catch (error) {
+    } catch (error) {
       NotificationService.error('Failed to get user information');
       return null;
     }
-  }
+  };
 
   const getUserRole = () => {
-    try{
+    try {
       const user = userStore.getUserRole();
       return user;
-    }catch (error) {
+    } catch (error) {
       NotificationService.error('Failed to get user role');
       return null;
     }
-  }
+  };
 
   return {
     loading,

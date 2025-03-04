@@ -10,11 +10,10 @@
     <q-tab name="locations" label="Locations" />
   </q-tabs>
   <q-tab-panels v-model="tab">
-    <q-tab-panel name="locations" v-if=loaded class="cards-container">
-      <LocationsVenues/>
+    <q-tab-panel name="locations" v-if="loaded" class="cards-container">
+      <LocationsVenues />
     </q-tab-panel>
-    <q-tab-panel name="exams" v-if=loaded class="cards-container">
-
+    <q-tab-panel name="exams" v-if="loaded" class="cards-container">
       <q-select
         v-model="selectedCentre"
         :options="centres"
@@ -27,10 +26,9 @@
         dense
         class="q-mb-md"
       ></q-select>
-      <ExamsList :centre="selectedCentre"/>
+      <ExamsList :centre="selectedCentre" />
     </q-tab-panel>
   </q-tab-panels>
-
 </template>
 <script setup lang="ts">
 import { onBeforeMount, ref } from 'vue';
@@ -40,7 +38,10 @@ import { CentreEnum } from 'src/db/types';
 import { useAdmin } from 'src/composables/useAdmin';
 
 const selectedCentre = ref<CentreEnum>(CentreEnum.Brno);
-const centres = Object.values(CentreEnum).map((value) => ({ label: value, value }));
+const centres = Object.values(CentreEnum).map((value) => ({
+  label: value,
+  value,
+}));
 const tab = ref('locations');
 const loaded = ref(false);
 
@@ -49,7 +50,6 @@ onBeforeMount(async () => {
   await useAdmin().getLocationsWithVenues();
   loaded.value = true;
 });
-
 </script>
 <style lang="scss" scoped>
 .cards-container {

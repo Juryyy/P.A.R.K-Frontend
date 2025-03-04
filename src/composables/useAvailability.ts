@@ -19,11 +19,15 @@ export function useAvailability() {
       if (result.success) {
         return result.data;
       } else {
-        NotificationService.error(result.error || 'Failed to load your responses');
+        NotificationService.error(
+          result.error || 'Failed to load your responses'
+        );
         return null;
       }
     } catch (error) {
-      NotificationService.error('An error occurred while loading your responses');
+      NotificationService.error(
+        'An error occurred while loading your responses'
+      );
       return null;
     } finally {
       loading.value = false;
@@ -38,11 +42,15 @@ export function useAvailability() {
       if (result.success) {
         return result.data;
       } else {
-        NotificationService.error(result.error || 'Failed to count new responses');
+        NotificationService.error(
+          result.error || 'Failed to count new responses'
+        );
         return null;
       }
     } catch (error) {
-      NotificationService.error('An error occurred while counting new responses');
+      NotificationService.error(
+        'An error occurred while counting new responses'
+      );
       return null;
     } finally {
       loading.value = false;
@@ -60,11 +68,15 @@ export function useAvailability() {
           await availabilityStore.loadResponsesForUser();
           return true;
         } else {
-          NotificationService.error(result.error || 'Failed to submit responses');
+          NotificationService.error(
+            result.error || 'Failed to submit responses'
+          );
           return false;
         }
       } catch (error) {
-        NotificationService.error('An error occurred while submitting responses');
+        NotificationService.error(
+          'An error occurred while submitting responses'
+        );
         return false;
       }
     }, 'Submitting responses...');
@@ -76,6 +88,6 @@ export function useAvailability() {
     newResponses,
     loadResponsesForUser,
     countNewResponses,
-    submitResponses
-  }
-};
+    submitResponses,
+  };
+}

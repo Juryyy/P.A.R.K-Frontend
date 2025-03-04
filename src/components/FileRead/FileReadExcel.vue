@@ -1,12 +1,7 @@
 <!-- This file is deprecated, no purpose when .csv is working as intended-->
 
 <template>
-  <q-file
-  v-model="file"
-  label="Upload Excel"
-  @input="uploadExcel"
-/>
-
+  <q-file v-model="file" label="Upload Excel" @input="uploadExcel" />
 </template>
 
 <script setup lang="ts">
@@ -14,8 +9,7 @@ import { ref } from 'vue';
 import * as ExcelJS from 'exceljs';
 import type { Candidate } from './models';
 
-
-const file = ref<File | null>(null)
+const file = ref<File | null>(null);
 const excelData = ref<Candidate[]>([]);
 
 const uploadExcel = (event: Event) => {
@@ -27,12 +21,13 @@ const uploadExcel = (event: Event) => {
       const workbook = new ExcelJS.Workbook();
       await workbook.xlsx.load(buffer);
       const worksheet = workbook.getWorksheet(1);
-      const jsonData:unknown[] = [];
-      if(!worksheet) return;
+      const jsonData: unknown[] = [];
+      if (!worksheet) return;
       worksheet.eachRow((row, rowNumber) => {
-        const rowJson: { [key: string]: unknown; } = {};
+        const rowJson: { [key: string]: unknown } = {};
         row.eachCell((cell, colNumber) => {
-          rowJson[worksheet.getRow(1).getCell(colNumber).value as string] = cell.value;
+          rowJson[worksheet.getRow(1).getCell(colNumber).value as string] =
+            cell.value;
         });
         jsonData.push(rowJson);
       });

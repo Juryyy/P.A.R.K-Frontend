@@ -12,17 +12,15 @@
         />
         <q-toolbar-title v-if="!isMobile"> P.A.R.K. App </q-toolbar-title>
         <q-toolbar-title v-else></q-toolbar-title>
-        <div v-if="!useUser().rightDrawerOpen" class="q-gutter-md row items-center">
+        <div
+          v-if="!useUser().rightDrawerOpen"
+          class="q-gutter-md row items-center"
+        >
           <q-avatar size="md" class="clickable-avatar" @click="viewUser(user)">
             <img :src="useUser().userAvatar" alt="User Avatar" />
           </q-avatar>
           <div class="user-info row items-center">
-            <q-icon
-              v-if="user?.isSenior"
-              color="red"
-              name="stars"
-              size="xs"
-            />
+            <q-icon v-if="user?.isSenior" color="red" name="stars" size="xs" />
             <b class="q-px-xs">{{ user?.firstName }} {{ user?.lastName }}</b>
           </div>
         </div>
@@ -32,65 +30,86 @@
     </q-header>
     <div v-if="user">
       <q-drawer
-      show-if-above
-      v-model="drawerLeft"
-      side="left"
-      elevated
-      :mini="miniState"
-      @mouseover="miniState = false"
-      @mouseout="miniState = true"
-      mini-to-overlay
-    >
-      <div class="mobile-header bg-primary q-px-md q-py-sm" v-if="isMobile">
-        <q-toolbar-title class="text-center">P.A.R.K. App</q-toolbar-title>
-      </div>
-      <div class="drawer-content">
-        <div class="flex-grow">
-          <q-list>
-            <essential-link
-              v-for="link in essentialLinks.filter(link => !link.isActiveBlocked)"
-              :key="link.title"
-              :title="link.title"
-              :link="link.link"
-              :icon="link.icon"
-              :notification-count="link.notificationCount"
-              :is-mini="miniState"
-            />
-          </q-list>
-          <q-separator
-            color="primary"
-            spaced="8px"
-            v-if="user?.role?.includes('Office') || user?.role?.includes('Developer')"
-          />
-          <q-list v-if="user?.role?.includes('Office') || user?.role?.includes('Developer')">
-            <essential-link
-              v-for="link in adminEssentialLinks.filter(link => !link.isActiveBlocked)"
-              :key="link.title"
-              :title="link.title"
-              :link="`/admin/${link.link}`"
-              :icon="link.icon"
-              :notification-count="link.notificationCount"
-              :is-mini="miniState"
-            />
-          </q-list>
+        show-if-above
+        v-model="drawerLeft"
+        side="left"
+        elevated
+        :mini="miniState"
+        @mouseover="miniState = false"
+        @mouseout="miniState = true"
+        mini-to-overlay
+      >
+        <div class="mobile-header bg-primary q-px-md q-py-sm" v-if="isMobile">
+          <q-toolbar-title class="text-center">P.A.R.K. App</q-toolbar-title>
         </div>
-        <div class="bottom-section">
-          <q-list>
-            <essential-link
-              :title="versionLink.title"
-              :link="versionLink.link"
-              :icon="versionLink.icon"
+        <div class="drawer-content">
+          <div class="flex-grow">
+            <q-list>
+              <essential-link
+                v-for="link in essentialLinks.filter(
+                  (link) => !link.isActiveBlocked
+                )"
+                :key="link.title"
+                :title="link.title"
+                :link="link.link"
+                :icon="link.icon"
+                :notification-count="link.notificationCount"
+                :is-mini="miniState"
+              />
+            </q-list>
+            <q-separator
+              color="primary"
+              spaced="8px"
+              v-if="
+                user?.role?.includes('Office') ||
+                user?.role?.includes('Developer')
+              "
             />
-          </q-list>
+            <q-list
+              v-if="
+                user?.role?.includes('Office') ||
+                user?.role?.includes('Developer')
+              "
+            >
+              <essential-link
+                v-for="link in adminEssentialLinks.filter(
+                  (link) => !link.isActiveBlocked
+                )"
+                :key="link.title"
+                :title="link.title"
+                :link="`/admin/${link.link}`"
+                :icon="link.icon"
+                :notification-count="link.notificationCount"
+                :is-mini="miniState"
+              />
+            </q-list>
+          </div>
+          <div class="bottom-section">
+            <q-list>
+              <essential-link
+                :title="versionLink.title"
+                :link="versionLink.link"
+                :icon="versionLink.icon"
+              />
+            </q-list>
+          </div>
         </div>
-      </div>
-    </q-drawer>
+      </q-drawer>
     </div>
-    <q-drawer v-model="useUser().rightDrawerOpen" side="right" elevated class="right-drawer">
+    <q-drawer
+      v-model="useUser().rightDrawerOpen"
+      side="right"
+      elevated
+      class="right-drawer"
+    >
       <div class="user-info-section">
         <q-img src="/background.jpg" style="height: 150px">
           <div class="bg-transparent absolute-center q-pa-md drawer-avatar-box">
-            <q-avatar size="80px" class="q-mr-md clickable-avatar" @click="viewUser(user)">
+            <q-avatar
+              size="80px"
+              class="q-mr-md clickable-avatar"
+              @click="viewUser(user)"
+            >
               <img :src="useUser().userAvatar" alt="User Avatar" />
             </q-avatar>
             <div>
@@ -123,24 +142,57 @@
           <q-card
             v-for="exam in usersExamsRef"
             :key="exam.id"
-            :class="['exam-card', 'q-mb-md', exam.isPrepared ? 'is-prepared' : 'is-not-prepared']"
+            :class="[
+              'exam-card',
+              'q-mb-md',
+              exam.isPrepared ? 'is-prepared' : 'is-not-prepared',
+            ]"
             bordered
           >
             <q-card-section>
               <div class="row items-center justify-between q-mb-md">
-                <div class="text-h6">{{ exam.venue }} - {{ exam.location }}</div>
-                <q-chip :color="exam.isPrepared ? 'positive' : 'warning'" text-color="white">
+                <div class="text-h6">
+                  {{ exam.venue }} - {{ exam.location }}
+                </div>
+                <q-chip
+                  :color="exam.isPrepared ? 'positive' : 'warning'"
+                  text-color="white"
+                >
                   {{ exam.isPrepared ? 'Prepared' : 'Not Prepared' }}
-                <q-tooltip v-if="!exam.isPrepared">
-                    The exam is not prepared yet and all information may not be accurate
-                </q-tooltip>
-              </q-chip>
-                <q-chip v-if="exam.isPrepared" :color="getUserConfirmationStatus(exam).isConfirmed ? 'positive' : 'negative'" text-color="white">
-                  {{ getUserConfirmationStatus(exam).isConfirmed ? 'Confirmed' : 'Not Confirmed' }} - {{ getUserConfirmationStatus(exam).role }}
-                  <q-tooltip v-if="exam.isPrepared && !getUserConfirmationStatus(exam).isConfirmed">
+                  <q-tooltip v-if="!exam.isPrepared">
+                    The exam is not prepared yet and all information may not be
+                    accurate
+                  </q-tooltip>
+                </q-chip>
+                <q-chip
+                  v-if="exam.isPrepared"
+                  :color="
+                    getUserConfirmationStatus(exam).isConfirmed
+                      ? 'positive'
+                      : 'negative'
+                  "
+                  text-color="white"
+                >
+                  {{
+                    getUserConfirmationStatus(exam).isConfirmed
+                      ? 'Confirmed'
+                      : 'Not Confirmed'
+                  }}
+                  - {{ getUserConfirmationStatus(exam).role }}
+                  <q-tooltip
+                    v-if="
+                      exam.isPrepared &&
+                      !getUserConfirmationStatus(exam).isConfirmed
+                    "
+                  >
                     Visit the exam page to confirm your attendance
                   </q-tooltip>
-                  <q-tooltip v-if="exam.isPrepared && getUserConfirmationStatus(exam).isConfirmed">
+                  <q-tooltip
+                    v-if="
+                      exam.isPrepared &&
+                      getUserConfirmationStatus(exam).isConfirmed
+                    "
+                  >
                     You have confirmed your attendance. Thank you!
                   </q-tooltip>
                 </q-chip>
@@ -152,7 +204,8 @@
                 </q-chip>
                 <q-chip outline color="secondary">
                   <q-icon name="schedule" left />
-                  {{ formatTimeString(exam.startTime) }} - {{ formatTimeString(exam.endTime) }}
+                  {{ formatTimeString(exam.startTime) }} -
+                  {{ formatTimeString(exam.endTime) }}
                 </q-chip>
                 <q-chip outline color="accent">
                   <q-icon name="school" left />
@@ -162,16 +215,32 @@
               <q-separator class="q-my-md" />
               <div class="text-body2 q-mb-md">
                 <strong>Note:</strong>
-                <span v-if="shouldShowMoreLink(exam.note)" @click="showFullNoteDialog(exam.note)" class="cursor-pointer">
+                <span
+                  v-if="shouldShowMoreLink(exam.note)"
+                  @click="showFullNoteDialog(exam.note)"
+                  class="cursor-pointer"
+                >
                   {{ truncatedNote(exam.note) }}
                   <span class="text-primary">...more</span>
                 </span>
                 <span v-else>{{ exam.note }}</span>
               </div>
               <div class="row justify-end q-gutter-sm">
-                <q-btn color="primary" icon="visibility" @click="viewExam(exam.id)" />
-                <q-btn color="secondary" icon="map" @click="showVenue(exam.venueLink)" />
-                <q-btn color="accent" icon="event" @click="addToGoogleCalendar(exam)" />
+                <q-btn
+                  color="primary"
+                  icon="visibility"
+                  @click="viewExam(exam.id)"
+                />
+                <q-btn
+                  color="secondary"
+                  icon="map"
+                  @click="showVenue(exam.venueLink)"
+                />
+                <q-btn
+                  color="accent"
+                  icon="event"
+                  @click="addToGoogleCalendar(exam)"
+                />
               </div>
             </q-card-section>
           </q-card>
@@ -202,7 +271,9 @@
 
 <script setup lang="ts">
 import { computed, onBeforeMount, ref, nextTick, watch, onMounted } from 'vue';
-import EssentialLink, { EssentialLinkProps } from 'components/Auth_nav/EssentialLink.vue';
+import EssentialLink, {
+  EssentialLinkProps,
+} from 'components/Auth_nav/EssentialLink.vue';
 import { router } from 'src/router/index';
 import { ExamWithVenueLink, RoleEnum } from 'src/db/types';
 import { Loading } from 'quasar';
@@ -278,11 +349,11 @@ const essentialLinks = computed<EssentialLinkProps[]>(() => [
     icon: 'person',
   },
   {
-  title: 'Substitutions',
-  link: '/substitutions',
-  icon: 'swap_horiz',
-  isActiveBlocked: !user.value.activatedAccount,
-  notificationCount: subsCount.value,
+    title: 'Substitutions',
+    link: '/substitutions',
+    icon: 'swap_horiz',
+    isActiveBlocked: !user.value.activatedAccount,
+    notificationCount: subsCount.value,
   },
 ]);
 
@@ -330,7 +401,6 @@ const toggleLeftDrawer = () => {
 
 const drawerLeft = ref(false);
 
-
 function toggleRightDrawer() {
   useUser().toggleRightDrawer();
 }
@@ -366,11 +436,15 @@ const addToGoogleCalendar = (exam: ExamWithVenueLink) => {
     action: 'TEMPLATE',
     text: `${exam.type} Exam - ${exam.venue}`,
     dates: `${formattedStart}/${formattedEnd}`,
-    details: `Exam Type: ${exam.type}\nLevels: ${exam.levels.join(', ')}\nNote: ${exam.note}`,
-    location: `${exam.venue}, ${exam.location}`
+    details: `Exam Type: ${exam.type}\nLevels: ${exam.levels.join(
+      ', '
+    )}\nNote: ${exam.note}`,
+    location: `${exam.venue}, ${exam.location}`,
   };
 
-  const googleCalendarUrl = `https://calendar.google.com/calendar/render?${new URLSearchParams(eventDetails).toString()}`;
+  const googleCalendarUrl = `https://calendar.google.com/calendar/render?${new URLSearchParams(
+    eventDetails
+  ).toString()}`;
   window.open(googleCalendarUrl, '_blank');
 };
 
@@ -382,12 +456,13 @@ const viewExam = async (examId: number) => {
 const getUserConfirmationStatus = (exam: ExamWithVenueLink) => {
   const userId = useUser().user.value.id;
   const userConfirmation = exam.userConfirmations?.find(
-    (confirmation) => confirmation.userId === userId && confirmation.examId === exam.id
+    (confirmation) =>
+      confirmation.userId === userId && confirmation.examId === exam.id
   );
 
   return {
     isConfirmed: userConfirmation?.isConfirmed || false,
-    role: userConfirmation?.role || 'N/A'
+    role: userConfirmation?.role || 'N/A',
   };
 };
 
@@ -412,13 +487,11 @@ onMounted(async () => {
   }
 });
 
-
 window.addEventListener('resize', updateIsMobile);
 updateIsMobile();
 </script>
 
 <style lang="scss" scoped>
-
 .note-dialog-card {
   min-width: 300px;
   max-width: 500px;
@@ -492,7 +565,7 @@ updateIsMobile();
   }
 
   &.is-completed {
-    border-left: 5px solid #FFA000 !important;
+    border-left: 5px solid #ffa000 !important;
   }
 }
 

@@ -14,7 +14,13 @@
               </q-item-label>
               <q-item-label caption>
                 <ul>
-                  <li class="text-bold" v-for="update in note.updates" :key="update">{{ update }}</li>
+                  <li
+                    class="text-bold"
+                    v-for="update in note.updates"
+                    :key="update"
+                  >
+                    {{ update }}
+                  </li>
                 </ul>
               </q-item-label>
             </q-item-section>
@@ -38,17 +44,12 @@ const versionNotes = ref<VersionNote[]>([
   {
     version: '0.1.0',
     date: '14.10.2024',
-    updates: [
-      'Initial testing',
-    ]
+    updates: ['Initial testing'],
   },
   {
     version: '0.1.1',
     date: '15.10.2024',
-    updates: [
-      'Fixed texts',
-      'Added paging to users table'
-    ]
+    updates: ['Fixed texts', 'Added paging to users table'],
   },
   {
     version: '0.1.2',
@@ -58,8 +59,8 @@ const versionNotes = ref<VersionNote[]>([
       'Posts now contain authors avatar',
       'Posts now has updated graphics',
       'Updated right drawer exams to contain users confirmation status',
-      'Fixed problems with viewing some data on users profile'
-    ]
+      'Fixed problems with viewing some data on users profile',
+    ],
   },
   {
     version: '0.1.3',
@@ -68,8 +69,8 @@ const versionNotes = ref<VersionNote[]>([
       'Posts now contain search bar',
       'Updated posts edit mode to filter out users/roles when typing',
       'Users tables has been slighly updated',
-      'Create availability now has updated graphics'
-      ]
+      'Create availability now has updated graphics',
+    ],
   },
   {
     version: '0.1.4',
@@ -82,7 +83,7 @@ const versionNotes = ref<VersionNote[]>([
       'In edit exam declined has been renamed to Unavailable',
       'Now exam schedule is URL link, files are now in separate tab',
       'When changing confirmation, rightside exams now updates, resulting in less confusion',
-  ]
+    ],
   },
   {
     version: '0.1.5',
@@ -93,9 +94,9 @@ const versionNotes = ref<VersionNote[]>([
       'Improved visual for creating/editing exam',
       'Improved visual for viewing exam',
       'Changing attendance is now visible on right drawer (Only for new exams)',
-      'Admin panel contains list of exams'
-    ]
-  }
+      'Admin panel contains list of exams',
+    ],
+  },
 ]);
 
 const sortedVersionNotes = computed(() => {
@@ -114,5 +115,4 @@ const sortedVersionNotes = computed(() => {
 });
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>
